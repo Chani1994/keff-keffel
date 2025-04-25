@@ -12,6 +12,7 @@ import AdminPage from './components/admin/AdminPage.jsx'
 import AddSchool from './components/school/AddSchool.jsx'
 import EditSchool from './components/school/EditSchool.jsx'
 import DeleteSchool from './components/school/DeleteSchool.jsx'
+import UserRegister from './components/user/UserRegister.jsx'
 const routesArray = createBrowserRouter([
   {
     path: '/',
@@ -46,6 +47,10 @@ const routesArray = createBrowserRouter([
   {
     path: '/user',
     element: <UserHome />
+  },
+  {
+    path: '/user/register',
+    element: <UserRegister />
   }
 ])
 createRoot(document.getElementById('root')).render(
