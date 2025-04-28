@@ -23,7 +23,7 @@ const AdminPage = () => {
           return;
         }
 
-        const response = await fetch(`http://localhost:5245/api/AdminControllers/${currentAdminId}`);
+        const response = await fetch(`https://localhost:7245/api/Admin/${currentAdminId}`);
         console.log('Response status:', response.status);
 
         if (!response.ok) {
@@ -66,10 +66,27 @@ const AdminPage = () => {
           
           {/* כפתורים להוספה, עריכה ומחיקה */}
           {showManageAdmins && (
-            <div>
-              <button style={{ margin: '5px' }}>➕ הוספת מנהל</button>
-              <button style={{ margin: '5px' }}>✏️ עריכת מנהל</button>
-              <button style={{ margin: '5px' }}>🗑️ מחיקת מנהל</button>
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+              <button
+                style={{ margin: '5px' }}
+                onClick={() => navigate('/add-admin')}
+              >
+                ➕ הוספת מנהל
+              </button>
+        
+              <button
+                style={{ margin: '5px' }}
+                onClick={() => navigate('/edit-admin')}
+              >
+                ✏️ עריכת מנהל
+              </button>
+        
+              <button
+                style={{ margin: '5px' }}
+                onClick={() => navigate('/delete-admin')}
+              >
+                🗑️ מחיקת מנהל
+              </button>
             </div>
           )}
         </div>

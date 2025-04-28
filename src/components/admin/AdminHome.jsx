@@ -4,17 +4,17 @@ import Swal from 'sweetalert2';
 
 const AdminHome = () => {
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');  // שדה טלפון חדש
-  const [error, setError] = useState('');  // מצב עבור הודעות שגיאה
+  const [password, setPassword] = useState('');  // שדה סיסמה חדש במקום טלפון
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
     console.log('Sending request to server...');
     console.log('Name:', name);
-    console.log('Phone:', phone);
+    console.log('Password:', password);
 
     try {
-      const response = await fetch('http://localhost:5245/api/AdminControllers', {
+      const response = await fetch('https://localhost:7245/api/Admin', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -39,42 +39,41 @@ const AdminHome = () => {
       }
 
       const adminExact = admins.find(
-        (a) => a.nameAdmin === name && a.phoneAdmin === phone
+        (a) => a.nameAdmin === name && a.password === password
       );
-
+      
       if (adminExact) {
-        // 💥 הוספה כאן: שמירת מנהל מחובר
-        localStorage.setItem('adminId', adminExact.id);  // תוקן לשמירה על ID של המנהל הספציפי
+        localStorage.setItem('adminId', adminExact.id);
         localStorage.setItem('adminName', adminExact.nameAdmin);
-
+      
         await Swal.fire({
           icon: 'success',
           title: 'ברוך הבא!',
           text: `שלום ${adminExact.nameAdmin}, התחברת בהצלחה.`,
           confirmButtonText: 'המשך'
         });
-
+      
         navigate('/admin');
         return;
       }
-
-      // בודקים אם יש התאמה רק בשם או רק בנייד
+      
       const adminPartial = admins.find(
-        (a) => a.nameAdmin === name || a.phoneAdmin === phone
+        (a) => a.nameAdmin === name || a.password === password
       );
+      
 
       if (adminPartial) {
         await Swal.fire({
           icon: 'error',
           title: 'שגיאה',
-          text: 'שם משתמש או טלפון שגויים',
+          text: 'שם משתמש או סיסמה שגויים',
           confirmButtonText: 'נסה שוב'
         });
       } else {
         await Swal.fire({
           icon: 'warning',
           title: 'מנהל לא רשום',
-          text: 'שם המשתמש והטלפון אינם רשומים במערכת',
+          text: 'שם המשתמש והסיסמה אינם רשומים במערכת',
           confirmButtonText: 'אישור'
         });
       }
@@ -100,23 +99,24 @@ const AdminHome = () => {
           placeholder="הכנס שם"
         /><br />
 
-        <label>טלפון:</label>
+        <label>סיסמה:</label>
         <input
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          type="tel"  // מאפשר למשתמש להקליד טלפון בצורה נכונה
-          placeholder="הכנס טלפון"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"  // שדה סיסמה מוסתר
+          placeholder="הכנס סיסמה"
         /><br />
 
         <button type="button" onClick={handleLogin}>הכנס</button>
       </form>
 
-      {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}  {/* הצגת שגיאה אם יש */}
+      {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
     </div>
   );
 };
 
 export default AdminHome;
+
 
 
 
