@@ -7,4 +7,4 @@ const EditAdmin = () => {
     </>
     )
     }
-    export default EditAdmin;
+      export default EditAdmin

@@ -10,13 +10,12 @@ import UserHome from './components/user/UserHome.jsx'
 import AdminPage from './components/admin/AdminPage.jsx'
 import AddAdmin from './components/admin/AddAdmin.jsx'
 import DeleteAdmin from './components/admin/DeleteAdmin.jsx'
-import AddAdmin from './components/admin/AddAdmin.jsx'
-
 // import ErrorPage from './components/error/ErrorPage.jsx'
 import AddSchool from './components/school/AddSchool.jsx'
 import EditSchool from './components/school/EditSchool.jsx'
 import DeleteSchool from './components/school/DeleteSchool.jsx'
 import UserRegister from './components/user/UserRegister.jsx'
+import EditAdmin from './components/admin/EditAdmin..jsx'
 const routesArray = createBrowserRouter([
   {
     path: '/',
@@ -45,21 +44,18 @@ const routesArray = createBrowserRouter([
       },
 
       {
-        path: '/admin/-add',
+        path: '/admin/add',
         element: <AddAdmin />
       },
       {
         path: '/admin/edit',
-        element: <EditSAdmin />
+        element: <EditAdmin />
       },
       {
         path: '/admin/delete',
         element: <DeleteAdmin/>
       },
 
-    
- 
-   
   {
     path: '/user',
     element: <UserHome />
