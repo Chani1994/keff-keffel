@@ -1,123 +1,47 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import adminStore from '../../store/adminStore';
 
-const AdminHome = () => {
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');  // שדה סיסמה חדש במקום טלפון
-  const [error, setError] = useState('');
+const AdminHome = observer(() => {
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    console.log('Sending request to server...');
-    console.log('Name:', name);
-    console.log('Password:', password);
-
-    try {
-      const response = await fetch('https://localhost:7245/api/Admin', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('לא ניתן לטעון את רשימת המנהלים');
-      }
-
-      const admins = await response.json();
-      console.log('Admins fetched:', admins);
-
-      if (admins.length === 0) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'אין מנהלים במערכת',
-          text: 'לא נמצאו מנהלים רשומים. פנה למנהל המערכת.',
-          confirmButtonText: 'אישור'
-        });
-        return;
-      }
-
-      const adminExact = admins.find(
-        (a) => a.nameAdmin === name && a.password === password
-      );
-      
-      if (adminExact) {
-        localStorage.setItem('adminId', adminExact.id);
-        localStorage.setItem('adminName', adminExact.nameAdmin);
-      
-        await Swal.fire({
-          icon: 'success',
-          title: 'ברוך הבא!',
-          text: `שלום ${adminExact.nameAdmin}, התחברת בהצלחה.`,
-          confirmButtonText: 'המשך'
-        });
-      
-        navigate('/admin');
-        return;
-      }
-      
-      const adminPartial = admins.find(
-        (a) => a.nameAdmin === name || a.password === password
-      );
-      
-
-      if (adminPartial) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'שגיאה',
-          text: 'שם משתמש או סיסמה שגויים',
-          confirmButtonText: 'נסה שוב'
-        });
-      } else {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'מנהל לא רשום',
-          text: 'שם המשתמש והסיסמה אינם רשומים במערכת',
-          confirmButtonText: 'אישור'
-        });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      await Swal.fire({
-        icon: 'error',
-        title: 'שגיאת מערכת',
-        text: error.message || 'אירעה שגיאה לא צפויה',
-        confirmButtonText: 'אישור'
-      });
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await adminStore.login(navigate);
   };
 
   return (
-    <div>
-      <h1>Admin Home</h1>
-      <form>
-        <label>שם:</label>
+    <div style={{ direction: 'rtl', padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+      <h2>התחברות למנהל</h2>
+      <form onSubmit={handleSubmit}>
+        <label>שם משתמש:</label><br />
         <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="הכנס שם"
-        /><br />
+          type="text"
+          value={adminStore.name}
+          onChange={(e) => adminStore.setName(e.target.value)}
+          placeholder="שם"
+        /><br /><br />
 
-        <label>סיסמה:</label>
+        <label>סיסמה:</label><br />
         <input
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          type="password"  // שדה סיסמה מוסתר
-          placeholder="הכנס סיסמה"
-        /><br />
+          type="password"
+          value={adminStore.password}
+          onChange={(e) => adminStore.setPassword(e.target.value)}
+          placeholder="סיסמה"
+        /><br /><br />
 
-        <button type="button" onClick={handleLogin}>הכנס</button>
+        <button type="submit">כניסה</button>
       </form>
 
-      {error && <div style={{ color: 'red', marginTop: '10px' }}>{error}</div>}
+      {adminStore.error && (
+        <div style={{ color: 'red', marginTop: '10px' }}>{adminStore.error}</div>
+      )}
     </div>
   );
-};
+});
 
 export default AdminHome;
-
-
 
 
 

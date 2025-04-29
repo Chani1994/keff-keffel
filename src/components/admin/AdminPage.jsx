@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import AddSchool from '../school/AddSchool'; // אם יש קומפוננטת AddSchool
+import adminStore from '../../store/adminStore';
 
 const AdminPage = () => {
-  const [admins, setAdmins] = useState([]);
+  const [admins, setAdmins] = useState([]); 
+  const [currentAdmin, setCurrentAdmin] = useState(null); // שמור את המנהל הנוכחי ב־state
   const [showOptions, setShowOptions] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showManageButtons, setShowManageButtons] = useState(false);
@@ -16,38 +18,43 @@ const AdminPage = () => {
     const fetchCurrentAdmin = async () => {
       try {
         const currentAdminId = localStorage.getItem('adminId');
-        console.log('Current Admin ID:', currentAdminId);
+        const adminType = Number(localStorage.getItem('adminType'));
+        const adminName = localStorage.getItem('adminName');
 
         if (!currentAdminId) {
           console.error("לא נמצא מזהה מנהל");
           return;
         }
-
+  
         const response = await fetch(`https://localhost:7245/api/Admin/${currentAdminId}`);
-        console.log('Response status:', response.status);
-
         if (!response.ok) {
           console.error('שגיאה בשרת:', response.status);
           return;
         }
-
+  
         const admin = await response.json();
-        console.log('Admin Data:', admin);
-
-        // שים לב שאתה גם מוסיף את המנהל למערך המנהלים
         setAdmins([admin]);
-
-        // הצגת כפתורי ניהול אם adminType הוא 1
-        if (admin.adminType === 1) {
+        setCurrentAdmin(admin); // שמור את המנהל הנוכחי ב־state
+  
+        // ניהול הרשאות
+        if (adminType === 1) {
           setShowManageButtons(true);
         }
+  
       } catch (error) {
         console.error("שגיאה בטעינת המנהל הנוכחי:", error);
       }
     };
-
+  
     fetchCurrentAdmin();
   }, []);
+
+  const handleEdit = () => {
+    if (currentAdmin) {
+      // אם רוצים לנתב לדף עריכת פרטי המנהל
+      navigate(`/edit-admin/${currentAdmin.id}`);
+    }
+  };
 
   // פונקציות לניהול מצב
   const toggleOptions = () => setShowOptions(prev => !prev);
@@ -57,6 +64,13 @@ const AdminPage = () => {
 
   return (
     <div>
+      <h2>ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!</h2>
+      <div>
+        {/* הצגת כפתור עריכה רק אם המנהל הוא המנהל הנוכחי */}
+        {currentAdmin && (
+          <button onClick={handleEdit}>✏️ ערוך פרטים</button>
+        )}
+      </div>
       <h2>ברוכה הבאה לניהול</h2>
 
       {/* כפתור ניהול מנהלים */}
@@ -76,17 +90,11 @@ const AdminPage = () => {
         
               <button
                 style={{ margin: '5px' }}
-                onClick={() => navigate('/edit-admin')}
+                onClick={() => navigate('/admins')}
               >
-                ✏️ עריכת מנהל
+                ✏️ עריכת/מחיקת מנהל
               </button>
         
-              <button
-                style={{ margin: '5px' }}
-                onClick={() => navigate('/delete-admin')}
-              >
-                🗑️ מחיקת מנהל
-              </button>
             </div>
           )}
         </div>
@@ -122,5 +130,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
-
