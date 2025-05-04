@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import AddSchool from '../school/AddSchool'; // אם יש קומפוננטת AddSchool
-import adminStore from '../../store/adminStore';
 
 const AdminPage = () => {
   const [admins, setAdmins] = useState([]); 
@@ -13,6 +12,7 @@ const AdminPage = () => {
   const [showManageAdmins, setShowManageAdmins] = useState(false); // מצב למנהל
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchCurrentAdmin = async () => {
@@ -49,6 +49,14 @@ const AdminPage = () => {
     fetchCurrentAdmin();
   }, []);
 
+  useEffect(() => {
+    if (location.pathname === '/admin/add-school') {
+      setDialogOpen(true);
+    } else {
+      setDialogOpen(false);
+    }
+  }, [location.pathname]);
+  
   const handleEdit = () => {
     if (currentAdmin) {
       // אם רוצים לנתב לדף עריכת פרטי המנהל
@@ -59,8 +67,16 @@ const AdminPage = () => {
   // פונקציות לניהול מצב
   const toggleOptions = () => setShowOptions(prev => !prev);
   const toggleManageAdmins = () => setShowManageAdmins(prev => !prev); // פונקציה למעבר מצב ניהול מנהלים
-  const handleDialogOpen = () => setDialogOpen(true);
-  const handleDialogClose = () => setDialogOpen(false);
+  
+  const handleDialogOpen = () => {
+    setDialogOpen(true); // או כל state שפותח את הדיאלוג
+    navigate('/admin/add-school'); // משנה את הנתיב למוסד
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    navigate('/admin'); // חזרה לדף הניהול לאחר סגירת הדיאלוג
+  };
 
   return (
     <div>
@@ -81,21 +97,20 @@ const AdminPage = () => {
           {/* כפתורים להוספה, עריכה ומחיקה */}
           {showManageAdmins && (
               <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <button
-                style={{ margin: '5px' }}
-                onClick={() => navigate('/add-admin')}
-              >
-                ➕ הוספת מנהל
-              </button>
+                <button
+                  style={{ margin: '5px' }}
+                  onClick={() => navigate('admin/add-admin')}
+                >
+                  ➕ הוספת מנהל
+                </button>
         
-              <button
-                style={{ margin: '5px' }}
-                onClick={() => navigate('/admins')}
-              >
-                ✏️ עריכת/מחיקת מנהל
-              </button>
-        
-            </div>
+                <button
+                  style={{ margin: '5px' }}
+                  onClick={() => navigate('/admins')}
+                >
+                  ✏️ עריכת/מחיקת מנהל
+                </button>
+              </div>
           )}
         </div>
       )}
@@ -130,3 +145,4 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
+

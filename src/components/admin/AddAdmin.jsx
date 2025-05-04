@@ -6,20 +6,20 @@ import adminStore from '../../store/adminStore';
 const AddAdmin = observer(() => {
   const [nameAdmin, setNameAdmin] = useState('');
   const [password, setPassword] = useState('');
-  const [salt, setSalt] = useState('');
+  const [email, setEmail] = useState('');
+  const [fax, setFax] = useState('');
   const [phoneAdmin, setPhoneAdmin] = useState('');
   const [adminType, setAdminType] = useState(1);
 
   const navigate = useNavigate();
 
-  // איפוס כל השדות בעת טעינה
   useEffect(() => {
     setNameAdmin('');
     setPassword('');
-    setSalt('');
+    setEmail('');
+    setFax('');
     setPhoneAdmin('');
     setAdminType(1);
-    // מביא מראש את רשימת המנהלים (לצורך בדיקת כפילויות)
     adminStore.fetchAdmins();
   }, []);
 
@@ -27,10 +27,10 @@ const AddAdmin = observer(() => {
     e.preventDefault();
 
     const newAdmin = {
-      id: 0,
       nameAdmin,
       password,
-      salt,
+      email,
+      fax,
       phoneAdmin,
       adminType
     };
@@ -48,7 +48,6 @@ const AddAdmin = observer(() => {
           value={nameAdmin}
           onChange={(e) => setNameAdmin(e.target.value)}
           required
-          autoComplete="off"
           style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
         />
 
@@ -63,10 +62,19 @@ const AddAdmin = observer(() => {
         />
 
         <input
+          type="email"
+          placeholder="אימייל"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+        />
+
+        <input
           type="text"
-          placeholder="Salt"
-          value={salt}
-          onChange={(e) => setSalt(e.target.value)}
+          placeholder="פקס"
+          value={fax}
+          onChange={(e) => setFax(e.target.value)}
           required
           style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
         />

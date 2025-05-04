@@ -14,7 +14,7 @@ import '../css/home.css'; // נשתמש בקובץ עיצוב חיצוני
       
           <ButtonGroup size="large" aria-label="large button group" >
             <Button >
-              <Link to="admin/login">כניסת מנהל</Link>
+              <Link to="admin-login">כניסת מנהל</Link>
             </Button>
             <Button >
               <Link to="/user">כניסת משתמש</Link>

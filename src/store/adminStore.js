@@ -25,6 +25,7 @@ class AdminStore {
   async fetchAdmins() {
     try {
       const response = await axios.get('https://localhost:7245/api/Admin');
+      
       runInAction(() => {
         this.admins = response.data;
       });

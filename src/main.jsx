@@ -24,7 +24,7 @@ const routesArray = createBrowserRouter([
     // errorElement: <ErrorPage />
   },
   {
-    path: '/admin/login',
+    path: '/admin-login',
     element: <AdminHome />,
     },
       {
@@ -32,7 +32,7 @@ const routesArray = createBrowserRouter([
         element: <AdminPage />
       },
       {
-        path: '/admin/school-add',
+        path: '/admin/add-school',
         element: <AddSchool />
       },
       {
@@ -62,7 +62,7 @@ const routesArray = createBrowserRouter([
     element: <UserHome />
   },
   {
-    path: '/user/register',
+    path: '/user-register',
     element: <UserRegister />
   }
 ])
