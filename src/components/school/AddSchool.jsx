@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import SchoolStore from '../../store/schoolStore';
+import { useNavigate } from 'react-router-dom';
 
 const AddSchool = observer(() => {
   const [school, setSchool] = useState({
@@ -8,6 +9,8 @@ const AddSchool = observer(() => {
     numClass: 1,
     classList: []
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (field, value) => {
     setSchool({ ...school, [field]: value });
@@ -18,6 +21,7 @@ const AddSchool = observer(() => {
     await SchoolStore.addSchool(school);
     if (!SchoolStore.error) {
       alert('בית ספר נוסף בהצלחה!');
+      navigate('/admin');
     } else {
       alert('שגיאה: ' + SchoolStore.error);
     }
@@ -41,11 +45,17 @@ const AddSchool = observer(() => {
         onChange={(e) => handleChange('numClass', +e.target.value)}
       />
 
-      <button type="submit" disabled={SchoolStore.loading}>
-        {SchoolStore.loading ? 'שולח...' : 'שלח'}
-      </button>
+      <div style={{ marginTop: '1rem' }}>
+        <button type="submit" disabled={SchoolStore.loading}>
+          {SchoolStore.loading ? 'שולח...' : 'שלח'}
+        </button>
+        <button type="button" onClick={() => navigate(-1)} style={{ marginRight: '1rem' }}>
+          ביטול
+        </button>
+      </div>
     </form>
   );
 });
 
 export default AddSchool;
+

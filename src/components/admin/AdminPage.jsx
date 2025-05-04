@@ -60,7 +60,7 @@ const AdminPage = () => {
   const handleEdit = () => {
     if (currentAdmin) {
       // אם רוצים לנתב לדף עריכת פרטי המנהל
-      navigate(`/edit-admin/${currentAdmin.id}`);
+      navigate(`/admin/edit-admin/${currentAdmin.id}`);
     }
   };
 
@@ -99,7 +99,7 @@ const AdminPage = () => {
               <div style={{ textAlign: 'center', marginTop: '20px' }}>
                 <button
                   style={{ margin: '5px' }}
-                  onClick={() => navigate('admin/add-admin')}
+                  onClick={() => navigate('/admin/add-admin')}
                 >
                   ➕ הוספת מנהל
                 </button>

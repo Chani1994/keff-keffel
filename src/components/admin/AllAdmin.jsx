@@ -11,7 +11,7 @@ const AllAdmin = observer(() => {
   }, []);
 
   const handleEdit = (id) => {
-    navigate(`/edit-admin/${id}`);
+    navigate(`/admin/edit-admin/${id}`);
   };
 
   const handleDelete = async (id) => {

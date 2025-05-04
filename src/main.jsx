@@ -45,11 +45,11 @@ const routesArray = createBrowserRouter([
       },
 
       {
-        path: '/add-admin',
+        path: '/admin/add-admin',
         element: <AddAdmin />
       },
       {
-        path: '/edit-admin/:id',
+        path: '/admin/edit-admin/:id',
         element: <EditAdmin />
       },
      

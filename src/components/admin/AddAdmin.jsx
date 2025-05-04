@@ -99,7 +99,20 @@ const AddAdmin = observer(() => {
           <option value={3}>מנהל כיתה</option>
         </select>
 
-        <button type="submit" style={{ padding: '10px 20px' }}>➕ הוסף מנהל</button>
+        <div style={{ marginTop: '15px' }}>
+  <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>
+    ➕ הוסף מנהל
+  </button>
+
+  <button
+    type="button"
+    onClick={() => navigate(-1)}
+    style={{ padding: '10px 20px', marginRight: '10px', backgroundColor: '#f44336', color: '#fff', border: 'none', cursor: 'pointer' }}
+  >
+    ❌ ביטול
+  </button>
+</div>
+
       </form>
     </div>
   );
