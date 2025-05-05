@@ -14,7 +14,8 @@ const EditAdmin = observer(() => {
     phoneAdmin: '',
     email: '',
     fax: '',
-    adminType: 1
+    adminType: 1,
+    nameSchool: ''
   });
 
   useEffect(() => {
@@ -39,6 +40,8 @@ const EditAdmin = observer(() => {
     await adminStore.updateAdmin(adminData);
     navigate('/admin');
   };
+
+  const isSuperAdmin = adminStore.currentAdmin?.adminType === 1;
 
   return (
     <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
@@ -94,17 +97,23 @@ const EditAdmin = observer(() => {
           style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
         />
 
-        <select
-          name="adminType"
-          value={adminData.adminType}
-          onChange={handleChange}
-          required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
-        >
-          <option value={1}>מנהל ראשי</option>
-          <option value={2}>מנהל מוסד</option>
-          <option value={3}>מנהל כיתה</option>
-        </select>
+{adminStore.currentAdmin?.adminType === 1 && adminData.adminType !== 1 && (
+  <div style={{ marginBottom: '10px', textAlign: 'right' }}>
+    <label htmlFor="nameSchool" style={{ display: 'block', marginBottom: '4px' }}>
+      שם מוסד:
+    </label>
+    <input
+      id="nameSchool"
+      type="text"
+      name="nameSchool"
+      value={adminData.nameSchool || ''}
+      onChange={handleChange}
+      style={{ width: '100%', padding: '8px' }}
+    />
+  </div>
+)}
+
+
 
         <button type="submit" style={{ padding: '10px 20px' }}>💾 שמור שינויים</button>
       </form>

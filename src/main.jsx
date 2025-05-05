@@ -16,6 +16,8 @@ import DeleteSchool from './components/school/DeleteSchool.jsx'
 import UserRegister from './components/user/UserRegister.jsx'
 import AllAdmin from './components/admin/AllAdmin.jsx'
 import EditAdmin from './components/admin/EditAdmin.jsx'
+import SchoolList from './components/school/SchoolList.jsx'
+
 
 const routesArray = createBrowserRouter([
   {
@@ -35,16 +37,21 @@ const routesArray = createBrowserRouter([
         path: '/admin/add-school',
         element: <AddSchool />
       },
-      {
-        path: '/admin/school-edit',
-        element: <EditSchool />
-      },
+     
       {
         path: '/admin/school-delete',
         element: <DeleteSchool />
       },
+      {
+        path:'/admin/schools',
+        element: <SchoolList />},
+        {
+          path: '/admin/edit-school/:id',
+          element: <EditSchool />
+        },
 
       {
+
         path: '/admin/add-admin',
         element: <AddAdmin />
       },

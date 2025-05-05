@@ -1,4 +1,3 @@
-// src/stores/AdminStore.js
 import { makeAutoObservable, runInAction } from 'mobx';
 import axios from 'axios';
 import Swal from 'sweetalert2';

@@ -125,9 +125,7 @@ const AdminPage = () => {
       {showOptions && (
         <div>
           <button onClick={handleDialogOpen} style={{ margin: '5px' }}>➕ הוספת מוסד</button>
-          <button onClick={() => navigate('/admin/school-edit')} style={{ margin: '5px' }}>✏️ עריכת מוסד</button>
-          <button onClick={() => navigate('/admin/school-delete')} style={{ margin: '5px' }}>🗑️ מחיקת מוסד</button>
-        </div>
+          <button onClick={() => navigate('/admin/schools')} style={{ margin: '5px' }}>✏️ עריכת/מחיקת מוסד</button>        </div>
       )}
 
       {/* דיאלוג הוספת מוסד */}

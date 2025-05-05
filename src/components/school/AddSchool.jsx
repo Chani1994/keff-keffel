@@ -42,6 +42,8 @@ const AddSchool = observer(() => {
       <input
         type="number"
         value={school.numClass}
+        min="0" 
+
         onChange={(e) => handleChange('numClass', +e.target.value)}
       />
 
