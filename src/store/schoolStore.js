@@ -102,7 +102,7 @@ class SchoolStore {
     try {
       const res = await axios.put(`https://localhost:7245/api/School/${schoolId}`, updatedData);
       runInAction(() => {
-        const index = this.schools.findIndex(s => s.id === schoolId);
+        const index = this.schools.findIndex(s => s.id === parseInt(schoolId));
         if (index !== -1) {
           this.schools[index] = res.data;
         }

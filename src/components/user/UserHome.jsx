@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import {
   Box,
@@ -10,16 +8,15 @@ import {
   Paper,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import userStore from '../../store/userStore'; 
 
 function UserHome() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // כאן תוסיפי את הלוגיקה שלך להתחברות
-    console.log('Username:', username, 'Password:', password);
-    navigate('/dashboard'); // לדוגמה
+    userStore.login({ username, phone }, navigate);
   };
 
   return (
@@ -39,7 +36,7 @@ function UserHome() {
         </Typography>
 
         <TextField
-          label="שם משתמש"
+          label="שם"
           variant="outlined"
           fullWidth
           margin="normal"
@@ -48,13 +45,12 @@ function UserHome() {
         />
 
         <TextField
-          label="סיסמה"
+          label="טלפון"
           variant="outlined"
-          type="password"
           fullWidth
           margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
         />
 
         <Button
@@ -74,7 +70,7 @@ function UserHome() {
             variant="body2"
             onClick={() => navigate('/user/register')}
           >
-            משתמש חדש - הרשם כאן
+            הרשם כאן
           </Link>
         </Typography>
       </Paper>
@@ -83,4 +79,3 @@ function UserHome() {
 }
 
 export default UserHome;
-

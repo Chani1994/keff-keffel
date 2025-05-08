@@ -41,7 +41,7 @@ const SchoolList = observer(() => {
         <tbody>
   {Array.isArray(schools) && schools.length > 0 ? (
     schools.map((school) => (
-      <tr key={school.id}>
+      <tr key={school.id ?? school.nameSchool ?? Math.random().toString()}>
         <td>{school.nameSchool}</td>
         <td>{school.numClass}</td>
         <td>

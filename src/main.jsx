@@ -17,7 +17,8 @@ import UserRegister from './components/user/UserRegister.jsx'
 import AllAdmin from './components/admin/AllAdmin.jsx'
 import EditAdmin from './components/admin/EditAdmin.jsx'
 import SchoolList from './components/school/SchoolList.jsx'
-
+import UserDetails from './components/user/UserDetails.jsx'
+import UserLearningReport from './components/user/UserLearningReport.jsx'
 
 const routesArray = createBrowserRouter([
   {
@@ -26,7 +27,7 @@ const routesArray = createBrowserRouter([
     // errorElement: <ErrorPage />
   },
   {
-    path: '/admin-login',
+    path: '/admin/login',
     element: <AdminHome />,
     },
       {
@@ -65,12 +66,22 @@ const routesArray = createBrowserRouter([
         element: <AllAdmin />}
    ,
   {
-    path: '/user',
+    path: '/user/login',
     element: <UserHome />
   },
   {
-    path: '/user-register',
+    path: '/user/register',
     element: <UserRegister />
+  },
+  {
+    path: '/user/details',
+    element: <UserDetails />,
+    children: [
+      {
+        path: 'learningReport',
+        element: <UserLearningReport />
+      }
+    ]
   }
 ])
 createRoot(document.getElementById('root')).render(

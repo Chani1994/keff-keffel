@@ -11,6 +11,16 @@ const UserLearningReport = () => {
     setInput((prev) => prev.slice(0, -1));
   };
 
+  const handleSubmit = () => {
+    // כאן אתה יכול לבצע פעולה אחרת כמו שליחת הקוד לשרת
+    alert(`הקלט שלך הוא: ${input}`);
+
+    // דוגמה לבדוק אם הקוד שהוקש הוא 123 ולהציג הודעה על דוח למידה
+    if (input === "123") {
+      alert("הצגת דוח למידה");
+    }
+  };
+
   const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, "*", 0, "#"];
 
   return (
@@ -36,6 +46,11 @@ const UserLearningReport = () => {
             </button>
           ))}
         </div>
+
+        {/* כפתור לשליחה */}
+        <button onClick={handleSubmit} style={styles.submitButton}>
+          שלח
+        </button>
       </div>
     </div>
   );
@@ -91,8 +106,9 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns: "repeat(3, 1fr)", // הכפתורים יוצגו משמאל לימין
     gap: "0.75rem",
+    direction: "ltr", // נוסיף את הכיוון כאן לשמאל לימין
   },
   button: {
     width: "4.5rem",
@@ -107,8 +123,21 @@ const styles = {
     cursor: "pointer",
     transition: "transform 0.1s ease-in-out",
   },
+  submitButton: {
+    width: "4.5rem",
+    height: "4.5rem",
+    borderRadius: "9999px",
+    background: "#10b981",
+    color: "#fff",
+    fontSize: "1.25rem",
+    fontWeight: "bold",
+    border: "none",
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    cursor: "pointer",
+    transition: "transform 0.1s ease-in-out",
+    marginTop: "1rem",
+  },
 };
 
-
-
 export default UserLearningReport;
+
