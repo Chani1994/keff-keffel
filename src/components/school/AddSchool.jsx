@@ -7,7 +7,9 @@ const AddSchool = observer(() => {
   const [school, setSchool] = useState({
     nameSchool: '',
     numClass: 1,
-    classList: []
+    barcode: '',
+    numStudent: 0,
+    classList: null
   });
 
   const navigate = useNavigate();
@@ -42,9 +44,23 @@ const AddSchool = observer(() => {
       <input
         type="number"
         value={school.numClass}
-        min="0" 
-
+        min="0"
         onChange={(e) => handleChange('numClass', +e.target.value)}
+      />
+
+      <label>ברקוד:</label>
+      <input
+        type="text"
+        value={school.barcode}
+        onChange={(e) => handleChange('barcode', e.target.value)}
+      />
+
+      <label>מספר תלמידים:</label>
+      <input
+        type="number"
+        value={school.numStudent}
+        min="0"
+        onChange={(e) => handleChange('numStudent', +e.target.value)}
       />
 
       <div style={{ marginTop: '1rem' }}>
@@ -60,4 +76,5 @@ const AddSchool = observer(() => {
 });
 
 export default AddSchool;
+
 

@@ -10,7 +10,10 @@ const EditSchool = observer(() => {
   const [schoolData, setSchoolData] = useState({
     id: 0,
     nameSchool: '',
-    numClass: 0
+    numClass: 0,
+    barcode: '',
+    numStudent: 0,
+    classList: null
   });
 
   useEffect(() => {
@@ -32,10 +35,10 @@ const EditSchool = observer(() => {
     const { name, value } = e.target;
     setSchoolData(prevData => ({
       ...prevData,
-      [name]: name === 'numClass' ? parseInt(value, 10) : value
+      [name]: ['numClass', 'numStudent'].includes(name) ? parseInt(value, 10) : value
     }));
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -46,7 +49,7 @@ const EditSchool = observer(() => {
       alert('אירעה שגיאה בעדכון. נסה שוב.');
     }
   };
-  
+
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
       <h2>עריכת מוסד</h2>
@@ -65,19 +68,43 @@ const EditSchool = observer(() => {
         </div>
 
         <div>
-  <label htmlFor="numClass">מספר כיתות:</label>
-  <input
-    id="numClass"
-    type="number"
-    name="numClass"
-    value={schoolData.numClass}
-    onChange={handleChange}
-    required
-    min="0" 
-    style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-  />
-</div>
+          <label htmlFor="numClass">מספר כיתות:</label>
+          <input
+            id="numClass"
+            type="number"
+            name="numClass"
+            value={schoolData.numClass}
+            onChange={handleChange}
+            required
+            min="0"
+            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          />
+        </div>
 
+        <div>
+          <label htmlFor="barcode">ברקוד:</label>
+          <input
+            id="barcode"
+            type="text"
+            name="barcode"
+            value={schoolData.barcode}
+            onChange={handleChange}
+            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="numStudent">מספר תלמידים:</label>
+          <input
+            id="numStudent"
+            type="number"
+            name="numStudent"
+            value={schoolData.numStudent}
+            onChange={handleChange}
+            min="0"
+            style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
+          />
+        </div>
 
         <button type="submit" style={{ padding: '10px 20px' }}>💾 שמור שינויים</button>
       </form>

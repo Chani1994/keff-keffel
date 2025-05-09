@@ -12,7 +12,7 @@ const AddAdmin = observer(() => {
   const [phoneAdmin, setPhoneAdmin] = useState('');
   const [adminType, setAdminType] = useState(1);
   const [idSchool, setIdSchool] = useState('');
-  const [schools, setSchools] = useState([]); // אתחול לערך ברירת מחדל - מערך ריק
+  const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
