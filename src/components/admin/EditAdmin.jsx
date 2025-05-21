@@ -3,6 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import adminStore from '../../store/adminStore';
 
+import {
+  Box,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Typography,
+} from '@mui/material';
+
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+
 const EditAdmin = observer(() => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -17,6 +28,8 @@ const EditAdmin = observer(() => {
     adminType: 1,
     nameSchool: ''
   });
+
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     adminStore.fetchAdmins().then(() => {
@@ -41,83 +54,103 @@ const EditAdmin = observer(() => {
     navigate('/admin');
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword((show) => !show);
+  };
+
   const isSuperAdmin = adminStore.currentAdmin?.adminType === 1;
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto', padding: '20px', textAlign: 'center' }}>
-      <h2>עריכת מנהל</h2>
+    <Box sx={{ maxWidth: 400, mx: 'auto', p: 3, textAlign: 'center' }}>
+      <Typography variant="h5" mb={3}>עריכת מנהל</Typography>
       <form onSubmit={handleSubmit} autoComplete="off">
-        <input
-          type="text"
+        <TextField
+          fullWidth
+          margin="normal"
+          label="שם מנהל"
           name="nameAdmin"
           value={adminData.nameAdmin}
           onChange={handleChange}
-          placeholder="שם מנהל"
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
         />
 
-        <input
-          type="password"
+        <TextField
+          fullWidth
+          margin="normal"
+          label="סיסמה"
           name="password"
+          type={showPassword ? 'text' : 'password'}
           value={adminData.password}
           onChange={handleChange}
-          placeholder="סיסמה"
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={toggleShowPassword}
+                  edge="end"
+                  aria-label="toggle password visibility"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
         />
 
-        <input
-          type="text"
+        <TextField
+          fullWidth
+          margin="normal"
+          label="טלפון"
           name="phoneAdmin"
           value={adminData.phoneAdmin}
           onChange={handleChange}
-          placeholder="טלפון"
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
         />
 
-        <input
-          type="email"
+        <TextField
+          fullWidth
+          margin="normal"
+          label="אימייל"
           name="email"
+          type="email"
           value={adminData.email}
           onChange={handleChange}
-          placeholder="אימייל"
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
         />
 
-        <input
-          type="text"
+        <TextField
+          fullWidth
+          margin="normal"
+          label="פקס"
           name="fax"
           value={adminData.fax}
           onChange={handleChange}
-          placeholder="פקס"
           required
-          style={{ width: '100%', marginBottom: '10px', padding: '8px' }}
         />
 
-{adminStore.currentAdmin?.adminType === 1 && adminData.adminType !== 1 && (
-  <div style={{ marginBottom: '10px', textAlign: 'right' }}>
-    <label htmlFor="nameSchool" style={{ display: 'block', marginBottom: '4px' }}>
-      שם מוסד:
-    </label>
-    <input
-      id="nameSchool"
-      type="text"
-      name="nameSchool"
-      value={adminData.nameSchool || ''}
-      onChange={handleChange}
-      style={{ width: '100%', padding: '8px' }}
-    />
-  </div>
-)}
+        {isSuperAdmin && adminData.adminType !== 1 && (
+          <TextField
+            fullWidth
+            margin="normal"
+            label="שם מוסד"
+            name="nameSchool"
+            value={adminData.nameSchool || ''}
+            onChange={handleChange}
+          />
+        )}
 
-
-
-        <button type="submit" style={{ padding: '10px 20px' }}>💾 שמור שינויים</button>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mt: 3 }}
+        >
+          💾 שמור שינויים
+        </Button>
       </form>
-    </div>
+    </Box>
   );
 });
 

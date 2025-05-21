@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import adminStore from '../../store/adminStore';
 
-const AdminHome = observer(() => {
+const AdminLogin = observer(() => {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -23,6 +23,7 @@ const AdminHome = observer(() => {
     await adminStore.login(navigate);
   };
 
+  
   return (
     <div style={{
       direction: 'rtl',
@@ -78,6 +79,12 @@ const AdminHome = observer(() => {
         >
           כניסה
         </button>
+
+        
+         <div style={{ textAlign: 'center', marginTop: '10px' }}>
+         <button style={{ cursor: 'pointer', color: '#007bff' }}  onClick={() => adminStore.forgotPassword(adminStore.name)}>
+שכחת סיסמה? לחץ כאן      </button>
+    </div>
       </form>
 
       {adminStore.error && (
@@ -87,4 +94,4 @@ const AdminHome = observer(() => {
   );
 });
 
-export default AdminHome;
+export default AdminLogin;

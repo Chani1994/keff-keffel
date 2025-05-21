@@ -24,7 +24,6 @@ class AdminStore {
   async fetchAdmins() {
     try {
       const response = await axios.get('https://localhost:7245/api/Admin');
-      
       runInAction(() => {
         this.admins = response.data;
       });
@@ -99,7 +98,7 @@ class AdminStore {
       const existing = this.admins.find(
         (admin) => admin.nameAdmin === newAdmin.nameAdmin
       );
-  
+
       if (existing) {
         Swal.fire({
           icon: 'error',
@@ -109,18 +108,18 @@ class AdminStore {
         });
         return;
       }
-  
+
       const response = await axios.post('https://localhost:7245/api/Admin', newAdmin);
       runInAction(() => {
         this.admins.push(response.data);
       });
-  
+
       Swal.fire({
         icon: 'success',
         title: 'המנהל נוסף בהצלחה!',
         confirmButtonText: 'המשך'
       });
-  
+
       navigate('/admin');
     } catch (error) {
       console.error('שגיאה בהוספת מנהל:', error);
@@ -132,6 +131,7 @@ class AdminStore {
       });
     }
   }
+
   async deleteAdmin(adminId) {
     try {
       const result = await Swal.fire({
@@ -165,16 +165,6 @@ class AdminStore {
         text: 'לא ניתן היה למחוק את המנהל',
         confirmButtonText: 'אישור'
       });
-    }
-  }
-  async fetchAdmins() {
-    try {
-      const response = await axios.get('https://localhost:7245/api/Admin');
-      runInAction(() => {
-        this.admins = response.data;
-      });
-    } catch (error) {
-      console.error('שגיאה בטעינת מנהלים:', error);
     }
   }
 
@@ -212,6 +202,44 @@ class AdminStore {
       });
     }
   }
+
+  async forgotPassword(nameInput) {
+  await this.fetchAdmins();
+
+  const admin = this.admins.find(a => a.nameAdmin === nameInput);
+
+  if (admin) {
+    try {
+      const response = await axios.post(`${this.baseUrl}/admins/send-password`, {
+        name: nameInput,
+        email: admin.email, // שליחת כתובת המייל
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'נשלח מייל',
+        text: 'הסיסמה נשלחה לכתובת המייל שלך',
+        confirmButtonText: 'אישור'
+      });
+    } catch (error) {
+      console.error('שגיאה בשליחת האימייל', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'אירעה שגיאה בעת שליחת הסיסמה למייל',
+        confirmButtonText: 'אישור'
+      });
+    }
+  } else {
+    Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: 'שם המשתמש לא נמצא במערכת',
+      confirmButtonText: 'אישור'
+    });
+  }
+}
+
 }
 
 const adminStore = new AdminStore();

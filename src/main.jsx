@@ -5,7 +5,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import './index.css'
 // import App from './App.jsx'
 import HomePage from './components/HomePage.jsx'
-import AdminHome from './components/admin/AdminHome.jsx'
+import AdminLogin from './components/admin/AdminLogin.jsx'
 import UserHome from './components/user/UserHome.jsx'
 import AdminPage from './components/admin/AdminPage.jsx'
 import AddAdmin from './components/admin/AddAdmin.jsx'
@@ -27,7 +27,7 @@ const routesArray = createBrowserRouter([
   },
   {
     path: '/admin/login',
-    element: <AdminHome />,
+    element: <AdminLogin />,
     },
       {
         path: '/admin',
