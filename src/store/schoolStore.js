@@ -90,36 +90,61 @@ class SchoolStore {
   }
 
   async addSchool() {
-    try {
-      const classListPlain = toJS(this.ClassList);
+  try {
+    // בדיקת כפילות לפי שם מוסד
+    const existing = this.schools.find(
+      (school) => school.NameSchool.trim() === this.NameSchool.trim()
+    );
 
-      const schoolData = {
-        NameSchool: this.NameSchool,
-        NumClass: this.NumClass,
-        Barcode: this.Barcode,
-        NumStudent: this.NumStudent,
-        ClassList: classListPlain,
-      };
-
-      console.log("📤 שולח מוסד לשרת:", schoolData);
-
-      const response = await axios.post('https://localhost:7245/api/School', schoolData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+    if (existing) {
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'קיים כבר מוסד עם שם זהה',
       });
-
-      console.log("✅ המוסד נוסף בהצלחה:", response.data);
-
-      runInAction(() => {
-        this.resetSchoolData();
-      });
-
-    } catch (error) {
-      console.error("❌ שגיאה בשליחת המוסד:", error.response?.data || error.message || error);
-      throw new Error(error?.response?.data?.message || "שליחה נכשלה");
+      return;
     }
+
+    const classListPlain = toJS(this.ClassList);
+
+    const schoolData = {
+      NameSchool: this.NameSchool,
+      NumClass: this.NumClass,
+      Barcode: this.Barcode,
+      NumStudent: this.NumStudent,
+      ClassList: classListPlain,
+    };
+
+    console.log("📤 שולח מוסד לשרת:", schoolData);
+
+    const response = await axios.post('https://localhost:7245/api/School', schoolData, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log("✅ המוסד נוסף בהצלחה:", response.data);
+
+    runInAction(() => {
+      this.resetSchoolData();
+      this.schools.push(response.data); // אפשר לעדכן גם את הרשימה המקומית
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'הצלחה',
+      text: 'המוסד נוסף בהצלחה!',
+    });
+
+  } catch (error) {
+    console.error("❌ שגיאה בשליחת המוסד:", error.response?.data || error.message || error);
+    Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: error?.response?.data?.message || "שליחה נכשלה",
+    });
   }
+}
   
   async fetchSchools() {
     runInAction(() => {

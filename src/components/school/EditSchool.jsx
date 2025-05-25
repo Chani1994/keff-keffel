@@ -146,7 +146,7 @@ const EditSchool = observer(() => {
       />
 
       <hr />
-      <h3>שנתונים</h3>
+      <h3>כיתות</h3>
 
       {(localSchool.classList ?? []).map((cls, classIndex) => (
         <div key={classIndex} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>

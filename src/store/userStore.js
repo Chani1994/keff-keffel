@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { makeAutoObservable } from 'mobx';
 import Swal from 'sweetalert2';
 import axios from 'axios';
 
@@ -11,7 +11,31 @@ class UserStore {
 
   constructor() {
     makeAutoObservable(this);
+    this.loadUserFromStorage();
   }
+
+ loadUserFromStorage() {
+  const savedUser = localStorage.getItem('currentUser');
+  console.log('Raw savedUser from localStorage:', savedUser);
+  if (savedUser && savedUser !== '""') {
+    try {
+      this.currentUser = JSON.parse(savedUser);
+      console.log('Parsed user:', this.currentUser);
+    } catch (error) {
+      console.error('Error parsing savedUser:', error);
+      this.currentUser = null;
+    }
+  } else {
+    this.currentUser = null;
+  }
+}
+
+ saveUserToStorage(user) {
+  if (user && typeof user === 'object' && Object.keys(user).length > 0) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+}
+
 
   setName(value) {
     this.name = value;
@@ -21,16 +45,22 @@ class UserStore {
     this.phone = value;
   }
 
+  setCurrentUser(user) {
+    this.currentUser = user;
+    this.saveUserToStorage(user); // שמירה בכל מקרה
+  }
+
+  clearUser() {
+    this.currentUser = null;
+    localStorage.removeItem('currentUser');
+  }
+
   async fetchUsers() {
     try {
       const response = await axios.get('https://localhost:7245/api/Users');
-      runInAction(() => {
-        this.users = response.data;
-      });
+      this.users = response.data;
     } catch (error) {
-      runInAction(() => {
-        this.error = 'שגיאה בעת טעינת משתמשים';
-      });
+      this.error = 'שגיאה בעת טעינת משתמשים';
       console.error('שגיאה:', error);
       Swal.fire({
         icon: 'error',
@@ -52,12 +82,7 @@ class UserStore {
       );
 
       if (matchedUser) {
-        runInAction(() => {
-          this.currentUser = matchedUser;
-        });
-
-        localStorage.setItem("currentUser", JSON.stringify(matchedUser));
-
+        this.setCurrentUser(matchedUser);
         Swal.fire({
           icon: 'success',
           title: 'התחברת בהצלחה!',
@@ -65,9 +90,7 @@ class UserStore {
           timer: 1500,
           showConfirmButton: false,
         });
-
         navigate('/user/details');
-
       } else if (userByName) {
         Swal.fire({
           icon: 'error',
@@ -75,7 +98,6 @@ class UserStore {
           text: 'מספר הטלפון שגוי.',
           confirmButtonText: 'אישור',
         });
-
       } else {
         Swal.fire({
           icon: 'error',
@@ -107,16 +129,19 @@ class UserStore {
         Swal.fire({
           icon: 'error',
           title: 'משתמש כבר קיים',
-          text: 'יש כבר משתמש עם שם וטלפון זהים',
+          text: 'יש כבר משתמש עם שם או טלפון זהים',
           confirmButtonText: 'אישור',
         });
         return;
       }
 
       const result = await axios.post('https://localhost:7245/api/Users/AddUser', user);
-      runInAction(() => {
-        this.currentUser = result.data;
-      });
+
+      console.log('Registered user for:', result.data);
+
+      this.setCurrentUser(result.data);
+      console.log('Registered user after:', result.data);
+
 
       Swal.fire({
         icon: 'success',
@@ -134,12 +159,34 @@ class UserStore {
         icon: 'error',
         title: 'שגיאה',
         text: error.message || 'שגיאה בהרשמה.',
+        confirmButtonText: 'אישור',
+      });
+    }
+  }
+
+  updateUser(updatedUser, callback) {
+    try {
+      this.setCurrentUser(updatedUser); // גם שומר ב־localStorage
+      Swal.fire({
+        title: 'הצלחה',
+        text: 'הפרטים עודכנו בהצלחה!',
+        icon: 'success',
+        confirmButtonText: 'סגור',
+        customClass: {
+          popup: 'custom-swal-zindex'
+        }
+      });
+
+      if (callback) callback();
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'אירעה שגיאה בעדכון',
+        text: error.message || 'נסה שוב מאוחר יותר',
+        confirmButtonText: 'סגור'
       });
     }
   }
 }
 
 export default new UserStore();
-
-
-

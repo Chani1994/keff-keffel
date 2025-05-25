@@ -51,7 +51,6 @@ const SchoolList = observer(() => {
             <th>שם מוסד</th>
             <th>מספר כיתות</th>
             <th>מספר תלמידים</th>
-            <th>מספר שנתונים</th>
             <th>פעולות</th>
           </tr>
         </thead>
@@ -62,7 +61,6 @@ const SchoolList = observer(() => {
         <td>{school.nameSchool}</td>
         <td>{school.numClass}</td>
         <td>{school.numStudent}</td>
-        <td>{school.classList ? school.classList.length : 0}</td>
         <td>
           <Link to={`/admin/edit-school/${school.id}`} style={{ marginRight: '10px' }}>
             <button>✏️ ערוך</button>

@@ -67,10 +67,10 @@ const AddSchool = observer(() => {
       />
 
       <hr />
-      <h3>שנתונים</h3>
+      <h3>כיתות</h3>
       {(schoolStore.ClassList ?? []).map((cls, classIndex) => (
         <div key={classIndex} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
-          <label>שם שנתון:</label>
+          <label> כיתה:</label>
           <input
             type="text"
             value={cls.name}
@@ -84,7 +84,7 @@ const AddSchool = observer(() => {
             onChange={(e) => schoolStore.updateClass(classIndex, 'year', +e.target.value)}
           />
 
-          <label>מספר תלמידים בשנתון:</label>
+          <label>מספר תלמידים בכיתה:</label>
           <input
             type="number"
             value={cls.students.length}
