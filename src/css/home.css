@@ -1,55 +1,241 @@
-/* .home-container {
-    text-align: center;
-    padding: 50px;
-    font-family: 'Alef', sans-serif;
-    background: linear-gradient(to bottom, #ffe6f0, #ffccd5);
-    min-height: 100vh;
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(circle at center, #121212, #000000);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #eee;
+  overflow: hidden;
+}
+
+/* מרכז הדף */
+.homepage {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.logo-block {
+  position: relative;
+  width: 100%;
+  max-width: 100vw;
+  height: 85vh; /* תופס כמעט את כל הגובה */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.main-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* לא ייחתך */
+}
+
+
+.logo-block:hover {
+  filter: drop-shadow(0 0 30px #00bcd4ff);
+}
+
+
+/* כפתורים שקופים עם קווים זוהרים */
+.buttons-container {
+  position: absolute;
+  bottom: 5vh;
+  display: flex;
+  gap: 25px;
+  z-index: 5;
+}
+
+
+
+.user-button, .admin-button {
+  background: transparent;
+  border: 2px solid #00bcd4;
+  color: #00bcd4;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #00bcd4;
+  position: relative;
+  overflow: hidden;
+}
+
+.user-button:hover, .admin-button:hover {
+  color: white;
+  background: #00bcd4;
+  box-shadow: 0 0 20px #00bcd4;
+  transform: translateY(-3px);
+}
+
+/* אנימציית גלילה צבעונית לטקסט עליון */
+.top-right-text {
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  font-size: 1.8rem;
+  font-weight: bold;
+  max-width: 300px;
+  background: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107, #4caf50, #ff5722, #9c27b0);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 8s ease infinite;
+  user-select: none;
+}
+
+/* אנימציית גראדיאנט */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
   }
-  
-  .title {
-    font-size: 3rem;
-    color: #d6336c;
-    margin-bottom: 10px;
+  50% {
+    background-position: 100% 50%;
   }
-  
-  .subtitle {
-    font-size: 1.5rem;
-    margin-bottom: 40px;
-    color: #6c757d;
+  100% {
+    background-position: 0% 50%;
   }
-  
-  .main-button {
-    font-size: 1.2rem;
-    padding: 15px 30px;
-    margin: 10px;
-    background-color: #ff4d6d;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+}
+
+/* כפתור לוגו עם אפקט זוהר וגלילה */
+.logo-hover-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -150%);
+  padding: 0.75rem 2.5rem;
+  border: 2px solid #00bcd4;
+  border-radius: 50px;
+  color: #00bcd4;
+  background: transparent;
+  font-weight: 700;
+  font-size: 1.3rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  box-shadow: 0 0 10px #00bcd4;
+}
+
+
+/* אפקט זוהר דופק */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px #00bcd4, 0 0 20px #00bcd4aa;
   }
-  
-  .main-button:hover {
-    background-color: #d6336c;
+  50% {
+    box-shadow: 0 0 20px #00bcd4ff, 0 0 40px #00bcd4dd;
   }
-  
-  .admin-button {
-    font-size: 0.9rem;
-    padding: 8px 16px;
-    margin-top: 20px;
-    background-color: #adb5bd;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    transition: background-color 0.3s;
-  }
-  
-  .admin-button:hover {
-    background-color: #6c757d;
-  }
-   */
+}
+/* אלמנט מתחת ללוגו */
+.bottom-content {
+  position: absolute;
+  bottom: 5%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5%;
+  flex-wrap: wrap;
+  gap: 15px;
+  z-index: 20;
+}
+
+/* הטקסט המנצנץ */
+.top-right-text {
+  font-size: 1.6rem;
+  font-weight: bold;
+  background: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107, #4caf50, #ff5722, #9c27b0);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 8s ease infinite;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* עימוד כפתורים */
+.buttons-container {
+  display: flex;
+  gap: 20px;
+}
+
+/* כפתורים */
+.user-button, .admin-button {
+  background: transparent;
+  border: 2px solid #00bcd4;
+  color: #00bcd4;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 8px #00bcd4;
+}
+
+.user-button:hover, .admin-button:hover {
+  color: white;
+  background: #00bcd4;
+  box-shadow: 0 0 20px #00bcd4;
+  transform: translateY(-3px);
+}
+.logo-block {
+  position: relative;
+  width: 100%;
+  height: 85vh;
+  display: flex;
+  flex-direction: row; /* במקום column */
+  justify-content: center;
+  align-items: center;
+  padding: 0 5%;
+  gap: 50px; /* רווח בין הלוגו לתוכן */
+}
+
+.main-logo {
+  width: 50%;
+  max-width: 600px;
+  height: auto;
+  object-fit: contain;
+}
+
+.side-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start; /* יישר שמאלה בתוך הקופסה */
+  gap: 30px;
+  max-width: 350px;
+}
+.homepage {
+  position: relative;
+  background: radial-gradient(circle at center, #121212, #000000);
+  overflow: hidden;
+}
+
+.homepage::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-image: url('/logo1.png');
+  background-repeat: no-repeat;
+  background-size: 60%;
+  opacity: 0.05;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* חשוב - שלא יחסום קליקים */
+  z-index: 1;
+}

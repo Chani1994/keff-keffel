@@ -45,8 +45,8 @@ const EditUserDetails = observer(() => {
         <input name="school" placeholder="בית ספר" value={user.school} onChange={handleChange} />
         <input name="classes" placeholder="כיתה" value={user.classes} onChange={handleChange} />
         <input name="phone" placeholder="טלפון" value={user.phone} onChange={handleChange} />
-        <input name="points" type="number" placeholder="נקודות" value={user.points} onChange={handleChange} />
-        <input name="timeLessons" type="number" placeholder="זמן שיעורים" value={user.timeLessons} onChange={handleChange} />
+        {/* <input name="points" type="number" placeholder="נקודות" value={user.points} onChange={handleChange} />
+        <input name="timeLessons" type="number" placeholder="זמן שיעורים" value={user.timeLessons} onChange={handleChange} /> */}
         <button type="submit">שמור שינויים</button>
       </form>
     </div>

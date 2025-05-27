@@ -1,30 +1,43 @@
 import React from 'react';
-import { ButtonGroup, Button } from '@mui/material';
-import { Link, Outlet } from 'react-router-dom';
+import { Button } from '@mui/material';
+import { Link } from 'react-router-dom';
+import '../css/home.css';
 
-import '../App.css';
-import '../css/home.css'; // נשתמש בקובץ עיצוב חיצוני
- function HomePage() {
+function HomePage() {
   return (
-    <>
-    <div className="home-container">
-      <h1 className="title">ברוכים הבאים לכיף־כפל </h1>
-      <p className="subtitle">הדרך הכי כיפית ללמוד לוח הכפל!</p>
+   <div className="homepage">
+      <div className="logo-block">
+        <img src="/logo1.png" alt="לוגו כיף כפל" className="main-logo" />
 
-      
-          <ButtonGroup size="large" aria-label="large button group" >
-            <Button >
-              <Link to="/admin/login">כניסת מנהל</Link>
-            </Button>
-            <Button >
-              <Link to="/user/login">כניסת משתמש</Link>
-            </Button>
-          </ButtonGroup>
-          <br />
-          <Outlet />
+        {/* עטיפה חדשה עבור המשפט והכפתורים */}
+        <div className="side-content">
+          <div className="top-right-text gradient-text">
+            כפול עוצמה. כפול חוויה. פול הנאה
           </div>
-       
-    </>
+
+          <div className="buttons-container">
+            <Button
+              variant="outlined"
+              className="user-button"
+              component={Link}
+              to="/user/login"
+            >
+              כניסה
+            </Button>
+
+            <Button
+              variant="outlined"
+              className="admin-button"
+              component={Link}
+              to="/admin/login"
+            >
+              כניסת מנהל
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-export default  HomePage
+
+export default HomePage;
