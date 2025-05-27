@@ -14,10 +14,23 @@ import '../../css/home.css';
 function AdminLogin() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    adminStore.login({ username, password }, navigate);
+  const handleLogin = async () => {
+    setError('');
+    if (!username || !password) {
+      setError('אנא מלא את כל השדות');
+      return;
+    }
+
+    try {
+      // הנחה: adminStore.login מחזירה Promise
+      await adminStore.login({ username, password }, navigate);
+      // במידה ויש צורך, אפשר להוסיף כאן ניתוב או הודעה נוספת
+    } catch (err) {
+      setError('שם משתמש או סיסמה שגויים');
+    }
   };
 
   return (
@@ -29,8 +42,25 @@ function AdminLogin() {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        background: 'radial-gradient(circle at center, #121212, #000000)',
+        backgroundColor: '#000000',
         overflow: 'hidden',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          width: '80vw',
+          height: '80vh',
+          backgroundImage: 'url("/logo3.png")',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          opacity: 0.05,
+          transform: 'translate(-50%, -50%)',
+          pointerEvents: 'none',
+          zIndex: 10,
+        },
       }}
     >
       <Paper
@@ -38,13 +68,19 @@ function AdminLogin() {
         sx={{
           p: 4,
           width: 350,
-          backgroundColor: 'rgba(18,18,18,0.8)',
+          backgroundColor: '#ffffff',
           borderRadius: '20px',
-          boxShadow: '0 0 25px #00bcd4',
-          color: '#eee',
+          color: '#333',
+          boxShadow: `
+            0 0 10px #e91e63,
+            0 0 20px #ff9800,
+            0 0 30px #ffc107,
+            0 0 80px #4dd0e1,
+            0 0 20px #e91e63
+          `,
+          zIndex: 2,
         }}
       >
-        {/* לוגו */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <img src="/logo1.png" alt="לוגו כיף כפל" style={{ width: 120, height: 'auto' }} />
         </Box>
@@ -64,7 +100,6 @@ function AdminLogin() {
           התחברות מנהל
         </Typography>
 
-        {/* שם משתמש */}
         <TextField
           label="שם משתמש"
           variant="outlined"
@@ -72,7 +107,7 @@ function AdminLogin() {
           margin="normal"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          inputProps={{ style: { textAlign: 'right' } }}
+          inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'שם משתמש' }}
           InputLabelProps={{
             sx: {
               right: 16,
@@ -87,23 +122,21 @@ function AdminLogin() {
           sx={{
             direction: 'rtl',
             '& .MuiOutlinedInput-root': {
-              color: '#eee',
-              backgroundColor: 'rgba(255,255,255,0.05)',
+              backgroundColor: '#f9f9f9',
               borderRadius: '10px',
-              '& fieldset': { borderColor: 'transparent' },
-              '&:hover fieldset': { borderColor: '#00bcd4', boxShadow: '0 0 10px #00bcd4' },
-              '&.Mui-focused fieldset': { borderColor: 'black', boxShadow: '0 0 12px #00bcd4' },
-            },
-            '& .MuiInputLabel-root': {
-              transformOrigin: 'top right',
-            },
-            '& .MuiInputLabel-shrink': {
-              transform: 'translate(0, -8px) scale(0.75)',
+              '& fieldset': { borderColor: '#ddd' },
+              '&:hover fieldset': {
+                borderColor: '#e91e63',
+                boxShadow: '0 0 10px #e91e63',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'white',
+                boxShadow: '0 0 12px #e91e63',
+              },
             },
           }}
         />
 
-        {/* סיסמה */}
         <TextField
           label="סיסמה"
           type="password"
@@ -112,7 +145,7 @@ function AdminLogin() {
           margin="normal"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          inputProps={{ style: { textAlign: 'right' } }}
+          inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'סיסמה' }}
           InputLabelProps={{
             sx: {
               right: 16,
@@ -127,21 +160,26 @@ function AdminLogin() {
           sx={{
             direction: 'rtl',
             '& .MuiOutlinedInput-root': {
-              color: '#eee',
-              backgroundColor: 'rgba(255,255,255,0.05)',
+              backgroundColor: '#f9f9f9',
               borderRadius: '10px',
-              '& fieldset': { borderColor: 'transparent' },
-              '&:hover fieldset': { borderColor: '#00bcd4', boxShadow: '0 0 10px #00bcd4' },
-              '&.Mui-focused fieldset': { borderColor: 'black', boxShadow: '0 0 12px #00bcd4' },
-            },
-            '& .MuiInputLabel-root': {
-              transformOrigin: 'top right',
-            },
-            '& .MuiInputLabel-shrink': {
-              transform: 'translate(0, -8px) scale(0.75)',
+              '& fieldset': { borderColor: '#ddd' },
+              '&:hover fieldset': {
+                borderColor: '#e91e63',
+                boxShadow: '0 0 10px #e91e63',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: 'white',
+                boxShadow: '0 0 12px #e91e63',
+              },
             },
           }}
         />
+
+        {error && (
+          <Typography color="error" align="center" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
 
         <Button
           fullWidth
@@ -150,18 +188,18 @@ function AdminLogin() {
           sx={{
             mt: 3,
             borderRadius: '50px',
-            border: '2px solid #00bcd4',
-            color: '#00bcd4',
+            border: '2px solid #e91e63',
+            color: '#e91e63',
             background: 'transparent',
-            boxShadow: '0 0 8px #00bcd4',
+            boxShadow: '0 0 8px #e91e63',
             fontWeight: 600,
             fontSize: '1.1rem',
             transition: 'all 0.3s ease',
             '&:hover': {
-              backgroundColor: '#00bcd4',
+              backgroundColor: '#e91e63',
               color: '#fff',
-              boxShadow: '0 0 20px #00bcd4',
-              borderColor: '#00bcd4',
+              boxShadow: '0 0 20px #e91e63',
+              borderColor: '#e91e63',
               background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
             },
           }}
@@ -169,8 +207,7 @@ function AdminLogin() {
           התחבר
         </Button>
 
-        {/* אופציונלי: קישור לעמוד אחר */}
-        <Typography variant="body2" align="center" sx={{ mt: 3, color: '#00bcd4' }}>
+        <Typography variant="body2" align="center" sx={{ mt: 3, color: '#e91e63' }}>
           שכחת סיסמא?{' '}
           <Link
             component="button"
@@ -183,11 +220,11 @@ function AdminLogin() {
               WebkitTextFillColor: 'transparent',
               '&:hover': {
                 textDecoration: 'none',
-                WebkitTextFillColor: '#00ffff',
+                WebkitTextFillColor: '#00bcd4',
               },
             }}
           >
-          איפוס סיסמא
+            איפוס סיסמא
           </Link>
         </Typography>
       </Paper>

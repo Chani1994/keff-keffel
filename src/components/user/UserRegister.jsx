@@ -47,32 +47,52 @@ const UserRegister = () => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    minHeight: '100vh',
+    height: '100vh',
     width: '100vw',
-    background: 'radial-gradient(circle at center, #121212, #000000)',
+    backgroundColor: '#000000',
     overflow: 'hidden',
-    position: 'fixed',
-    top: 0,
-    left: 0,
+    position: 'relative',
   }}
 >
+  {/* רקע לוגו חצי שקוף */}
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '80vw',
+      height: '80vh',
+      backgroundImage: 'url("/logo3.png")',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'contain',
+      backgroundPosition: 'center',
+      opacity: 0.05,
+      pointerEvents: 'none',
+      zIndex: 1,
+    }}
+  />
+  
+  {/* טופס */}
+  <Paper
+    elevation={6}
+    sx={{
+      p: 4,
+      width: 350,
+      backgroundColor: '#ffffff',
+      borderRadius: '20px',
+      color: '#333',
+      boxShadow: `
+        0 0 10px #e91e63,
+        0 0 20px #ff9800,
+        0 0 30px #ffc107,
+        0 0 80px #4dd0e1,
+        0 0 20px #e91e63
+      `,
+      zIndex: 2,
+    }}
+  >
 
-      <Paper
-        elevation={6}
-        sx={{
-          p: 4,
-          width: 350,
-          backgroundColor: 'rgba(18,18,18,0.8)',
-          borderRadius: '20px',
-          boxShadow: '0 0 25px #00bcd4',
-          color: '#eee',
-        }}
-      >
-             {/* לוגו */}
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img src="/logo1.png" alt="לוגו כיף כפל" style={{ width: 120, height: 'auto' }} />
-          </Box>
-        
         <Typography
           variant="h5"
           align="center"
@@ -82,136 +102,110 @@ const UserRegister = () => {
             background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            textAlign: 'center',
           }}
         >
           הרשמה
         </Typography>
-<form onSubmit={handleSubmit}>
-  <Box
-    sx={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: 2, // רווח בין השדות
-      justifyContent: 'space-between',
-    }}
-  >
-    {['name', 'school', 'classes', 'phone'].map((field) => (
-      <TextField
-        key={field}
-        label={
-          field === 'name'
-            ? 'שם מלא'
-            : field === 'school'
-            ? 'בית ספר'
-            : field === 'classes'
-            ? 'כיתה'
-            : 'טלפון'
-        }
-        variant="outlined"
-        name={field}
-        value={user[field]}
-        onChange={handleChange}
-        error={!!errors[field]}
-        helperText={errors[field]}
-        inputProps={{ style: { textAlign: 'right' } }}
-        InputLabelProps={{
-          sx: {
-            right: 16,
-            left: 'auto',
-            transformOrigin: 'top right',
-            background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontWeight: 'bold',
-          },
-          '& .MuiOutlinedInput-input': {
-    color: '#000000',  // הצבע של הטקסט בתוך השדה - שחור
-  },
-        }}
-        sx={{
-          direction: 'rtl',
-          flex: '1 1 45%', // תופס בערך חצי רוחב עם גמישות
-          minWidth: '150px', // מינימום רוחב לשדה
-          '& .MuiOutlinedInput-root': {
-            color: '#eee',
-            backgroundColor: 'rgba(255,255,255,0.05)',
-            borderRadius: '10px',
-            '& fieldset': { borderColor: 'transparent' },
-            '&:hover fieldset': {
-              borderColor: '#00bcd4',
-              boxShadow: '0 0 10px #00bcd4',
-            },
-            '&.Mui-focused fieldset': {
-              borderColor: 'black',
-              boxShadow: '0 0 12px #00bcd4',
-            },
-            
-          },
-        }}
-      />
-    ))}
-  </Box>
 
-  <Button
-    type="submit"
-    fullWidth
-    sx={{
-      mt: 3,
-      borderRadius: '50px',
-      border: '2px solid #00bcd4',
-      color: '#00bcd4',
-      background: 'transparent',
-      boxShadow: '0 0 8px #00bcd4',
-      fontWeight: 600,
-      fontSize: '1.1rem',
-      transition: 'all 0.3s ease',
-      outline: 'none',
-      '&:hover': {
-        backgroundColor: '#00bcd4',
-        color: '#fff',
-        boxShadow: '0 0 20px #00bcd4',
-        borderColor: '#00bcd4',
-        background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-      },
-    }}
-  >
-    הרשמה
-  </Button>
-</form>
+        <form onSubmit={handleSubmit}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {['name', 'school', 'classes', 'phone'].map((field) => (
+              <TextField
+                key={field}
+                label={
+                  field === 'name'
+                    ? 'שם מלא'
+                    : field === 'school'
+                    ? 'בית ספר'
+                    : field === 'classes'
+                    ? 'כיתה'
+                    : 'טלפון'
+                }
+                variant="outlined"
+                name={field}
+                value={user[field]}
+                onChange={handleChange}
+                error={!!errors[field]}
+                helperText={errors[field]}
+                inputProps={{ style: { textAlign: 'right' } }}
+                InputLabelProps={{
+                  sx: {
+                    right: 16,
+                    left: 'auto',
+                    transformOrigin: 'top right',
+                    background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    fontWeight: 'bold',
+                  },
+                }}
+                sx={{
+                  direction: 'rtl',
+                  '& .MuiOutlinedInput-root': {
+                    backgroundColor: '#f9f9f9',
+                    borderRadius: '10px',
+                    '& fieldset': { borderColor: '#ddd' },
+                    '&:hover fieldset': {
+                      borderColor: '#e91e63',
+                      boxShadow: '0 0 10px #e91e63',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'white',
+                      boxShadow: '0 0 12px #e91e63',
+                    },
+                  },
+                }}
+              />
+            ))}
+          </Box>
 
-        <Typography variant="body2" align="center" sx={{ mt: 3, color: '#00bcd4' }}>
+          <Button
+            type="submit"
+            fullWidth
+            sx={{
+              mt: 3,
+              borderRadius: '50px',
+              border: '2px solid #e91e63',
+              color: '#e91e63',
+              background: 'transparent',
+              boxShadow: '0 0 8px #e91e63',
+              fontWeight: 600,
+              fontSize: '1.1rem',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                backgroundColor: '#e91e63',
+                color: '#fff',
+                boxShadow: '0 0 20px #e91e63',
+                borderColor: '#e91e63',
+                background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+              },
+            }}
+          >
+            הרשמה
+          </Button>
+        </form>
+
+        {errors.form && (
+          <Typography color="error" align="center" sx={{ mt: 2 }}>
+            {errors.form}
+          </Typography>
+        )}
+
+        <Typography variant="body2" align="center" sx={{ mt: 3, color: '#e91e63' }}>
           יש לך חשבון?{' '}
           <Link
             component="button"
             onClick={() => navigate('/user/login')}
             sx={{
-              outline: 'none',
-  border: 'none',
-  boxShadow: 'none',
-  '&:focus': {
-    outline: 'none',
-    border: 'none',
-    boxShadow: 'none',
-  },
-  '&:active': {
-    outline: 'none',
-    border: 'none',
-    boxShadow: 'none',
-  },
               fontWeight: 'bold',
               textDecoration: 'underline',
               background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              transition: 'all 0.3s ease-in-out',
               '&:hover': {
-         textDecoration: 'none', // <--- זה מונע את הקו התחתון במעבר
-        background: 'none',
-        WebkitBackgroundClip: 'initial',
-        WebkitTextFillColor: '#00ffff', // טורקיז מלא
-        color: '#00bcd4', // תוקן גם פה – הסרת סימן # מיותר
-      },
+                textDecoration: 'none',
+                WebkitTextFillColor: '#00bcd4',
+              },
             }}
           >
             התחבר כאן
