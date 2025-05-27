@@ -2,16 +2,40 @@ import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Paper,
+  Divider,
+  Grid,
+  Checkbox,
+  FormControlLabel,
+} from '@mui/material';
 import schoolStore from '../../store/schoolStore';
 
 const AddSchool = observer(() => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const validate = () => {
+    const newErrors = {};
+    if (!schoolStore.NameSchool) newErrors.NameSchool = 'שדה חובה';
+    if (!schoolStore.NumClass || schoolStore.NumClass <= 0) newErrors.NumClass = 'מספר כיתות חייב להיות גדול מ-0';
+    if (!schoolStore.NumStudent || schoolStore.NumStudent <= 0) newErrors.NumStudent = 'מספר תלמידים חייב להיות גדול מ-0';
+    if (!schoolStore.Barcode) newErrors.Barcode = 'שדה חובה';
+    // תוכל להוסיף כאן בדיקות נוספות לפי הצורך
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    if (!validate()) return;
 
+    setLoading(true);
     try {
       await schoolStore.addSchool();
       await Swal.fire({
@@ -23,7 +47,6 @@ const AddSchool = observer(() => {
       schoolStore.resetSchoolData();
       navigate(-1);
     } catch (error) {
-      console.error('שגיאה:', error);
       await Swal.fire({
         icon: 'error',
         title: 'שגיאה בשליחה',
@@ -34,144 +57,355 @@ const AddSchool = observer(() => {
     }
   };
 
+  const handleChange = (field, value) => {
+    schoolStore.setField(field, value);
+  };
+
+  // פונקציות לניהול כיתות ותלמידים (לפי הקוד שלך)
+  const handleClassChange = (index, field, value) => {
+    schoolStore.setClassField(index, field, value);
+  };
+
+  const handleStudentChange = (index, field, value) => {
+    schoolStore.setStudentField(index, field, value);
+  };
+
+  const toggleStudentCheckbox = (index) => {
+    schoolStore.toggleStudentChecked(index);
+  };
+
+  const inputSx = {
+    direction: 'rtl',
+    '& .MuiOutlinedInput-root': {
+      backgroundColor: '#f9f9f9',
+      borderRadius: '10px',
+      '& fieldset': { borderColor: '#ddd' },
+      '&:hover fieldset': {
+        borderColor: '#e91e63',
+        boxShadow: '0 0 10px #e91e63',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'white',
+        boxShadow: '0 0 12px #e91e63',
+      },
+    },
+  };
+
+  const labelSx = {
+    right: 16,
+    left: 'auto',
+    transformOrigin: 'top right',
+    background:
+      'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    fontWeight: 'bold',
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={{ direction: 'rtl', maxWidth: '800px', margin: 'auto' }}>
-      <h2>הוספת מוסד</h2>
-
-      <label>שם מוסד:</label>
-      <input
-        type="text"
-        value={schoolStore.NameSchool}
-        onChange={(e) => schoolStore.setField('NameSchool', e.target.value)}
+    <Box
+      sx={{
+        direction: 'rtl',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: '#000000',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '80vw',
+          height: '70vh',
+          backgroundImage: 'url("/logo3.png")',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          opacity: 0.05,
+          pointerEvents: 'none',
+          zIndex: 10,
+        }}
       />
 
-      <label>מספר כיתות:</label>
-      <input
-        type="number"
-        value={schoolStore.NumClass}
-        onChange={(e) => schoolStore.setNumClasses(+e.target.value)}
-      />
+      <Paper
+        elevation={6}
+        sx={{
+          p: 4,
+          width: 1000,
+          maxHeight: '70vh',
+          backgroundColor: '#ffffff',
+          borderRadius: '20px',
+          color: '#333',
+          overflowY: 'auto',
+          boxShadow:
+            '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            mb: 2,
+            paddingTop: '30px',
+          }}
+        >
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="center"
+            gap={2}
+            mb={2}
+          >
+            <img src="/logo1.png" alt="לוגו" style={{ width: 60 }} />
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 'bold',
+                background:
+                  'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                lineHeight: 1.2,
+              }}
+            >
+              הוספת מוסד
+            </Typography>
+          </Box>
+        </Box>
 
-      <label>ברקוד:</label>
-      <input
-        type="text"
-        value={schoolStore.Barcode}
-        onChange={(e) => schoolStore.setField('Barcode', e.target.value)}
-      />
-
-      <label>מספר תלמידים כולל:</label>
-      <input
-        type="number"
-        value={schoolStore.NumStudent}
-        onChange={(e) => schoolStore.setField('NumStudent', +e.target.value)}
-      />
-
-      <hr />
-      <h3>כיתות</h3>
-      {(schoolStore.ClassList ?? []).map((cls, classIndex) => (
-        <div key={classIndex} style={{ border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
-          <label> כיתה:</label>
-          <input
-            type="text"
-            value={cls.name}
-            onChange={(e) => schoolStore.updateClass(classIndex, 'name', e.target.value)}
-          />
-
-          <label>שנה:</label>
-          <input
-            type="number"
-            value={cls.year}
-            onChange={(e) => schoolStore.updateClass(classIndex, 'year', +e.target.value)}
-          />
-
-          <label>מספר תלמידים בכיתה:</label>
-          <input
-            type="number"
-            value={cls.students.length}
-            onChange={(e) => schoolStore.setNumStudentsInClass(classIndex, +e.target.value)}
-          />
-
-          <h4>תלמידים</h4>
-          {cls.students.map((student, studentIndex) => (
-            <div key={studentIndex} style={{ marginRight: '1rem', marginBottom: '1rem' }}>
-              <label>שם:</label>
-              <input
-                type="text"
-                value={student.name}
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'name', e.target.value)
-                }
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="שם מוסד"
+                variant="outlined"
+                fullWidth
+                value={schoolStore.NameSchool || ''}
+                onChange={(e) => handleChange('NameSchool', e.target.value)}
+                inputProps={{ style: { textAlign: 'right' } }}
+                InputLabelProps={{ sx: labelSx }}
+                error={!!errors.NameSchool}
+                helperText={errors.NameSchool}
+                sx={inputSx}
               />
-
-              <label>בית ספר:</label>
-<input
-  type="text"
-  value={schoolStore.NameSchool}  // שם בית הספר מגיע מהסטור ולא מהתלמיד
-  readOnly                     // מונע עריכה - אם רוצים לא לאפשר לשנות
-  // אם רוצים לאפשר שינוי ידני, אפשר להסיר את השורה הזו
-  // onChange={(e) =>
-  //   schoolStore.updateStudent(classIndex, studentIndex, 'school', e.target.value)
-  // }
-/>
-
-              <label>כיתה:</label>
-              <input
-                type="text"
-                value={student.Classes} 
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'Classes', e.target.value)
-                }
+            </Grid>
+<Grid item xs={12} sm={3}>
+              <TextField
+                label="ברקוד"
+                variant="outlined"
+                fullWidth
+                value={schoolStore.Barcode || ''}
+                onChange={(e) => handleChange('Barcode', e.target.value)}
+                inputProps={{ style: { textAlign: 'right' } }}
+                InputLabelProps={{ sx: labelSx }}
+                error={!!errors.Barcode}
+                helperText={errors.Barcode}
+                sx={inputSx}
               />
+            </Grid>
+           <Grid item xs={12} sm={3}>
+  <TextField
+    label="מספר כיתות"
+    variant="outlined"
+    type="number"
+    fullWidth
+    value={schoolStore.NumClass || ''}
+    onChange={(e) => {
+      const value = Number(e.target.value);
+      if (!isNaN(value)) {
+        handleChange('NumClass', value);  // שמירה בשורה הראשית
+        schoolStore.updateClass(value); // עדכון מערך הכיתות בהתאם
+      } else {
+        handleChange('NumClass', 0);
+        schoolStore.updateClass(0);
+      }
+    }}
+    inputProps={{ style: { textAlign: 'right' }, min: 0 }}
+    InputLabelProps={{ sx: labelSx }}
+    error={!!errors.NumClass}
+    helperText={errors.NumClass}
+    sx={inputSx}
+  />
+</Grid>
 
-              <label>טלפון:</label>
-              <input
-                type="text"
-                value={student.phone}
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'phone', e.target.value)
-                }
-              />
 
-              <label>נקודות:</label>
-              <input
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="מספר תלמידים כולל"
+                variant="outlined"
                 type="number"
-                value={student.points}
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'points', +e.target.value)
-                }
+                fullWidth
+                value={schoolStore.NumStudent || ''}
+                onChange={(e) => handleChange('NumStudent', e.target.value)}
+                inputProps={{ style: { textAlign: 'right' } }}
+                InputLabelProps={{ sx: labelSx }}
+                error={!!errors.NumStudent}
+                helperText={errors.NumStudent}
+                sx={inputSx}
               />
+            </Grid>
+          </Grid>
 
-              <label>שיעורים:</label>
-              <input
-                type="number"
-                value={student.timeLessons}
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'timeLessons', +e.target.value)
-                }
-              />
+          <Divider sx={{ my: 2 }} />
 
-              <label>עבר בהצלחה:</label>
-              <input
-                type="checkbox"
-                checked={student.success}
-                onChange={(e) =>
-                  schoolStore.updateStudent(classIndex, studentIndex, 'success', e.target.checked)
-                }
-              />
-            </div>
+          {/* ניהול כיתות */}
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 'bold',
+              background:
+                'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1,
+              mt: 2,
+            }}
+          >
+            כיתות
+          </Typography>
+
+{(schoolStore.classes || []).map((cls, idx) => (
+            <Grid container spacing={2} key={idx} sx={{ mb: 1 }}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="שם כיתה"
+                  variant="outlined"
+                  fullWidth
+                  value={cls.name}
+                  onChange={(e) => handleClassChange(idx, 'name', e.target.value)}
+                  inputProps={{ style: { textAlign: 'right' } }}
+                  InputLabelProps={{ sx: labelSx }}
+                  sx={inputSx}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+  <TextField
+    label="מספר תלמידים"
+    variant="outlined"
+    type="number"
+    fullWidth
+    value={cls.students}
+    onChange={(e) => handleClassChange(idx, 'students', Number(e.target.value))}
+    inputProps={{ style: { textAlign: 'right' } }}
+    InputLabelProps={{ sx: labelSx }}
+    sx={inputSx}
+  />
+</Grid>
+
+            </Grid>
           ))}
-        </div>
-      ))}
 
-      <div style={{ marginTop: '1rem' }}>
-        <button type="submit" disabled={loading}>
-          {loading ? 'שולח...' : 'שלח'}
-        </button>
-        <button type="button" onClick={() => navigate(-1)} style={{ marginRight: '1rem' }}>
-          ביטול
-        </button>
-      </div>
-    </form>
+          <Divider sx={{ my: 2 }} />
+
+          {/* ניהול תלמידים */}
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 'bold',
+              background:
+                'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1,
+              mt: 2,
+            }}
+          >
+            תלמידים
+          </Typography>
+
+{(schoolStore.students || []).map((student, idx) => (
+            <Grid container spacing={2} key={idx} alignItems="center" sx={{ mb: 1 }}>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="שם תלמיד"
+                  variant="outlined"
+                  fullWidth
+                  value={student.name}
+                  onChange={(e) => handleStudentChange(idx, 'name', e.target.value)}
+                  inputProps={{ style: { textAlign: 'right' } }}
+                  InputLabelProps={{ sx: labelSx }}
+                  sx={inputSx}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="מספר כיתה"
+                  variant="outlined"
+                  fullWidth
+                  value={student.classNum}
+                  onChange={(e) => handleStudentChange(idx, 'classNum', e.target.value)}
+                  inputProps={{ style: { textAlign: 'right' } }}
+                  InputLabelProps={{ sx: labelSx }}
+                  sx={inputSx}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={2}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={student.checked}
+                      onChange={() => toggleStudentCheckbox(idx)}
+                      color="secondary"
+                    />
+                  }
+                  label="נבחר"
+                  sx={{ '& .MuiTypography-root': { fontWeight: 'bold' } }}
+                />
+              </Grid>
+            </Grid>
+          ))}
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={loading}
+              sx={{
+                borderRadius: '50px',
+                border: '2px solid #e91e63',
+                color: '#e91e63',
+                background: 'transparent',
+                fontWeight: 600,
+                fontSize: '1rem',
+                boxShadow: '0 0 8px #e91e63',
+                '&:hover': {
+                  background:
+                    'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                  color: '#fff',
+                  borderColor: '#e91e63',
+                  boxShadow: '0 0 20px #e91e63',
+                },
+              }}
+            >
+              {loading ? 'שולח...' : 'שלח'}
+            </Button>
+
+            <Button
+              variant="text"
+              onClick={() => navigate(-1)}
+              sx={{ mx: 2, color: '#999' }}
+            >
+              ביטול
+            </Button>
+          </Box>
+        </form>
+      </Paper>
+    </Box>
   );
 });
 

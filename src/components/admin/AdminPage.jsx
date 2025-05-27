@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import AddSchool from '../school/AddSchool'; // אם יש קומפוננטת AddSchool
+import AddSchool from '../school/AddSchool';
+// import '../../css/home.css'; // עיצוב כפתורים כמו בעמוד הבית
+// import '../css/home.css';
 
 const AdminPage = () => {
-  const [admins, setAdmins] = useState([]); 
-  const [currentAdmin, setCurrentAdmin] = useState(null); // שמור את המנהל הנוכחי ב־state
+  const [currentAdmin, setCurrentAdmin] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showManageButtons, setShowManageButtons] = useState(false);
-  const [showManageAdmins, setShowManageAdmins] = useState(false); // מצב למנהל
+  const [showManageAdmins, setShowManageAdmins] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,123 +20,131 @@ const AdminPage = () => {
       try {
         const currentAdminId = localStorage.getItem('adminId');
         const adminType = Number(localStorage.getItem('adminType'));
-        const adminName = localStorage.getItem('adminName');
 
         if (!currentAdminId) {
           console.error("לא נמצא מזהה מנהל");
           return;
         }
-  
+
         const response = await fetch(`https://localhost:7245/api/Admin/${currentAdminId}`);
         if (!response.ok) {
           console.error('שגיאה בשרת:', response.status);
           return;
         }
-  
+
         const admin = await response.json();
-        setAdmins([admin]);
-        setCurrentAdmin(admin); // שמור את המנהל הנוכחי ב־state
-  
-        // ניהול הרשאות
+        setCurrentAdmin(admin);
+
         if (adminType === 1) {
           setShowManageButtons(true);
         }
-  
+
       } catch (error) {
         console.error("שגיאה בטעינת המנהל הנוכחי:", error);
       }
     };
-  
+
     fetchCurrentAdmin();
   }, []);
 
   useEffect(() => {
-    if (location.pathname === '/admin/add-school') {
-      setDialogOpen(true);
-    } else {
-      setDialogOpen(false);
-    }
+    setDialogOpen(location.pathname === '/admin/add-school');
   }, [location.pathname]);
-  
+
   const handleEdit = () => {
     if (currentAdmin) {
-      // אם רוצים לנתב לדף עריכת פרטי המנהל
       navigate(`/admin/edit-admin/${currentAdmin.id}`);
     }
   };
 
-  // פונקציות לניהול מצב
   const toggleOptions = () => setShowOptions(prev => !prev);
-  const toggleManageAdmins = () => setShowManageAdmins(prev => !prev); // פונקציה למעבר מצב ניהול מנהלים
-  
+  const toggleManageAdmins = () => setShowManageAdmins(prev => !prev);
   const handleDialogOpen = () => {
-    setDialogOpen(true); // או כל state שפותח את הדיאלוג
-    navigate('/admin/add-school'); // משנה את הנתיב למוסד
+    setDialogOpen(true);
+    navigate('/admin/add-school');
   };
-
   const handleDialogClose = () => {
     setDialogOpen(false);
-    navigate('/admin'); // חזרה לדף הניהול לאחר סגירת הדיאלוג
+    navigate('/admin');
   };
 
   return (
-    <div>
+    <div className="admin-page" style={{ textAlign: 'center', padding: '30px' }}>
       <h2>ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!</h2>
-      <div>
-        {/* הצגת כפתור עריכה רק אם המנהל הוא המנהל הנוכחי */}
-        {currentAdmin && (
-          <button onClick={handleEdit}>✏️ ערוך פרטים</button>
-        )}
-      </div>
-      <h2>ברוכה הבאה לניהול</h2>
 
-      {/* כפתור ניהול מנהלים */}
+      {currentAdmin && (
+        <button className="gradient-button" onClick={handleEdit}>
+          ✏️ ערוך פרטים
+        </button>
+      )}
+
+      <h2 style={{ marginTop: '30px' }}>ברוכה הבאה לניהול</h2>
+
       {showManageButtons && (
         <div>
-          <button onClick={toggleManageAdmins} style={{ marginTop: '20px' }}>ניהול מנהלים</button>
-          
-          {/* כפתורים להוספה, עריכה ומחיקה */}
+          <button className="gradient-button" onClick={toggleManageAdmins} style={{ marginTop: '20px' }}>
+            ניהול מנהלים
+          </button>
+
           {showManageAdmins && (
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                <button
-                  style={{ margin: '5px' }}
-                  onClick={() => navigate('/admin/add-admin')}
-                >
-                  ➕ הוספת מנהל
-                </button>
-        
-                <button
-                  style={{ margin: '5px' }}
-                  onClick={() => navigate('/admins')}
-                >
-                  ✏️ עריכת/מחיקת מנהל
-                </button>
-              </div>
+            <div style={{ marginTop: '20px' }}>
+              <button
+                className="gradient-button"
+                onClick={() => navigate('/admin/add-admin')}
+                style={{ margin: '10px' }}
+              >
+                ➕ הוספת מנהל
+              </button>
+
+              <button
+                className="gradient-button"
+                onClick={() => navigate('/admins')}
+                style={{ margin: '10px' }}
+              >
+                ✏️ עריכת/מחיקת מנהל
+              </button>
+            </div>
           )}
         </div>
       )}
 
-      {/* כפתור הצגת נתונים */}
-      <button style={{ marginTop: '20px' }}>📊 הצגת נתונים ע"פ קריטריונים</button>
+      <button className="gradient-button" style={{ marginTop: '30px' }}>
+        📊 הצגת נתונים ע"פ קריטריונים
+      </button>
 
-      {/* כפתור ניהול מוסד */}
-      <button onClick={toggleOptions} style={{ margin: '10px' }}>ניהול מוסד</button>
+      <button className="gradient-button" onClick={toggleOptions} style={{ margin: '20px' }}>
+        ניהול מוסד
+      </button>
 
-      {/* הצגת אפשרויות ניהול מוסד */}
       {showOptions && (
         <div>
-          <button onClick={handleDialogOpen} style={{ margin: '5px' }}>➕ הוספת מוסד</button>
-          <button onClick={() => navigate('/admin/schools')} style={{ margin: '5px' }}>✏️ עריכת/מחיקת מוסד</button>        </div>
+          <button
+            className="gradient-button"
+            onClick={handleDialogOpen}
+            style={{ margin: '10px' }}
+          >
+            ➕ הוספת מוסד
+          </button>
+
+          <button
+            className="gradient-button"
+            onClick={() => navigate('/admin/schools')}
+            style={{ margin: '10px' }}
+          >
+            ✏️ עריכת/מחיקת מוסד
+          </button>
+        </div>
       )}
 
-      {/* דיאלוג הוספת מוסד */}
       <Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md" fullWidth>
         <DialogTitle>הוספת מוסד</DialogTitle>
         <DialogContent>
           <AddSchool onClose={handleDialogClose} />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDialogClose} color="secondary">סגור</Button>
+          <Button onClick={handleDialogClose} color="secondary">
+            סגור
+          </Button>
         </DialogActions>
       </Dialog>
     </div>
@@ -143,4 +152,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
