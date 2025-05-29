@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -19,6 +19,15 @@ const AddSchool = observer(() => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+useEffect(() => {
+  schoolStore.reset();
+}, []);
+
+useEffect(() => {
+  if (schoolStore.Barcode) {
+    schoolStore.fetchSchoolIdFromBarcode();
+  }
+}, [schoolStore.Barcode]);
 
   const validate = () => {
     const newErrors = {};
@@ -26,49 +35,32 @@ const AddSchool = observer(() => {
     if (!schoolStore.NumClass || schoolStore.NumClass <= 0) newErrors.NumClass = 'מספר כיתות חייב להיות גדול מ-0';
     if (!schoolStore.NumStudent || schoolStore.NumStudent <= 0) newErrors.NumStudent = 'מספר תלמידים חייב להיות גדול מ-0';
     if (!schoolStore.Barcode) newErrors.Barcode = 'שדה חובה';
-    // תוכל להוסיף כאן בדיקות נוספות לפי הצורך
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
-    try {
-      await schoolStore.addSchool();
-      await Swal.fire({
-        icon: 'success',
-        title: 'המוסד נוסף בהצלחה',
-        timer: 2000,
-        showConfirmButton: false,
-      });
-      schoolStore.resetSchoolData();
-      navigate(-1);
-    } catch (error) {
-      await Swal.fire({
-        icon: 'error',
-        title: 'שגיאה בשליחה',
-        text: error.message || 'נסה שוב מאוחר יותר',
-      });
-    } finally {
-      setLoading(false);
-    }
+   
   };
 
   const handleChange = (field, value) => {
     schoolStore.setField(field, value);
   };
 
-  // פונקציות לניהול כיתות ותלמידים (לפי הקוד שלך)
   const handleClassChange = (index, field, value) => {
-    schoolStore.setClassField(index, field, value);
+schoolStore.updateClass(index, field, value);
   };
 
-  const handleStudentChange = (index, field, value) => {
-    schoolStore.setStudentField(index, field, value);
-  };
+const handleStudentChange = (studentIndex, field, value) => {
+  schoolStore.students[studentIndex][field] = value;
+};
+
 
   const toggleStudentCheckbox = (index) => {
     schoolStore.toggleStudentChecked(index);
@@ -105,6 +97,9 @@ const AddSchool = observer(() => {
   return (
     <Box
       sx={{
+        maxHeight: '100vh', 
+        overflowY: 'auto', 
+        p: 2,
         direction: 'rtl',
         display: 'flex',
         justifyContent: 'center',
@@ -112,7 +107,6 @@ const AddSchool = observer(() => {
         height: '100vh',
         width: '100vw',
         backgroundColor: '#000000',
-        overflow: 'hidden',
         position: 'relative',
       }}
     >
@@ -149,7 +143,6 @@ const AddSchool = observer(() => {
           zIndex: 2,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
         }}
       >
         <Box
@@ -187,7 +180,7 @@ const AddSchool = observer(() => {
 
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid span={12} md={6}>
               <TextField
                 label="שם מוסד"
                 variant="outlined"
@@ -201,8 +194,7 @@ const AddSchool = observer(() => {
                 sx={inputSx}
               />
             </Grid>
-<Grid item xs={12} sm={3}>
-              <TextField
+ <Grid span={12} md={3}>              <TextField
                 label="ברקוד"
                 variant="outlined"
                 fullWidth
@@ -215,23 +207,23 @@ const AddSchool = observer(() => {
                 sx={inputSx}
               />
             </Grid>
-           <Grid item xs={12} sm={3}>
-  <TextField
+ <Grid span={12} md={3}>  <TextField
     label="מספר כיתות"
     variant="outlined"
     type="number"
     fullWidth
     value={schoolStore.NumClass || ''}
-    onChange={(e) => {
-      const value = Number(e.target.value);
-      if (!isNaN(value)) {
-        handleChange('NumClass', value);  // שמירה בשורה הראשית
-        schoolStore.updateClass(value); // עדכון מערך הכיתות בהתאם
-      } else {
-        handleChange('NumClass', 0);
-        schoolStore.updateClass(0);
-      }
-    }}
+   onChange={(e) => {
+  const value = Number(e.target.value);
+  if (!isNaN(value)) {
+    handleChange('NumClass', value);       // שמירה לשדה טופס אם נדרש
+    schoolStore.setNumClasses(value);      // ✅ זו השורה החשובה
+  } else {
+    handleChange('NumClass', 0);
+    schoolStore.setNumClasses(0);          // ✅ כאן גם תיקון
+  }
+}}
+
     inputProps={{ style: { textAlign: 'right' }, min: 0 }}
     InputLabelProps={{ sx: labelSx }}
     error={!!errors.NumClass}
@@ -241,8 +233,7 @@ const AddSchool = observer(() => {
 </Grid>
 
 
-            <Grid item xs={12} sm={6}>
-              <TextField
+ <Grid span={12} md={6}>              <TextField
                 label="מספר תלמידים כולל"
                 variant="outlined"
                 type="number"
@@ -276,41 +267,69 @@ const AddSchool = observer(() => {
             כיתות
           </Typography>
 
-{(schoolStore.classes || []).map((cls, idx) => (
-            <Grid container spacing={2} key={idx} sx={{ mb: 1 }}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="שם כיתה"
-                  variant="outlined"
-                  fullWidth
-                  value={cls.name}
-                  onChange={(e) => handleClassChange(idx, 'name', e.target.value)}
-                  inputProps={{ style: { textAlign: 'right' } }}
-                  InputLabelProps={{ sx: labelSx }}
-                  sx={inputSx}
-                />
-              </Grid>
+{(schoolStore.ClassList || []).map((cls, idx) => (
+  <Grid container spacing={2} key={cls.id || idx} sx={{ mb: 1 }}>
+    <Grid item xs={12} md={3}>
+      <TextField
+        label="שם כיתה"
+        variant="outlined"
+        fullWidth
+        value={cls.name || ""}
+        onChange={(e) => handleClassChange(idx, 'name', e.target.value)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
 
-              <Grid item xs={12} sm={4}>
-  <TextField
-    label="מספר תלמידים"
+    {/* שנת לימודים */}
+ <Grid span={12} md={2}>      <TextField
+        label="שנת לימוד"
+        variant="outlined"
+        type="number"
+        fullWidth
+        value={cls.year || ''}
+        onChange={(e) => handleClassChange(idx, 'year', Number(e.target.value))}
+        inputProps={{ style: { textAlign: 'right' }, min: 0 }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+
+ <Grid span={12} md={2}>  <TextField
+    label="קוד מוסד"
     variant="outlined"
-    type="number"
     fullWidth
-    value={cls.students}
-    onChange={(e) => handleClassChange(idx, 'students', Number(e.target.value))}
+    value={schoolStore.SchoolId || ''}
+    InputProps={{ readOnly: true }}
     inputProps={{ style: { textAlign: 'right' } }}
     InputLabelProps={{ sx: labelSx }}
     sx={inputSx}
   />
 </Grid>
 
-            </Grid>
-          ))}
+ <Grid span={12} md={3}>  <TextField
+    label="מספר תלמידים"
+    variant="outlined"
+    type="number"
+    fullWidth
+    value={cls.studentCount || 0}
+    onChange={(e) => {
+  handleClassChange(idx, 'studentCount', Number(e.target.value));
+  schoolStore.generateStudents();
+}}
+    inputProps={{ style: { textAlign: 'right' }, min: 0 }}
+    InputLabelProps={{ sx: labelSx }}
+    sx={inputSx}
+  />
+</Grid>
 
+
+  </Grid>
+))}
           <Divider sx={{ my: 2 }} />
 
-          {/* ניהול תלמידים */}
+ {/* ניהול תלמידים */}
           <Typography
             variant="h6"
             sx={{
@@ -325,50 +344,107 @@ const AddSchool = observer(() => {
           >
             תלמידים
           </Typography>
-
 {(schoolStore.students || []).map((student, idx) => (
-            <Grid container spacing={2} key={idx} alignItems="center" sx={{ mb: 1 }}>
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  label="שם תלמיד"
-                  variant="outlined"
-                  fullWidth
-                  value={student.name}
-                  onChange={(e) => handleStudentChange(idx, 'name', e.target.value)}
-                  inputProps={{ style: { textAlign: 'right' } }}
-                  InputLabelProps={{ sx: labelSx }}
-                  sx={inputSx}
-                />
-              </Grid>
+  <Grid container spacing={2} key={idx} alignItems="center" sx={{ mb: 2 }}>
+    
+    <Grid item xs={12} md={3}>
+      <TextField
+        label="שם תלמיד"
+        variant="outlined"
+        fullWidth
+        value={student.name || ""}
+        onChange={(e) => handleStudentChange(idx, 'name', e.target.value)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
 
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  label="מספר כיתה"
-                  variant="outlined"
-                  fullWidth
-                  value={student.classNum}
-                  onChange={(e) => handleStudentChange(idx, 'classNum', e.target.value)}
-                  inputProps={{ style: { textAlign: 'right' } }}
-                  InputLabelProps={{ sx: labelSx }}
-                  sx={inputSx}
-                />
-              </Grid>
+    <Grid item xs={12} md={3}>
+  <TextField
+    label="כיתה "
+    variant="outlined"
+    fullWidth
+    value={student.classNum || ""}
+    onChange={(e) => handleStudentChange(idx, 'classNum', e.target.value)}
+    inputProps={{ style: { textAlign: 'right' } }}
+    InputLabelProps={{ sx: labelSx }}
+    sx={inputSx}
+  />
+</Grid>
 
-              <Grid item xs={12} sm={2}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={student.checked}
-                      onChange={() => toggleStudentCheckbox(idx)}
-                      color="secondary"
-                    />
-                  }
-                  label="נבחר"
-                  sx={{ '& .MuiTypography-root': { fontWeight: 'bold' } }}
-                />
-              </Grid>
-            </Grid>
-          ))}
+
+    <Grid item xs={12} md={3}>
+      <TextField
+        label="טלפון"
+        variant="outlined"
+        fullWidth
+value={student.phone || ""}
+        onChange={(e) => handleStudentChange(idx, 'phone', e.target.value)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={2}>
+      <TextField
+        label="נקודות"
+        type="number"
+        variant="outlined"
+        fullWidth
+value={student.points ?? 0}
+        onChange={(e) => handleStudentChange(idx, 'points', parseInt(e.target.value) || 0)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={2}>
+      <TextField
+        label="מס' שיעורים"
+        type="number"
+        variant="outlined"
+        fullWidth
+value={student.timeLessons ?? 0}
+        onChange={(e) => handleStudentChange(idx, 'timeLessons', parseInt(e.target.value) || 0)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+<Grid item xs={12} md={1}>
+      <TextField
+        label="אינדקס"
+        type="number"
+        variant="outlined"
+        fullWidth
+value={student.index ?? 0}
+        onChange={(e) => handleStudentChange(idx, 'index', parseInt(e.target.value) || 0)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+    <Grid item xs={12} md={2}>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={student.success}
+            onChange={() => toggleStudentCheckbox(idx, 'success')}
+            color="primary"
+          />
+        }
+        label="עבר בהצלחה"
+        sx={{ '& .MuiTypography-root': { fontWeight: 'bold' } }}
+      />
+    </Grid>
+
+    
+  </Grid>
+))}
+
 
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
             <Button
@@ -395,13 +471,30 @@ const AddSchool = observer(() => {
               {loading ? 'שולח...' : 'שלח'}
             </Button>
 
-            <Button
-              variant="text"
-              onClick={() => navigate(-1)}
-              sx={{ mx: 2, color: '#999' }}
-            >
-              ביטול
-            </Button>
+        <Button
+  onClick={() => navigate(-1)}
+  sx={{
+    borderRadius: '50px',
+    border: '2px solid #999',
+    color: '#999',
+    background: 'transparent',
+    fontWeight: 600,
+    fontSize: '1rem',
+    boxShadow: '0 0 8px #ccc',
+    px: 3,
+    py: 1,
+    textTransform: 'none',
+    '&:hover': {
+      backgroundColor: '#f0f0f0',
+      color: '#555',
+      borderColor: '#888',
+      boxShadow: '0 0 12px #bbb',
+    },
+  }}
+>
+  ביטול
+</Button>
+
           </Box>
         </form>
       </Paper>

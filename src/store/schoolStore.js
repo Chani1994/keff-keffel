@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { makeAutoObservable, toJS, runInAction } from "mobx";
+import { makeAutoObservable, toJS, runInAction,reaction  } from "mobx";
 
 class SchoolStore {
   schools = [];
@@ -11,6 +11,7 @@ class SchoolStore {
   Barcode = "";
   NumStudent = 0;
   ClassList = [];
+  students = [];  
 
   constructor() {
     makeAutoObservable(this, {
@@ -23,19 +24,39 @@ class SchoolStore {
       addSchool: true,
       fetchSchools: true,
       updateSchool: true,
-      deleteSchool: true
+      deleteSchool: true,
+     fetchSchoolIdFromBarcode: true
+
+    });
+     reaction(
+      () => this.ClassList.map(cls => cls.name),
+      () => {
+        runInAction(() => {
+          this.updateClassNamesForStudents();
+        });
+      }
+    );
+
+  }
+ 
+  setField(field, value) {
+  this[field] = value;
+
+  if (field === 'Barcode') {
+    this.ClassList.forEach(cls => {
+      cls.idSchool = value;
     });
   }
 
-  setField(field, value) {
-    this[field] = value;
-
-    if (field === 'Barcode') {
-      this.ClassList.forEach(cls => {
-        cls.idSchool = value;
+  if (field === 'NameSchool') {
+    this.ClassList.forEach(cls => {
+      cls.students.forEach(stu => {
+        stu.school = value;
       });
-    }
+    });
   }
+}
+
 
   setNumClasses(num) {
     this.NumClass = num;
@@ -53,33 +74,56 @@ class SchoolStore {
       this.ClassList.splice(num);
     }
   }
+async fetchSchoolIdFromBarcode() {
+  try {
+    const response = await axios.get(`https://localhost:7245/api/SchoolId?barcode=${this.Barcode}`);
+    runInAction(() => {
+      this.SchoolId = response.data; // או כל שם שדה מתאים
+      // עדכון idSchool של כל כיתה לפי ה־Barcode שהוחזר
+      this.ClassList.forEach(cls => {
+        cls.idSchool = response.data;
+      });
+    });
+  } catch (error) {
+    console.error("❌ שגיאה בשליפת קוד מוסד לפי ברקוד:", error);
+  }
+}
 
   updateClass(classIndex, field, value) {
     this.ClassList[classIndex][field] = value;
   }
-
-  updateStudent(classIndex, studentIndex, field, value) {
+updateStudent(classIndex, studentIndex, field, value) {
+  runInAction(() => {
     this.ClassList[classIndex].students[studentIndex][field] = value;
+  });
+}
+
+
+setNumStudentsInClass(classIndex, numStudents) {
+  let students = this.ClassList[classIndex].students;
+
+  if (numStudents > students.length) {
+    for (let i = students.length; i < numStudents; i++) {
+     students.push({
+  name: "",
+  school: this.NameSchool,
+  classNum: this.ClassList[classIndex].name || '',
+  phone: "",
+  points: 0,
+  timeLessons: 0,
+  success: false,
+  index: 0,
+});
+
+    }
+  } else if (numStudents < students.length) {
+    // במקרה כזה נחתוך את הרשימה – אבל רק מהסוף, נשארים עם התלמידים שכבר מולאו
+    this.ClassList[classIndex].students = students.slice(0, numStudents);
   }
 
-  setNumStudentsInClass(classIndex, numStudents) {
-    let students = this.ClassList[classIndex].students;
-    if (numStudents > students.length) {
-      for (let i = students.length; i < numStudents; i++) {
-        students.push({
-          name: "",
-          school: "",
-          Classes: "",  
-          phone: "",
-          points: 0,
-          timeLessons: 0,
-          success: false,
-        });
-      }
-    } else if (numStudents < students.length) {
-      students.splice(numStudents);
-    }
-  }
+  this.updateClassNamesForStudents();
+}
+
 
   resetSchoolData() {
     this.NameSchool = "";
@@ -170,6 +214,38 @@ class SchoolStore {
       });
     }
   }
+generateStudents() {
+  this.students = [];
+
+  this.ClassList.forEach((cls, index) => {
+    for (let i = 0; i < cls.studentCount; i++) {
+      this.students.push({
+        name: '',
+        classIndex: index, // קישור לכיתה לפי אינדקס
+        checked: false,
+      });
+    }
+  });
+}
+ updateClassNamesForStudents() {
+    this.students.forEach(student => {
+      const cls = this.ClassList[student.classIndex];
+      if (cls) {
+        student.classNum = cls.name || '';
+      }
+    });
+  }
+
+ reset = () => {
+  this.setField('NameSchool', '');
+  this.setField('Barcode', '');
+  this.setField('NumClass', 0);
+  this.setField('NumStudent', 0);
+  this.setNumClasses(0);
+  this.ClassList = [];
+  this.students = [];
+  this.SchoolId = '';
+};
 
   async updateSchool(id, updatedSchool) {
     try {

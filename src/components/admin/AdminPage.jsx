@@ -74,7 +74,7 @@ const AdminPage = () => {
 
       {currentAdmin && (
         <button className="gradient-button" onClick={handleEdit}>
-          ✏️ ערוך פרטים
+           ערוך פרטים
         </button>
       )}
 
@@ -93,7 +93,7 @@ const AdminPage = () => {
                 onClick={() => navigate('/admin/add-admin')}
                 style={{ margin: '10px' }}
               >
-                ➕ הוספת מנהל
+                 הוספת מנהל
               </button>
 
               <button
@@ -101,7 +101,7 @@ const AdminPage = () => {
                 onClick={() => navigate('/admins')}
                 style={{ margin: '10px' }}
               >
-                ✏️ עריכת/מחיקת מנהל
+                 עריכת/מחיקת מנהל
               </button>
             </div>
           )}
@@ -109,7 +109,7 @@ const AdminPage = () => {
       )}
 
       <button className="gradient-button" style={{ marginTop: '30px' }}>
-        📊 הצגת נתונים ע"פ קריטריונים
+        הצגת נתונים ע"פ קריטריונים
       </button>
 
       <button className="gradient-button" onClick={toggleOptions} style={{ margin: '20px' }}>
@@ -123,7 +123,7 @@ const AdminPage = () => {
             onClick={handleDialogOpen}
             style={{ margin: '10px' }}
           >
-            ➕ הוספת מוסד
+             הוספת מוסד
           </button>
 
           <button
@@ -131,7 +131,7 @@ const AdminPage = () => {
             onClick={() => navigate('/admin/schools')}
             style={{ margin: '10px' }}
           >
-            ✏️ עריכת/מחיקת מוסד
+             עריכת/מחיקת מוסד
           </button>
         </div>
       )}
