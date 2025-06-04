@@ -1,19 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-import AddSchool from '../school/AddSchool';
-// import '../../css/home.css'; // עיצוב כפתורים כמו בעמוד הבית
-// import '../css/home.css';
+import { useNavigate } from 'react-router-dom';
+// import '../../css/admin.css'
 
 const AdminPage = () => {
   const [currentAdmin, setCurrentAdmin] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [showManageButtons, setShowManageButtons] = useState(false);
   const [showManageAdmins, setShowManageAdmins] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const fetchCurrentAdmin = async () => {
@@ -47,10 +42,6 @@ const AdminPage = () => {
     fetchCurrentAdmin();
   }, []);
 
-  useEffect(() => {
-    setDialogOpen(location.pathname === '/admin/add-school');
-  }, [location.pathname]);
-
   const handleEdit = () => {
     if (currentAdmin) {
       navigate(`/admin/edit-admin/${currentAdmin.id}`);
@@ -59,94 +50,103 @@ const AdminPage = () => {
 
   const toggleOptions = () => setShowOptions(prev => !prev);
   const toggleManageAdmins = () => setShowManageAdmins(prev => !prev);
-  const handleDialogOpen = () => {
-    setDialogOpen(true);
-    navigate('/admin/add-school');
-  };
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-    navigate('/admin');
-  };
 
   return (
-    <div className="admin-page" style={{ textAlign: 'center', padding: '30px' }}>
-      <h2>ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!</h2>
+    <div
+      className="admin-page"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        height: '100vh',
+        width: '100vw',
+        direction: 'rtl',
+      }}
+    >
+      {/* צד ימין: כפתורים */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingRight: '50px',
+          textAlign: 'center',
+        }}
+      >
+        <h2>ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!</h2>
 
-      {currentAdmin && (
-        <button className="gradient-button" onClick={handleEdit}>
-           ערוך פרטים
+        {currentAdmin && (
+          <button className="gradient-button" onClick={handleEdit}>
+            ערוך פרטים
+          </button>
+        )}
+
+        {showManageButtons && (
+          <>
+            <button className="gradient-button" onClick={toggleManageAdmins} style={{ marginTop: '20px' }}>
+              ניהול מנהלים
+            </button>
+
+            {showManageAdmins && (
+              <div style={{ marginTop: '20px' }}>
+                <button className="gradient-button" onClick={() => navigate('/admin/add-admin')} style={{ margin: '10px' }}>
+                  הוספת מנהל
+                </button>
+                <button className="gradient-button" onClick={() => navigate('/admins')} style={{ margin: '10px' }}>
+                  עריכת/מחיקת מנהל
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        <button className="gradient-button" style={{ marginTop: '30px' }}>
+          הצגת נתונים ע"פ קריטריונים
         </button>
-      )}
 
-      <h2 style={{ marginTop: '30px' }}>ברוכה הבאה לניהול</h2>
+        <button className="gradient-button" onClick={toggleOptions} style={{ margin: '20px' }}>
+          ניהול מוסד
+        </button>
 
-      {showManageButtons && (
-        <div>
-          <button className="gradient-button" onClick={toggleManageAdmins} style={{ marginTop: '20px' }}>
-            ניהול מנהלים
-          </button>
+        {showOptions && (
+          <div>
+            <button
+              className="gradient-button"
+              onClick={() => navigate('/admin/add-school')}
+              style={{ margin: '10px' }}
+            >
+              הוספת מוסד
+            </button>
+            <button
+              className="gradient-button"
+              onClick={() => navigate('/admin/schools')}
+              style={{ margin: '10px' }}
+            >
+              עריכת/מחיקת מוסד
+            </button>
+          </div>
+        )}
+      </div>
 
-          {showManageAdmins && (
-            <div style={{ marginTop: '20px' }}>
-              <button
-                className="gradient-button"
-                onClick={() => navigate('/admin/add-admin')}
-                style={{ margin: '10px' }}
-              >
-                 הוספת מנהל
-              </button>
-
-              <button
-                className="gradient-button"
-                onClick={() => navigate('/admins')}
-                style={{ margin: '10px' }}
-              >
-                 עריכת/מחיקת מנהל
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      <button className="gradient-button" style={{ marginTop: '30px' }}>
-        הצגת נתונים ע"פ קריטריונים
-      </button>
-
-      <button className="gradient-button" onClick={toggleOptions} style={{ margin: '20px' }}>
-        ניהול מוסד
-      </button>
-
-      {showOptions && (
-        <div>
-          <button
-            className="gradient-button"
-            onClick={handleDialogOpen}
-            style={{ margin: '10px' }}
-          >
-             הוספת מוסד
-          </button>
-
-          <button
-            className="gradient-button"
-            onClick={() => navigate('/admin/schools')}
-            style={{ margin: '10px' }}
-          >
-             עריכת/מחיקת מוסד
-          </button>
-        </div>
-      )}
-
-      <Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md" fullWidth>
-        <DialogTitle>הוספת מוסד</DialogTitle>
-        <DialogContent>
-          <AddSchool onClose={handleDialogClose} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="secondary">
-            סגור
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* צד שמאל: לוגו */}
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'right',
+          paddingLeft: '0px'
+        }}
+      >
+        <img
+          src="/logo1.png"
+          alt="לוגו"
+          style={{
+            width: '400px',
+            height: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      </div>
     </div>
   );
 };
