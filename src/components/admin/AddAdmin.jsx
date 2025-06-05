@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import Swal from 'sweetalert2';
 
 import {
   Box,
@@ -53,27 +54,45 @@ const [loading, setLoading] = useState(false);
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  if (!idSchool) {
-    alert('יש לבחור מוסד לפני ההוספה');
+  const errors = [];
+
+  if (!nameAdmin.trim()) errors.push('יש להזין שם מנהל');
+  if (!password.trim()) errors.push('יש להזין סיסמה');
+  if (!email.trim()) errors.push('יש להזין אימייל');
+  if (!phoneAdmin.trim()) errors.push('יש להזין טלפון');
+  if (!adminType) errors.push('יש לבחור סוג מנהל');
+
+  if (errors.length > 0) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'שדות חסרים',
+      html: errors.map((err) => `<p style="text-align:right">${err}</p>`).join(''),
+      confirmButtonText: 'אישור',
+    });
     return;
   }
 
-  setLoading(true); // תחילת טעינה
+  setLoading(true);
 
   const newAdmin = {
     nameAdmin,
     password,
     email,
-    fax,
+    fax, // יכול להיות ריק
     phoneAdmin,
-    idSchool,
+    idSchool, // יכול להיות ריק
     adminType,
   };
 
   try {
     await adminStore.addAdmin(newAdmin, navigate);
+    Swal.fire({
+      icon: 'success',
+      title: 'מנהל נוסף בהצלחה!',
+      confirmButtonText: 'סגור',
+    });
 
-    // איפוס השדות אחרי הוספה מוצלחת
+    // איפוס שדות
     setNameAdmin('');
     setPassword('');
     setEmail('');
@@ -82,12 +101,16 @@ const [loading, setLoading] = useState(false);
     setIdSchool('');
     setAdminType('');
   } catch (error) {
-    console.error('Error adding admin:', error);
-    alert('אירעה שגיאה בעת הוספת מנהל');
+    Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: 'אירעה שגיאה בעת הוספת מנהל',
+    });
   } finally {
-    setLoading(false); // סיום טעינה
+    setLoading(false);
   }
 };
+
 
   return (
     <Box

@@ -272,7 +272,7 @@ const AdminPage = () => {
                   </IconButton>
 
                   <IconButton
-                    onClick={() => navigate('/schools')}
+                    onClick={() => navigate('/admin/schools')}
                     sx={{
                       borderRadius: '50%',
                       borderWidth: '1px',
