@@ -1,14 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import '../../css/admin.css'
+import EditIcon from '@mui/icons-material/Edit';
+import { IconButton } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
 
 const AdminPage = () => {
   const [currentAdmin, setCurrentAdmin] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
   const [showManageButtons, setShowManageButtons] = useState(false);
   const [showManageAdmins, setShowManageAdmins] = useState(false);
+  const [hoveredButton, setHoveredButton] = useState(null); // מזהה כפתור ב-hover
 
   const navigate = useNavigate();
+
+  // סטייל בסיסי לכפתור
+  const buttonStyle = {
+    background: 'transparent',
+    color: '#00bcd4',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    borderColor: '#00bcd4',
+    borderRadius: '30px',
+    padding: '10px 20px',
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 0 8px #00bcd4',
+    textAlign: 'center',
+  };
+
+  // סטייל כפתור במצב hover
+  const hoverStyle = {
+    background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+    color: '#fff',
+    borderColor: '#e91e63',
+    boxShadow: '0 0 20px #e91e63',
+  };
 
   useEffect(() => {
     const fetchCurrentAdmin = async () => {
@@ -52,103 +80,263 @@ const AdminPage = () => {
   const toggleManageAdmins = () => setShowManageAdmins(prev => !prev);
 
   return (
-    <div
-      className="admin-page"
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        height: '100vh',
-        width: '100vw',
-        direction: 'rtl',
-      }}
-    >
-      {/* צד ימין: כפתורים */}
+    <>
       <div
+        className="admin-page"
         style={{
-          flex: 1,
           display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          paddingRight: '50px',
-          textAlign: 'center',
+          flexDirection: 'row',
+          height: '100vh',
+          width: '100vw',
+          direction: 'rtl',
         }}
       >
-        <h2>ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!</h2>
-
-        {currentAdmin && (
-          <button className="gradient-button" onClick={handleEdit}>
-            ערוך פרטים
-          </button>
-        )}
-
-        {showManageButtons && (
-          <>
-            <button className="gradient-button" onClick={toggleManageAdmins} style={{ marginTop: '20px' }}>
-              ניהול מנהלים
-            </button>
-
-            {showManageAdmins && (
-              <div style={{ marginTop: '20px' }}>
-                <button className="gradient-button" onClick={() => navigate('/admin/add-admin')} style={{ margin: '10px' }}>
-                  הוספת מנהל
-                </button>
-                <button className="gradient-button" onClick={() => navigate('/admins')} style={{ margin: '10px' }}>
-                  עריכת/מחיקת מנהל
-                </button>
-              </div>
-            )}
-          </>
-        )}
-
-        <button className="gradient-button" style={{ marginTop: '30px' }}>
-          הצגת נתונים ע"פ קריטריונים
-        </button>
-
-        <button className="gradient-button" onClick={toggleOptions} style={{ margin: '20px' }}>
-          ניהול מוסד
-        </button>
-
-        {showOptions && (
-          <div>
-            <button
-              className="gradient-button"
-              onClick={() => navigate('/admin/add-school')}
-              style={{ margin: '10px' }}
+        {/* צד ימין: כפתורים */}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            paddingRight: '50px',
+            textAlign: 'center',
+          }}
+        >
+          <h2
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              justifyContent: 'center',
+              color: 'white',
+              WebkitTextStroke: '0.5px #00bcd4',
+              fontWeight: 'bold',
+              fontSize: '2rem',
+            }}
+          >
+            ברוך הבא, {currentAdmin ? currentAdmin.nameAdmin : 'מנהל'}!
+            <IconButton
+              onClick={handleEdit}
+              sx={{
+                borderRadius: '50%',
+                borderWidth: '1px',
+                borderStyle: 'solid',
+                borderColor: '#00bcd4',
+                color: '#00bcd4',
+                background: 'transparent',
+                boxShadow: '0 0 8px #00bcd4',
+                p: 1,
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  background:
+                    'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                  color: '#fff',
+                  borderColor: '#e91e63',
+                  boxShadow: '0 0 20px #e91e63',
+                },
+              }}
             >
-              הוספת מוסד
-            </button>
-            <button
-              className="gradient-button"
-              onClick={() => navigate('/admin/schools')}
-              style={{ margin: '10px' }}
-            >
-              עריכת/מחיקת מוסד
-            </button>
-          </div>
-        )}
-      </div>
+              <EditIcon />
+            </IconButton>
+          </h2>
 
-      {/* צד שמאל: לוגו */}
-      <div
+          {showManageButtons && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+                alignItems: 'center',
+                marginTop: '20px',
+              }}
+            >
+              {/* כפתור ניהול מנהלים */}
+              <button
+                style={hoveredButton === 'manageAdmins' ? { ...buttonStyle, ...hoverStyle } : buttonStyle}
+                onMouseEnter={() => setHoveredButton('manageAdmins')}
+                onMouseLeave={() => setHoveredButton(null)}
+                onClick={toggleManageAdmins}
+              >
+                ניהול מנהלים
+              </button>
+
+              {showManageAdmins && (
+                <div
+                  style={{
+                    marginTop: '20px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '16px',
+                  }}
+                >
+                  <IconButton
+                    onClick={() => navigate('/admin/add-admin')}
+                    sx={{
+                      borderRadius: '50%',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: '#00bcd4',
+                      color: '#00bcd4',
+                      background: 'transparent',
+                      boxShadow: '0 0 8px #00bcd4',
+                      p: 1.5,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        background:
+                          'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                        color: '#fff',
+                        borderColor: '#e91e63',
+                        boxShadow: '0 0 20px #e91e63',
+                      },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
+
+                  <IconButton
+                    onClick={() => navigate('/admins')}
+                    sx={{
+                      borderRadius: '50%',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: '#00bcd4',
+                      color: '#00bcd4',
+                      background: 'transparent',
+                      boxShadow: '0 0 8px #00bcd4',
+                      p: 1.5,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        background:
+                          'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                        color: '#fff',
+                        borderColor: '#e91e63',
+                        boxShadow: '0 0 20px #e91e63',
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </div>
+              )}
+
+              {/* כפתור הצגת נתונים */}
+              <button
+                style={hoveredButton === 'showData' ? { ...buttonStyle, ...hoverStyle } : buttonStyle}
+                onMouseEnter={() => setHoveredButton('showData')}
+                onMouseLeave={() => setHoveredButton(null)}
+              >
+                הצגת נתונים ע"פ קריטריונים
+              </button>
+
+              {/* כפתור ניהול מוסד */}
+              <button
+                style={hoveredButton === 'manageInstitution' ? { ...buttonStyle, ...hoverStyle } : buttonStyle}
+                onMouseEnter={() => setHoveredButton('manageInstitution')}
+                onMouseLeave={() => setHoveredButton(null)}
+                onClick={toggleOptions}
+              >
+                ניהול מוסד
+              </button>
+
+              {showOptions && (
+                <div
+                  style={{
+                    marginTop: '20px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '16px',
+                  }}
+                >
+                  <IconButton
+                    onClick={() => navigate('/admin/add-school')}
+                    sx={{
+                      borderRadius: '50%',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: '#00bcd4',
+                      color: '#00bcd4',
+                      background: 'transparent',
+                      boxShadow: '0 0 8px #00bcd4',
+                      p: 1.5,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        background:
+                          'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                        color: '#fff',
+                        borderColor: '#e91e63',
+                        boxShadow: '0 0 20px #e91e63',
+                      },
+                    }}
+                  >
+                    <AddIcon />
+                  </IconButton>
+
+                  <IconButton
+                    onClick={() => navigate('/schools')}
+                    sx={{
+                      borderRadius: '50%',
+                      borderWidth: '1px',
+                      borderStyle: 'solid',
+                      borderColor: '#00bcd4',
+                      color: '#00bcd4',
+                      background: 'transparent',
+                      boxShadow: '0 0 8px #00bcd4',
+                      p: 1.5,
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        background:
+                          'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                        color: '#fff',
+                        borderColor: '#e91e63',
+                        boxShadow: '0 0 20px #e91e63',
+                      },
+                    }}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+    <div
         style={{
           flex: 1,
           display: 'flex',
-          justifyContent: 'right',
-          paddingLeft: '0px'
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
       >
         <img
-          src="/logo1.png"
-          alt="לוגו"
+          src="logo1.png"
+          alt="Admin Page"
           style={{
-            width: '400px',
+            maxWidth: '100%',
             height: 'auto',
-            objectFit: 'contain',
+            borderRadius: '20px',
+            animation: 'slideIn 1.5s ease forwards',
           }}
         />
       </div>
-    </div>
+      <style>
+        {`
+          @keyframes slideIn {
+            0% {
+              transform: translateX(-100%);
+              opacity: 0;
+            }
+            100% {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+        `}
+      </style>
+</div>
+    </>
   );
 };
 
 export default AdminPage;
+

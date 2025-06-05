@@ -54,83 +54,115 @@ class AdminStore {
       console.error('שגיאה בשליפת המנהל הנוכחי:', error);
     }
   }
+async login({ nameAdmin, password },navigate) {
+  console.log('login called with:', nameAdmin, password);
+  const trimmedName = nameAdmin?.toLowerCase().trim();
+  const trimmedPassword = password;
 
-  async login(navigate) {
-    await this.fetchAdmins();
+  console.log('שם מוקלד:', trimmedName);
+  console.log('סיסמה מוקלדת:', trimmedPassword);
 
-    const exact = this.admins.find(
-      (a) => a.nameAdmin === this.name && a.password === this.password
-    );
+  await this.fetchAdmins();
 
-    if (exact) {
-      localStorage.setItem('adminId', exact.id);
-      localStorage.setItem('adminType', exact.adminType);
-      localStorage.setItem('adminName', exact.nameAdmin);
-      this.currentAdmin = exact;
+  console.log('רשימת מנהלים:', this.admins.map(a => ({
+    nameAdmin: a.nameAdmin?.toLowerCase().trim(),
+    password: a.password
+  })));
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'ברוך הבא!',
-        text: `שלום ${exact.nameAdmin}, התחברת בהצלחה.`,
-        confirmButtonText: 'המשך'
-      });
+  const exact = this.admins.find(
+    (a) =>
+      a.nameAdmin?.toLowerCase().trim() === trimmedName &&
+      a.password === trimmedPassword
+  );
 
-      navigate('/admin');
-      return;
-    }
+  if (exact) {
+    localStorage.setItem('adminId', exact.id || exact.id);
+    localStorage.setItem('adminType', exact.adminType);
+    localStorage.setItem('adminName', exact.nameAdmin);
 
-    const partial = this.admins.find(
-      (a) => a.nameAdmin === this.name || a.password === this.password
-    );
+    this.currentAdmin = exact;
 
     await Swal.fire({
-      icon: partial ? 'error' : 'warning',
-      title: partial ? 'שגיאה' : 'מנהל לא רשום',
-      text: partial
-        ? 'שם משתמש או סיסמה שגויים'
-        : 'שם המשתמש והסיסמה אינם רשומים במערכת',
-      confirmButtonText: 'אישור'
+      icon: 'success',
+      title: 'ברוך הבא!',
+      text: `שלום ${exact.nameAdmin}, התחברת בהצלחה.`,
+      confirmButtonText: 'המשך'
     });
+
+    navigate('/admin');
+    return;
   }
 
+  const partial = this.admins.find(
+    (a) =>
+      a.nameAdmin?.toLowerCase().trim() === trimmedName ||
+      a.password === trimmedPassword
+  );
+
+  await Swal.fire({
+    icon: partial ? 'error' : 'warning',
+    title: partial ? 'שגיאה' : 'מנהל לא רשום',
+    text: partial
+      ? 'שם משתמש או סיסמה שגויים'
+      : 'שם המשתמש והסיסמה אינם רשומים במערכת',
+    confirmButtonText: 'אישור'
+  });
+}
+
   async addAdmin(newAdmin, navigate) {
-    try {
-      const existing = this.admins.find(
-        (admin) => admin.nameAdmin === newAdmin.nameAdmin
-      );
+  try {
+    const existing = this.admins.find(
+      (admin) => admin.nameAdmin === newAdmin.nameAdmin
+    );
 
-      if (existing) {
-        Swal.fire({
-          icon: 'error',
-          title: 'שגיאה',
-          text: 'מנהל עם שם זה כבר קיים',
-          confirmButtonText: 'אישור'
-        });
-        return;
-      }
-
-      const response = await axios.post('https://localhost:7245/api/Admin', newAdmin);
-      runInAction(() => {
-        this.admins.push(response.data);
-      });
-
-      Swal.fire({
-        icon: 'success',
-        title: 'המנהל נוסף בהצלחה!',
-        confirmButtonText: 'המשך'
-      });
-
-      navigate('/admin');
-    } catch (error) {
-      console.error('שגיאה בהוספת מנהל:', error);
+    if (existing) {
       Swal.fire({
         icon: 'error',
         title: 'שגיאה',
-        text: error.response?.data || 'אירעה שגיאה בהוספת מנהל.',
+        text: 'מנהל עם שם זה כבר קיים',
         confirmButtonText: 'אישור'
       });
+      return;
+    }
+
+    const payload = {
+      ...newAdmin,
+    };
+
+    const response = await axios.post('https://localhost:7245/api/Admin', payload);
+    runInAction(() => {
+      this.admins.push(response.data);
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: 'המנהל נוסף בהצלחה!',
+      confirmButtonText: 'המשך'
+    });
+
+    navigate('/admin');
+  } catch (error) {
+  console.error('שגיאה בהוספת מנהל:', error);
+  if (error.response) {
+    console.error('Response data:', error.response.data);
+    console.error('Response status:', error.response.status);
+    console.error('Response headers:', error.response.headers);
+    
+    // אם זה אובייקט, הדפס אותו פורמט JSON קריא
+    if (typeof error.response.data === 'object') {
+      console.error('Response JSON:', JSON.stringify(error.response.data, null, 2));
     }
   }
+  Swal.fire({
+    icon: 'error',
+    title: 'שגיאה',
+    text: error.response?.data?.title || error.response?.data?.detail || 'אירעה שגיאה בהוספת מנהל.',
+    confirmButtonText: 'אישור'
+  });
+}
+
+
+}
 
   async deleteAdmin(adminId) {
     try {

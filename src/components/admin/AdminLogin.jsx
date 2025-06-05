@@ -23,13 +23,11 @@ function AdminLogin() {
       setError('אנא מלא את כל השדות');
       return;
     }
-
     try {
-      // הנחה: adminStore.login מחזירה Promise
-      await adminStore.login({ username, password }, navigate);
-      // במידה ויש צורך, אפשר להוסיף כאן ניתוב או הודעה נוספת
+      await adminStore.login({ nameAdmin: username, password },navigate);
+      
     } catch (err) {
-      setError('שם משתמש או סיסמה שגויים');
+
     }
   };
 
@@ -211,7 +209,7 @@ function AdminLogin() {
           שכחת סיסמא?{' '}
           <Link
             component="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/')} // לוודא שהנתיב נכון לאיפוס סיסמה
             sx={{
               fontWeight: 'bold',
               textDecoration: 'underline',

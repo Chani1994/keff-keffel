@@ -446,56 +446,57 @@ value={student.index ?? 0}
 ))}
 
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-            <Button
-              type="submit"
-              variant="contained"
-              disabled={loading}
-              sx={{
-                borderRadius: '50px',
-                border: '2px solid #e91e63',
-                color: '#e91e63',
-                background: 'transparent',
-                fontWeight: 600,
-                fontSize: '1rem',
-                boxShadow: '0 0 8px #e91e63',
-                '&:hover': {
-                  background:
-                    'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-                  color: '#fff',
-                  borderColor: '#e91e63',
-                  boxShadow: '0 0 20px #e91e63',
-                },
-              }}
-            >
-              {loading ? 'שולח...' : 'שלח'}
-            </Button>
-
-        <Button
-  onClick={() => navigate(-1)}
-  sx={{
-    borderRadius: '50px',
-    border: '2px solid #999',
-    color: '#999',
-    background: 'transparent',
-    fontWeight: 600,
-    fontSize: '1rem',
-    boxShadow: '0 0 8px #ccc',
-    px: 3,
-    py: 1,
-    textTransform: 'none',
-    '&:hover': {
-      backgroundColor: '#f0f0f0',
-      color: '#555',
-      borderColor: '#888',
-      boxShadow: '0 0 12px #bbb',
-    },
-  }}
->
-  ביטול
-</Button>
-
-          </Box>
+      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            sx={{
+              borderRadius: '50px',
+              border: '2px solid #e91e63',
+              color: '#e91e63',
+              background: 'transparent',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 0 8px #e91e63',
+              px: 4,
+              py: 1.5,
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                color: '#fff',
+                borderColor: '#e91e63',
+                boxShadow: '0 0 20px #e91e63',
+              },
+            }}
+          >
+            {loading ? 'מוסיף...' : 'הוסף'}
+          </Button>
+      
+          <Button
+            onClick={() => navigate(-1)}
+            sx={{
+              borderRadius: '50px',
+              border: '2px solid #999',
+              color: '#999',
+              background: 'transparent',
+              fontWeight: 600,
+              fontSize: '1rem',
+              boxShadow: '0 0 8px #ccc',
+              px: 4,
+              py: 1.5,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#f0f0f0',
+                color: '#555',
+                borderColor: '#888',
+                boxShadow: '0 0 12px #e91e63',
+              },
+            }}
+          >
+            ביטול
+          </Button>
+        </Grid>
         </form>
       </Paper>
     </Box>
