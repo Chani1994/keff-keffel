@@ -452,7 +452,7 @@ const handleSchoolChange = (e) => {
     </Grid>
 
     <Grid item xs={12} sm={4}>
-     <FormControl fullWidth sx={{ textAlign: 'right' }}>
+<FormControl fullWidth sx={{ textAlign: 'right', minWidth: 130 }}>
   <InputLabel
     shrink
     sx={{

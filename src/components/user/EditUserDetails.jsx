@@ -3,7 +3,16 @@ import { observer } from 'mobx-react-lite';
 import userStore from '../../store/userStore';
 import { useNavigate } from 'react-router-dom';
 
-const EditUserDetails = observer(() => {
+import {
+  Box,
+  Paper,
+  TextField,
+  Typography,
+  Grid,
+  Button,
+} from '@mui/material';
+
+const EditUserDetails = observer(({ closeDialog }) => {
   const [user, setUser] = useState({
     name: '',
     school: '',
@@ -17,7 +26,6 @@ const EditUserDetails = observer(() => {
 
   const navigate = useNavigate();
 
-  // נטעין את פרטי המשתמש הקיים מה־store כשנטען הקומפוננטה
   useEffect(() => {
     if (userStore.currentUser) {
       setUser(userStore.currentUser);
@@ -34,22 +42,154 @@ const EditUserDetails = observer(() => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    userStore.updateUser(user, navigate); // ודא שהפונקציה הזו קיימת ב־store
+    userStore.updateUser(user, navigate);
   };
 
   return (
-    <div className="register-container">
-      <h2>עריכת פרטי משתמש</h2>
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="שם מלא" value={user.name} onChange={handleChange} />
-        <input name="school" placeholder="בית ספר" value={user.school} onChange={handleChange} />
-        <input name="classes" placeholder="כיתה" value={user.classes} onChange={handleChange} />
-        <input name="phone" placeholder="טלפון" value={user.phone} onChange={handleChange} />
-        {/* <input name="points" type="number" placeholder="נקודות" value={user.points} onChange={handleChange} />
-        <input name="timeLessons" type="number" placeholder="זמן שיעורים" value={user.timeLessons} onChange={handleChange} /> */}
-        <button type="submit">שמור שינויים</button>
-      </form>
-    </div>
+<Box
+  sx={{
+    height: '100vh',
+    overflow: 'hidden',
+    // position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  {/* לוגו ברקע */}
+  <Box
+    sx={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      width: '50vw',
+      height: '40vh',
+      backgroundImage: 'url("/logo3.png")',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'contain',
+      backgroundPosition: 'center',
+      opacity: 0.05,
+      pointerEvents: 'none',
+      zIndex: 0,
+    }}
+  />
+
+  {/* תוכן מעל הלוגו */}
+  <Box
+    sx={{
+      position: 'relative',
+      zIndex: 1,
+      width: '100%',
+      maxWidth: 800,
+       maxHeight: 300,
+
+    }}
+  >
+    {/* כותרת ולוגו */}
+    <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+      <img src="/logo1.png" alt="לוגו" style={{ width: 60 }} />
+      <Typography
+        variant="h4"
+        sx={{
+          // fontWeight:'meduim',
+          background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+        }}
+      >
+        עריכת פרטי משתמש
+      </Typography>
+    </Box>
+
+    {/* טופס */}
+    <form onSubmit={handleSubmit} autoComplete="off">
+      <Grid container spacing={2} justifyContent="center">
+        {[
+          { name: 'name', label: 'שם מלא' },
+          { name: 'school', label: 'מוסד' },
+          { name: 'classes', label: 'כיתה' },
+          { name: 'phone', label: 'טלפון' },
+        ].map((field) => (
+          <Grid item xs={12} sm={6} key={field.name}>
+            <TextField
+              fullWidth
+              label={field.label}
+              name={field.name}
+              value={user[field.name]}
+              onChange={handleChange}
+              variant="outlined"
+              inputProps={{ style: { textAlign: 'right' } }}
+              sx={{
+                direction: 'rtl',
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#f9f9f9',
+                  borderRadius: '10px',
+                },
+              }}
+              InputLabelProps={{
+                sx: {
+                  right: 16,
+                  left: 'auto',
+                  transformOrigin: 'top right',
+                  background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontWeight: 'bold',
+                },
+              }}
+              required
+            />
+          </Grid>
+        ))}
+      </Grid>
+
+<Box sx={{ mt: 2, textAlign: 'center' }}>
+  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+    <Button
+      type="submit"
+      variant="contained"
+      sx={{
+        borderRadius: '30px',
+        border: '2px solid #e91e63',
+        color: '#e91e63',
+        background: 'transparent',
+        fontWeight: 600,
+        fontSize: '0.85rem',
+        boxShadow: '0 0 6px #e91e63',
+        px: 3,
+        py: 1,
+        textTransform: 'none',
+      }}
+    >
+      שמור שינויים
+    </Button>
+
+    <Button
+      onClick={closeDialog}
+      sx={{
+        borderRadius: '30px',
+        border: '2px solid #999',
+        color: '#999',
+        background: 'transparent',
+        fontWeight: 600,
+        fontSize: '0.85rem',
+        boxShadow: '0 0 6px #ccc',
+        px: 3,
+        py: 1,
+        textTransform: 'none',
+      }}
+    >
+      ביטול
+    </Button>
+  </Grid>
+</Box>
+
+    </form>
+  </Box>
+</Box>
+
   );
 });
 

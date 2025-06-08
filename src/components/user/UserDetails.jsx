@@ -10,7 +10,10 @@ import {
   DialogContent,
   IconButton,
   Button,
-  CircularProgress
+  CircularProgress,
+  Paper,
+  Typography,
+  Box,
 } from '@mui/material';
 import EditUserDetails from './EditUserDetails';
 
@@ -22,21 +25,20 @@ const getGreeting = () => {
   return 'לילה טוב';
 };
 
-const UserDetails = observer(({ closeDialog }) => {
+const UserDetails = observer(() => {
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const navigate = useNavigate();
-useEffect(() => {
-  const savedUser = localStorage.getItem('currentUser');
-  if (savedUser && savedUser !== '""') {
-    runInAction(() => {
-      UserStore.currentUser = JSON.parse(savedUser);
-    });
-  }
-  setLoading(false);
-}, []);
 
-
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser && savedUser !== '""') {
+      runInAction(() => {
+        UserStore.currentUser = JSON.parse(savedUser);
+      });
+    }
+    setLoading(false);
+  }, []);
 
   const logout = () => {
     runInAction(() => {
@@ -50,15 +52,9 @@ useEffect(() => {
     navigate('/user/details/learningReport');
   };
 
-  const handleEditClick = () => {
-    setOpenDialog(true);
-  };
+  const handleEditClick = () => setOpenDialog(true);
+  const handleCloseDialog = () => setOpenDialog(false);
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-  // פונקציה שתיקבל את המשתמש המעודכן מ-EditUserDetails
   const handleUserUpdate = (updatedUser) => {
     UserStore.updateUser(updatedUser, () => {
       setOpenDialog(false);
@@ -69,52 +65,198 @@ useEffect(() => {
   const user = UserStore.currentUser;
   const greeting = getGreeting();
 
-  if (loading) return <div style={{ textAlign: 'center', marginTop: '2rem' }}><CircularProgress /></div>;
-  if (!user) return <div style={{ textAlign: 'center', marginTop: '2rem' }}>לא התחברת עדיין</div>;
+  if (loading) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 8 }}>
+        <CircularProgress color="secondary" />
+      </Box>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 8, color: 'white' }}>
+        לא התחברת עדיין
+      </Box>
+    );
+  }
 
   return (
-    <div style={{ direction: 'rtl', padding: '2rem', textAlign: 'right', maxWidth: 600, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2 style={{ margin: 0 }}>
-          {greeting}, {user.name}!
-        </h2>
-        <IconButton onClick={handleEditClick} aria-label="edit user">
-          <EditIcon />
-        </IconButton>
-      </div>
+    <Box
+      sx={{
+        direction: 'rtl',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: '#000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* לוגו שקוף ברקע */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          backgroundImage: 'url("/logo3.png")',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'contain',
+          backgroundPosition: 'center',
+          opacity: 0.05,
+          width: '70vw',
+          height: '70vh',
+          zIndex: 0,
+        }}
+      />
 
-      <p><strong>שם:</strong> {user.name}</p>
-      <p><strong>בית ספר:</strong> {user.school}</p>
-      <p><strong>כיתה:</strong> {user.classes}</p>
-      <p><strong>טלפון:</strong> {user.phone}</p>
-      <p><strong>נקודות:</strong> {user.points}</p>
-      <p><strong>מספר שיעורים:</strong> {user.timeLessons}</p>
-      <p><strong>הצלחה:</strong> {user.success ? '✓ כן' : '✗ לא'}</p>
-      <p><strong>אינדקס:</strong> {user.index}</p>
-      <p><strong>מזהה:</strong> {user.id}</p>
+      {/* תיבת תוכן */}
+      <Paper
+        elevation={6}
+        sx={{
+          width: '90%',
+          maxWidth: '600px',
+          p: 4,
+          borderRadius: '20px',
+          backgroundColor: '#fff',
+          zIndex: 2,
+          boxShadow:
+            '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 60px #4dd0e1',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3,
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              background:
+                'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 'bold',
+            }}
+          >
+            {greeting}, {user.name}!
+          </Typography>
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-        <Button variant="contained" color="primary" onClick={goToReport}>
-          דוח למידה
-        </Button>
-        <Button variant="contained" color="error" onClick={logout}>
-          התנתקות
-        </Button>
-      </div>
+          <IconButton onClick={handleEditClick} color="secondary">
+            <EditIcon />
+          </IconButton>
+        </Box>
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>עריכת פרטי משתמש</DialogTitle>
-        <DialogContent>
-          <EditUserDetails
-            user={user}
-            closeDialog={handleCloseDialog}
-            onSubmit={handleUserUpdate}
-          />
-        </DialogContent>
-      </Dialog>
+        {/* פרטי משתמש */}
+        {[
+          { label: 'שם', value: user.name },
+          { label: 'בית ספר', value: user.school },
+          { label: 'כיתה', value: user.classes },
+          { label: 'טלפון', value: user.phone },
+          { label: 'נקודות', value: user.points },
+          { label: 'מספר שיעורים', value: user.timeLessons },
+          { label: 'הצלחה', value: user.success ? '✓ כן' : '✗ לא' },
+          { label: 'אינדקס', value: user.index },
+          { label: 'מזהה', value: user.id },
+        ].map((field, idx) => (
+          <Typography key={idx} sx={{ mb: 1 }}>
+            <strong>{field.label}:</strong> {field.value}
+          </Typography>
+        ))}
+
+        {/* כפתורים */}
+        <Box
+          sx={{
+            mt: 3,
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 2,
+          }}
+        >
+          <Button
+            onClick={goToReport}
+            variant="contained"
+            sx={{
+              borderRadius: '50px',
+              border: '2px solid #00bcd4',
+              color: '#00bcd4',
+              background: 'transparent',
+              fontWeight: 600,
+              px: 4,
+              py: 1.5,
+              textTransform: 'none',
+              '&:hover': {
+                background:
+                  'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+                color: '#fff',
+                borderColor: '#e91e63',
+              },
+            }}
+          >
+            דוח למידה
+          </Button>
+
+          <Button
+            onClick={logout}
+            variant="contained"
+            sx={{
+              borderRadius: '50px',
+              border: '2px solid #e91e63',
+              color: '#e91e63',
+              background: 'transparent',
+              fontWeight: 600,
+              px: 4,
+              py: 1.5,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#e91e63',
+                color: '#fff',
+              },
+            }}
+          >
+            התנתקות
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* דיאלוג עריכה */}
+     <Dialog
+  open={openDialog}
+  onClose={handleCloseDialog}
+  maxWidth="sm"
+  fullWidth
+  scroll="body" // זה מונע scroll פנימי
+  BackdropProps={{
+    sx: {
+      backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    },
+  }}
+>
+  
+
+  <DialogContent
+    sx={{
+      maxHeight: 'calc(100vh - 200px)', // תן מקום מספק, כדי שלא יחתך
+      overflowY: 'auto', // תן גלילה רק אם חייבים
+    }}
+  >
+    <EditUserDetails
+  user={user}
+  closeDialog={handleCloseDialog}
+  onSubmit={handleUserUpdate}
+/>
+
+  </DialogContent>
+</Dialog>
 
       <Outlet />
-    </div>
+    </Box>
   );
 });
 

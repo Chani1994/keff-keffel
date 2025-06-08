@@ -189,7 +189,26 @@ setNumStudentsInClass(classIndex, numStudents) {
     });
   }
 }
-  
+async loadSchoolById(id) {
+  try {
+    const res = await axios.get(`https://localhost:7245/api/School/${id}`);
+    const data = res.data;
+
+    // עדכון בהתאמה לשמות השדות כפי שהם מגיעים מהשרת:
+    this.NameSchool = data.nameSchool || '';
+    this.Barcode = data.barcode || '';
+    this.NumClass = data.numClass || 0;
+    this.NumStudent = data.numStudent || 0;
+    this.ClassList = data.classList || [];
+
+  } catch (error) {
+    console.error("שגיאה בטעינת המוסד:", error);
+    throw error;
+  }
+}
+
+
+
   async fetchSchools() {
     runInAction(() => {
       this.loading = true;

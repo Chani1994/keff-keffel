@@ -43,7 +43,7 @@ const routesArray = createBrowserRouter([
         path:'/admin/schools',
         element: <SchoolList />},
         {
-          path: '/admin/edit-school/:id',
+          path: '/admin/edit-school/:schoolId',
           element: <EditSchool />
         },
 
@@ -70,15 +70,16 @@ const routesArray = createBrowserRouter([
     element: <UserRegister />
   },
   {
-    path: '/user/details',
-    element: <UserDetails />,
-    children: [
-      {
-        path: 'learningReport',
-        element: <UserLearningReport />
-      }
-    ]
-  }
+  path: '/user/details',
+  element: <UserDetails />,
+  children: [
+    {
+      path: 'learningReport',
+      element: <UserLearningReport />
+    }
+  ]
+}
+
 ])
 createRoot(document.getElementById('root')).render(
   <StrictMode>
