@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import Footer from '../footer/Footer';
 
 const AdminPage = () => {
   const [currentAdmin, setCurrentAdmin] = useState(null);
@@ -81,16 +82,29 @@ const AdminPage = () => {
 
   return (
     <>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+
       <div
-        className="admin-page"
+      className="admin-page"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        flex: 1,
+        width: '100vw',
+        direction: 'rtl',
+      }}
+    >
+            <div
         style={{
+          flex: 1,
           display: 'flex',
-          flexDirection: 'row',
-          height: '100vh',
-          width: '100vw',
-          direction: 'rtl',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          paddingRight: '50px',
+          textAlign: 'center',
         }}
       >
+
         {/* צד ימין: כפתורים */}
         <div
           style={{
@@ -109,7 +123,7 @@ const AdminPage = () => {
               gap: '8px',
               justifyContent: 'center',
               color: 'white',
-              WebkitTextStroke: '0.5px #00bcd4',
+              WebkitTextStroke: '1.5px #00bcd4',
               fontWeight: 'bold',
               fontSize: '2rem',
             }}
@@ -299,8 +313,9 @@ const AdminPage = () => {
             </div>
           )}
         </div>
+      </div>
 
-    <div
+     <div
         style={{
           flex: 1,
           display: 'flex',
@@ -319,21 +334,25 @@ const AdminPage = () => {
           }}
         />
       </div>
-      <style>
-        {`
-          @keyframes slideIn {
-            0% {
-              transform: translateX(-100%);
-              opacity: 0;
-            }
-            100% {
-              transform: translateX(0);
-              opacity: 1;
-            }
+    </div>
+       <style>
+      {`
+        @keyframes slideIn {
+          0% {
+            transform: translateX(-100%);
+            opacity: 0;
           }
-        `}
-      </style>
-</div>
+          100% {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}
+    </style>
+
+    {/* פוטר */}
+    <Footer />
+  </div>
     </>
   );
 };

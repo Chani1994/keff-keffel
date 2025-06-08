@@ -6,7 +6,10 @@ import {
   Typography,
   Link,
   Paper,
+   IconButton,InputAdornment
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+
 import { useNavigate } from 'react-router-dom';
 import adminStore from '../../store/adminStore';
 import '../../css/home.css';
@@ -16,7 +19,15 @@ function AdminLogin() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+ const [showPassword, setShowPassword] = useState(false);
 
+  const handleClickShowPassword = () => {
+    setShowPassword(prev => !prev);
+  };
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
   const handleLogin = async () => {
     setError('');
     if (!username || !password) {
@@ -135,48 +146,62 @@ function AdminLogin() {
           }}
         />
 
-        <TextField
-          label="סיסמה"
-          type="password"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'סיסמה' }}
-          InputLabelProps={{
-            sx: {
-              right: 16,
-              left: 'auto',
-              transformOrigin: 'top right',
-              background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontWeight: 'bold',
+ <TextField
+        label="סיסמה"
+        type={showPassword ? 'text' : 'password'}
+        variant="outlined"
+        fullWidth
+        margin="normal"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'סיסמה' }}
+        InputLabelProps={{
+          sx: {
+            right: 16,
+            left: 'auto',
+            transformOrigin: 'top right',
+            background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 'bold',
+          },
+        }}
+        sx={{
+          direction: 'rtl',
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#f9f9f9',
+            borderRadius: '10px',
+            '& fieldset': { borderColor: '#ddd' },
+            '&:hover fieldset': {
+              borderColor: '#e91e63',
+              boxShadow: '0 0 10px #e91e63',
             },
-          }}
-          sx={{
-            direction: 'rtl',
-            '& .MuiOutlinedInput-root': {
-              backgroundColor: '#f9f9f9',
-              borderRadius: '10px',
-              '& fieldset': { borderColor: '#ddd' },
-              '&:hover fieldset': {
-                borderColor: '#e91e63',
-                boxShadow: '0 0 10px #e91e63',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'white',
-                boxShadow: '0 0 12px #e91e63',
-              },
+            '&.Mui-focused fieldset': {
+              borderColor: 'white',
+              boxShadow: '0 0 12px #e91e63',
             },
-          }}
-        />
+          },
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={showPassword ? 'הסתר סיסמה' : 'הראה סיסמה'}
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
 
-        {error && (
-          <Typography color="error" align="center" sx={{ mt: 2 }}>
-            {error}
-          </Typography>
+      {error && (
+        <Typography color="error" align="center" sx={{ mt: 2 }}>
+          {error}
+        </Typography>
         )}
 
         <Button
