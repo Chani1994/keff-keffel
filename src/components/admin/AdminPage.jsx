@@ -70,6 +70,12 @@ const AdminPage = () => {
 
     fetchCurrentAdmin();
   }, []);
+useEffect(() => {
+  const adminType = Number(localStorage.getItem('adminType'));
+  if (!adminType || isNaN(adminType)) {
+    navigate('/not-authorized'); // או דף אחר
+  }
+}, []);
 
   const handleEdit = () => {
     if (currentAdmin) {

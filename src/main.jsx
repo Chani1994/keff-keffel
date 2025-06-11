@@ -18,12 +18,13 @@ import EditAdmin from './components/admin/EditAdmin.jsx'
 import SchoolList from './components/school/SchoolList.jsx'
 import UserDetails from './components/user/UserDetails.jsx'
 import UserLearningReport from './components/user/UserLearningReport.jsx'
+import ErrorPage from './components/error/ErrorPage.jsx'
 
 const routesArray = createBrowserRouter([
   {
     path: '/',
     element: <HomePage />,
-    // errorElement: <ErrorPage />
+    errorElement: <ErrorPage />
   },
   {
     path: '/admin/login',

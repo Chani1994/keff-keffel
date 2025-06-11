@@ -48,15 +48,17 @@ const EditUserDetails = observer(({ closeDialog }) => {
   return (
 <Box
   sx={{
-    height: '100vh',
-    overflow: 'hidden',
-    // position: 'relative',
+    maxHeight: '85vh',
+    overflowY: 'auto',
+    padding: 2,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
+    boxSizing: 'border-box',
   }}
 >
+
   {/* לוגו ברקע */}
   <Box
     sx={{
@@ -93,7 +95,7 @@ const EditUserDetails = observer(({ closeDialog }) => {
       <Typography
         variant="h4"
         sx={{
-          // fontWeight:'meduim',
+          fontWeight:'bold',
           background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -105,85 +107,114 @@ const EditUserDetails = observer(({ closeDialog }) => {
 
     {/* טופס */}
     <form onSubmit={handleSubmit} autoComplete="off">
-      <Grid container spacing={2} justifyContent="center">
-        {[
-          { name: 'name', label: 'שם מלא' },
-          { name: 'school', label: 'מוסד' },
-          { name: 'classes', label: 'כיתה' },
-          { name: 'phone', label: 'טלפון' },
-        ].map((field) => (
-          <Grid item xs={12} sm={6} key={field.name}>
-            <TextField
-              fullWidth
-              label={field.label}
-              name={field.name}
-              value={user[field.name]}
-              onChange={handleChange}
-              variant="outlined"
-              inputProps={{ style: { textAlign: 'right' } }}
-              sx={{
-                direction: 'rtl',
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: '#f9f9f9',
-                  borderRadius: '10px',
-                },
-              }}
-              InputLabelProps={{
-                sx: {
-                  right: 16,
-                  left: 'auto',
-                  transformOrigin: 'top right',
-                  background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontWeight: 'bold',
-                },
-              }}
-              required
-            />
-          </Grid>
-        ))}
-      </Grid>
+     <Grid container spacing={2} justifyContent="center">
+  {[
+        { name: 'classes', label: 'כיתה' },
+
+    { name: 'school', label: 'מוסד' },
+        { name: 'name', label: 'שם מלא' },
+
+    { name: 'phone', label: 'טלפון' },
+  ].map((field) => (
+    <Grid item xs={12} sm={6} key={field.name}>
+      <TextField
+        fullWidth
+        label={field.label}
+        name={field.name}
+        value={user[field.name]}
+        onChange={handleChange}
+        variant="outlined"
+        inputProps={{ style: { textAlign: 'right' } }}
+        required
+        sx={{
+          direction: 'rtl',
+          '& .MuiOutlinedInput-root': {
+            backgroundColor: '#f9f9f9',
+            borderRadius: '10px',
+            '& fieldset': {
+              borderColor: '#ddd',
+            },
+            '&:hover fieldset': {
+              borderColor: '#e91e63',
+              boxShadow: '0 0 10px #e91e63',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: 'white',
+              boxShadow: '0 0 12px #e91e63',
+            },
+          },
+        }}
+        InputLabelProps={{
+          sx: {
+            right: 16,
+            left: 'auto',
+            transformOrigin: 'top right',
+            background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            fontWeight: 'bold',
+          },
+        }}
+      />
+    </Grid>
+  ))}
+</Grid>
+
 
 <Box sx={{ mt: 2, textAlign: 'center' }}>
-  <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+  
+<Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>
     <Button
-      type="submit"
-      variant="contained"
-      sx={{
-        borderRadius: '30px',
-        border: '2px solid #e91e63',
-        color: '#e91e63',
-        background: 'transparent',
-        fontWeight: 600,
-        fontSize: '0.85rem',
-        boxShadow: '0 0 6px #e91e63',
-        px: 3,
-        py: 1,
-        textTransform: 'none',
-      }}
-    >
-      שמור שינויים
-    </Button>
+    onClick={closeDialog}
+    sx={{
+      borderRadius: '50px',
+      border: '2px solid #999',
+      color: '#999',
+      background: 'transparent',
+      fontWeight: 600,
+      fontSize: '1rem',
+      boxShadow: '0 0 8px #ccc',
+      px: 4,
+      py: 1.5,
+      textTransform: 'none',
+      '&:hover': {
+        backgroundColor: '#f0f0f0',
+        color: '#555',
+        borderColor: '#888',
+        boxShadow: '0 0 12px #e91e63',
+      },
+    }}
+  >
+    ביטול
+  </Button>
+  <Button
+    type="submit"
+    variant="contained"
+    sx={{
+      borderRadius: '50px',
+      border: '2px solid #e91e63',
+      color: '#e91e63',
+      background: 'transparent',
+      fontWeight: 600,
+      fontSize: '1rem',
+      boxShadow: '0 0 8px #e91e63',
+      px: 4,
+      py: 1.5,
+      textTransform: 'none',
+      '&:hover': {
+        background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+        color: '#fff',
+        borderColor: '#e91e63',
+        boxShadow: '0 0 20px #e91e63',
+      },
+    }}
+  >
+    שמור שינויים
+  </Button>
 
-    <Button
-      onClick={closeDialog}
-      sx={{
-        borderRadius: '30px',
-        border: '2px solid #999',
-        color: '#999',
-        background: 'transparent',
-        fontWeight: 600,
-        fontSize: '0.85rem',
-        boxShadow: '0 0 6px #ccc',
-        px: 3,
-        py: 1,
-        textTransform: 'none',
-      }}
-    >
-      ביטול
-    </Button>
-  </Grid>
+
+</Grid>
+
 </Box>
 
     </form>

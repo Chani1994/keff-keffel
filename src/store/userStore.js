@@ -1,5 +1,8 @@
 import { makeAutoObservable } from 'mobx';
 import Swal from 'sweetalert2';
+import { toJS } from 'mobx';
+import { runInAction } from 'mobx';
+
 import axios from 'axios';
 
 class UserStore {
@@ -44,11 +47,11 @@ class UserStore {
   setPhone(value) {
     this.phone = value;
   }
+setCurrentUser(user) {
+  this.currentUser = user; // או: makeAutoObservable(this) אם זה MobX
+  localStorage.setItem('currentUser', JSON.stringify(user)); // לוודא שגם כאן זה מתעדכן
+}
 
-  setCurrentUser(user) {
-    this.currentUser = user;
-    this.saveUserToStorage(user); // שמירה בכל מקרה
-  }
 
   clearUser() {
     this.currentUser = null;
@@ -57,7 +60,7 @@ class UserStore {
 
   async fetchUsers() {
     try {
-      const response = await axios.get('https://localhost:7245/api/Users');
+      const response = await axios.get('https://13.51.154.134:7245/api/Users');
       this.users = response.data;
     } catch (error) {
       this.error = 'שגיאה בעת טעינת משתמשים';
@@ -73,7 +76,7 @@ class UserStore {
 
   async login(user, navigate) {
     try {
-      const response = await axios.get('https://localhost:7245/api/Users');
+      const response = await axios.get('https://13.51.154.134:7245/api/Users');
       const users = response.data;
 
       const userByName = users.find(u => u.name === user.username);
@@ -120,7 +123,7 @@ class UserStore {
 
   async register(user, navigate) {
     try {
-      const response = await axios.get('https://localhost:7245/api/Users');
+      const response = await axios.get('https://13.51.154.134:7245/api/Users');
       const existingUser = response.data.find(
         (u) => u.name === user.name && u.phone === user.phone
       );
@@ -135,7 +138,7 @@ class UserStore {
         return;
       }
 
-      const result = await axios.post('https://localhost:7245/api/Users/AddUser', user);
+      const result = await axios.post('https://13.51.154.134:7245/api/Users/AddUser', user);
 
       console.log('Registered user for:', result.data);
 
@@ -164,29 +167,38 @@ class UserStore {
     }
   }
 
-  updateUser(updatedUser, callback) {
-    try {
-      this.setCurrentUser(updatedUser); // גם שומר ב־localStorage
-      Swal.fire({
-        title: 'הצלחה',
-        text: 'הפרטים עודכנו בהצלחה!',
-        icon: 'success',
-        confirmButtonText: 'סגור',
-        customClass: {
-          popup: 'custom-swal-zindex'
-        }
-      });
+async updateUser(updatedUser, callback) {
+  try {
+    const response = await axios.put(`https://13.51.154.134:7245/api/Users/${updatedUser.id}`, updatedUser);
+    const updatedUserFromServer = response.data;
 
-      if (callback) callback();
-    } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'אירעה שגיאה בעדכון',
-        text: error.message || 'נסה שוב מאוחר יותר',
-        confirmButtonText: 'סגור'
-      });
-    }
+    runInAction(() => {
+      this.setCurrentUser(updatedUserFromServer);
+    });
+
+    Swal.fire({
+      title: 'הצלחה',
+      text: 'הפרטים עודכנו בהצלחה!',
+      icon: 'success',
+      confirmButtonText: 'סגור',
+      customClass: { popup: 'custom-swal-zindex' }
+    });
+
+    if (callback) callback();
+
+  } catch (error) {
+    console.error('שגיאה בעדכון המשתמש:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'אירעה שגיאה בעדכון',
+      text: error.response?.data?.message || error.message || 'נסה שוב מאוחר יותר',
+      confirmButtonText: 'סגור'
+    });
   }
 }
 
+
+
+
+}
 export default new UserStore();
