@@ -76,7 +76,7 @@ class SchoolStore {
   }
 async fetchSchoolIdFromBarcode() {
   try {
-    const response = await axios.get(`https://localhost:7245/api/SchoolId?barcode=${this.Barcode}`);
+    const response = await axios.get(`https://13.51.154.134:7245/api/SchoolId?barcode=${this.Barcode}`);
     runInAction(() => {
       this.SchoolId = response.data; // או כל שם שדה מתאים
       // עדכון idSchool של כל כיתה לפי ה־Barcode שהוחזר
@@ -161,7 +161,7 @@ setNumStudentsInClass(classIndex, numStudents) {
 
     console.log("📤 שולח מוסד לשרת:", schoolData);
 
-    const response = await axios.post('https://localhost:7245/api/School', schoolData, {
+    const response = await axios.post('https://13.51.154.134:7245/api/School', schoolData, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -191,7 +191,7 @@ setNumStudentsInClass(classIndex, numStudents) {
 }
 async loadSchoolById(id) {
   try {
-    const res = await axios.get(`https://localhost:7245/api/School/${id}`);
+    const res = await axios.get(`https://13.51.154.134:7245/api/School/${id}`);
     const data = res.data;
 
     // עדכון בהתאמה לשמות השדות כפי שהם מגיעים מהשרת:
@@ -217,7 +217,7 @@ async loadSchoolById(id) {
 
     try {
       console.log('📡 טוען מוסדות...');
-      const response = await axios.get('https://localhost:7245/api/School');
+      const response = await axios.get('https://13.51.154.134:7245/api/School');
       runInAction(() => {
         this.schools = response.data;
         console.log('✅ מוסדות נטענו:', this.schools);
@@ -270,7 +270,7 @@ generateStudents() {
     try {
       console.log('Sending updated school:', updatedSchool);
 
-      const response = await axios.put(`https://localhost:7245/api/School/${id}`, updatedSchool);
+      const response = await axios.put(`https://13.51.154.134:7245/api/School/${id}`, updatedSchool);
       console.log('Response from server:', response.data);
 
       runInAction(() => {
@@ -286,7 +286,7 @@ generateStudents() {
 
   async deleteSchool(schoolId) {
     try {
-      await axios.delete(`https://localhost:7245/api/School/${schoolId}`);
+      await axios.delete(`https://13.51.154.134:7245/api/School/${schoolId}`);
       runInAction(() => {
         this.schools = this.schools.filter((school) => school.id !== schoolId);
       });

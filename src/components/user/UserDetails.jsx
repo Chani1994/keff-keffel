@@ -11,10 +11,9 @@ import {
   MenuItem,
   Select,
   CircularProgress,
-  Paper,Grid
+  Paper,Grid,Button
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import { IconButton } from '@mui/material';
+
 import EditUserDetails from './EditUserDetails';
 import Footer from '../footer/Footer';
 
@@ -70,9 +69,62 @@ const UserDetails = observer(() => {
 
   if (!user) {
     return (
-      <Box sx={{ textAlign: 'center', mt: 8, color: '#fff' }}>
-        לא התחברת עדיין
-      </Box>
+     <Box
+      sx={{
+        direction: 'rtl',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: '#000',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
+        textAlign: 'center',
+      }}
+    >
+      <img
+        src="/logo1.png"
+        alt="לוגו"
+        style={{ width: 100, marginBottom: 20 }}
+      />
+
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 'bold',
+          color: '#fff',
+          mb: 2,
+        }}
+      >
+        ...אופססס, עדיין לא התחברת
+      </Typography>
+
+      <Button
+        variant="contained"
+        onClick={() => navigate('/user/login')}
+        sx={{
+            mt: 4,
+            borderRadius: '50px',
+        border: '2px solid #e91e63',
+        color: '#e91e63',
+        background: 'transparent',
+        fontWeight: 600,
+        fontSize: '1rem',
+        boxShadow: '0 0 8px #e91e63',
+        px: 4,
+        py: 1.5,
+        textTransform: 'none',
+            '&:hover': {
+             background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+          color: '#fff',
+          borderColor: '#e91e63',
+          boxShadow: '0 0 20px #e91e63',
+            },
+          }}
+      >
+        מעבר להתחברות
+      </Button>
+    </Box>
     );
   }
 

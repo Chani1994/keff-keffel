@@ -23,7 +23,7 @@ class AdminStore {
 
   async fetchAdmins() {
     try {
-      const response = await axios.get('https://localhost:7245/api/Admin');
+      const response = await axios.get('https://13.51.154.134:7245/api/Admin');
       runInAction(() => {
         this.admins = response.data;
       });
@@ -46,7 +46,7 @@ class AdminStore {
     if (!adminId) return;
 
     try {
-      const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
+      const response = await axios.get(`https://13.51.154.134:7245/api/Admin/${adminId}`);
       runInAction(() => {
         this.currentAdmin = response.data;
       });
@@ -129,7 +129,7 @@ async login({ nameAdmin, password },navigate) {
       ...newAdmin,
     };
 
-    const response = await axios.post('https://localhost:7245/api/Admin', payload);
+    const response = await axios.post('https://13.51.154.134:7245/api/Admin', payload);
     runInAction(() => {
       this.admins.push(response.data);
     });
@@ -178,7 +178,7 @@ async login({ nameAdmin, password },navigate) {
       });
 
       if (result.isConfirmed) {
-        await axios.delete(`https://localhost:7245/api/Admin/${adminId}`);
+        await axios.delete(`https://13.51.154.134:7245/api/Admin/${adminId}`);
         runInAction(() => {
           this.admins = this.admins.filter(admin => admin.id !== adminId);
         });
@@ -206,7 +206,7 @@ async login({ nameAdmin, password },navigate) {
 
   async updateAdmin(updatedAdmin) {
     try {
-      await axios.put(`https://localhost:7245/api/Admin/${updatedAdmin.id}`, updatedAdmin, {
+      await axios.put(`https://13.51.154.134:7245/api/Admin/${updatedAdmin.id}`, updatedAdmin, {
         headers: {
           'Content-Type': 'application/json'
         }
