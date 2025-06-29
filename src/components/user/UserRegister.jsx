@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import userStore from '../../store/userStore';
-import '../../css/home.css';
+import '../../css/login.css';
 
 const UserRegister = () => {
   const [user, setUser] = useState({
@@ -48,83 +48,21 @@ const UserRegister = () => {
   };
 
   return (
-   <Box
-  sx={{
-    direction: 'rtl',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    width: '100vw',
-    backgroundColor: '#000000',
-    overflow: 'hidden',
-    position: 'relative',
-  }}
->
+   <Box className="login-page" component="form" noValidate>
 
-      {/* לוגו רקע */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '80vw',
-          height: '80vh',
-          backgroundImage: 'url("/logo3.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          opacity: 0.05,
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
-
-      <Paper
-  elevation={6}
-  sx={{
-    p: 4,
-    width: 500,
-    maxHeight: '90vh',
-    backgroundColor: '#ffffff',
-    borderRadius: '20px',
-    color: '#333',
-    overflowY: 'auto',
-    boxShadow:
-      '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
-    zIndex: 2,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center', // זה מה שחשוב!
-  }}
->
+<Paper className="login-box login-box-wide" >
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center' }}>
           <img src="/logo1.png" alt="לוגו" style={{ width: 120 }} />
         </Box>
 
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          sx={{
-            fontWeight: 'bold',
-            background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-          }}
-        >
+              <Typography variant="h5" gutterBottom className="login-title">
+      
           הרשמה
         </Typography>
 
 <form
   onSubmit={handleSubmit}
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1,
-    justifyContent: 'center',
-  }}
+ 
 >
 <Grid container spacing={2} justifyContent="center">
 <Grid item xs={12}>
@@ -133,6 +71,8 @@ const UserRegister = () => {
   name="name"
   variant="outlined"
   fullWidth
+    className="login-textfield"  // 👈 חשוב!
+
   value={user.name}
   onChange={handleChange}
   inputProps={{
@@ -140,34 +80,11 @@ const UserRegister = () => {
     'aria-label': 'שם מלא',
   }}
   InputLabelProps={{
-    sx: {
-      right: 16,
-      left: 'auto',
-      transformOrigin: 'top right',
-      background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      fontWeight: 'bold',
-    },
+  
   }}
   error={!!errors.name}
   helperText={errors.name}
-  sx={{
-    direction: 'rtl',
-    '& .MuiOutlinedInput-root': {
-      backgroundColor: '#f9f9f9',
-      borderRadius: '10px',
-      '& fieldset': { borderColor: '#ddd' },
-      '&:hover fieldset': {
-        borderColor: '#e91e63',
-        boxShadow: '0 0 10px #e91e63',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-        boxShadow: '0 0 12px #e91e63',
-      },
-    },
-  }}
+  
 />
 
             </Grid>
@@ -177,6 +94,8 @@ const UserRegister = () => {
   name="school"
   variant="outlined"
   fullWidth
+    className="login-textfield"  // 👈 חשוב!
+
   value={user.school}
   onChange={handleChange}
   inputProps={{
@@ -184,34 +103,11 @@ const UserRegister = () => {
     'aria-label': 'בית-ספר',
   }}
   InputLabelProps={{
-    sx: {
-      right: 16,
-      left: 'auto',
-      transformOrigin: 'top right',
-      background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      fontWeight: 'bold',
-    },
+   
   }}
   error={!!errors.school}
   helperText={errors.school}
-  sx={{
-    direction: 'rtl',
-    '& .MuiOutlinedInput-root': {
-      backgroundColor: '#f9f9f9',
-      borderRadius: '10px',
-      '& fieldset': { borderColor: '#ddd' },
-      '&:hover fieldset': {
-        borderColor: '#e91e63',
-        boxShadow: '0 0 10px #e91e63',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-        boxShadow: '0 0 12px #e91e63',
-      },
-    },
-  }}
+  
 />
 
             </Grid>
@@ -221,6 +117,8 @@ const UserRegister = () => {
   name="classes"
   variant="outlined"
   fullWidth
+    className="login-textfield"  // 👈 חשוב!
+
   value={user.classes}
   onChange={handleChange}
   inputProps={{
@@ -228,34 +126,11 @@ const UserRegister = () => {
     'aria-label': 'כיתה',
   }}
   InputLabelProps={{
-    sx: {
-      right: 16,
-      left: 'auto',
-      transformOrigin: 'top right',
-      background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      fontWeight: 'bold',
-    },
+   
   }}
   error={!!errors.classes}
   helperText={errors.classes}
-  sx={{
-    direction: 'rtl',
-    '& .MuiOutlinedInput-root': {
-      backgroundColor: '#f9f9f9',
-      borderRadius: '10px',
-      '& fieldset': { borderColor: '#ddd' },
-      '&:hover fieldset': {
-        borderColor: '#e91e63',
-        boxShadow: '0 0 10px #e91e63',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-        boxShadow: '0 0 12px #e91e63',
-      },
-    },
-  }}
+  
 />
 
             </Grid>
@@ -265,6 +140,8 @@ const UserRegister = () => {
   name="phone"
   variant="outlined"
   fullWidth
+    className="login-textfield"  // 👈 חשוב!
+
   value={user.phone}
   onChange={handleChange}
   inputProps={{
@@ -272,91 +149,37 @@ const UserRegister = () => {
     'aria-label': 'טלפון ',
   }}
   InputLabelProps={{
-    sx: {
-      right: 16,
-      left: 'auto',
-      transformOrigin: 'top right',
-      background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      fontWeight: 'bold',
-    },
+    
   }}
   error={!!errors.phone}
   helperText={errors.phone}
-  sx={{
-    direction: 'rtl',
-    '& .MuiOutlinedInput-root': {
-      backgroundColor: '#f9f9f9',
-      borderRadius: '10px',
-      '& fieldset': { borderColor: '#ddd' },
-      '&:hover fieldset': {
-        borderColor: '#e91e63',
-        boxShadow: '0 0 10px #e91e63',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-        boxShadow: '0 0 12px #e91e63',
-      },
-    },
-  }}
+  
 />
 
             </Grid>
           </Grid>
-
-          <Button
-            type="submit"
-            fullWidth
-            sx={{
-              mt: 3,
-              borderRadius: '50px',
-              border: '2px solid #e91e63',
-              color: '#e91e63',
-              background: 'transparent',
-              boxShadow: '0 0 8px #e91e63',
-              fontWeight: 600,
-              fontSize: '1.1rem',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                backgroundColor: '#e91e63',
-                color: '#fff',
-                boxShadow: '0 0 20px #e91e63',
-                borderColor: '#e91e63',
-                background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-              },
-            }}
-          >
-            הרשמה
-          </Button>
-        </form>
-
-        {errors.form && (
+ {errors.form && (
           <Typography color="error" align="center" sx={{ mt: 2 }}>
             {errors.form}
           </Typography>
         )}
+           <Button fullWidth onClick={handleSubmit} className="login-button">
+         
+       
+            הרשמה
+          </Button>
+        </form>
 
-        <Typography
-          variant="body2"
-          align="center"
-          sx={{ mt: 3, color: '#e91e63' }}
-        >
+       
+
+                <Typography variant="body2" className="login-register">
+        
           יש לך חשבון?{' '}
           <Link
             component="button"
             onClick={() => navigate('/user/login')}
-            sx={{
-              fontWeight: 'bold',
-              textDecoration: 'underline',
-              background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              '&:hover': {
-                textDecoration: 'none',
-                WebkitTextFillColor: '#00bcd4',
-              },
-            }}
+            className="login-register-link"
+
           >
             התחבר כאן
           </Link>

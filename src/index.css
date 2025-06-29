@@ -66,3 +66,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.custom-z-index {
+  z-index: 99999 !important;
+}

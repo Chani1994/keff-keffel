@@ -22,6 +22,7 @@ const EditUserDetails = observer(({ closeDialog }) => {
     timeLessons: 0,
     success: true,
     index: 0,
+    status:1,
   });
 
   const navigate = useNavigate();

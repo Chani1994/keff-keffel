@@ -4,15 +4,18 @@ import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import Footer from '../footer/Footer';
+import adminStore from '../../store/adminStore';
+
 
 const AdminPage = () => {
   const [currentAdmin, setCurrentAdmin] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
-  const [showManageButtons, setShowManageButtons] = useState(false);
+  // const [showManageButtons, setShowManageButtons] = useState(false);
   const [showManageAdmins, setShowManageAdmins] = useState(false);
   const [hoveredButton, setHoveredButton] = useState(null); // מזהה כפתור ב-hover
 
   const navigate = useNavigate();
+  const isSuperAdmin = adminStore.adminType === 1;
 
   // סטייל בסיסי לכפתור
   const buttonStyle = {
@@ -40,36 +43,13 @@ const AdminPage = () => {
   };
 
   useEffect(() => {
-    const fetchCurrentAdmin = async () => {
-      try {
-        const currentAdminId = localStorage.getItem('adminId');
-        const adminType = Number(localStorage.getItem('adminType'));
+  setCurrentAdmin(adminStore.currentAdmin);
+}, [adminStore.currentAdmin]);
 
-        if (!currentAdminId) {
-          console.error("לא נמצא מזהה מנהל");
-          return;
-        }
-
-        const response = await fetch(`https://localhost:7245/api/Admin/${currentAdminId}`);
-        if (!response.ok) {
-          console.error('שגיאה בשרת:', response.status);
-          return;
-        }
-
-        const admin = await response.json();
-        setCurrentAdmin(admin);
-
-        if (adminType === 1) {
-          setShowManageButtons(true);
-        }
-
-      } catch (error) {
-        console.error("שגיאה בטעינת המנהל הנוכחי:", error);
-      }
-    };
-
-    fetchCurrentAdmin();
-  }, []);
+  
+useEffect(() => {
+  adminStore.fetchCurrentAdmin();
+}, []);
 useEffect(() => {
   const adminType = Number(localStorage.getItem('adminType'));
   if (!adminType || isNaN(adminType)) {
@@ -77,11 +57,12 @@ useEffect(() => {
   }
 }, []);
 
-  const handleEdit = () => {
-    if (currentAdmin) {
-      navigate(`/admin/edit-admin/${currentAdmin.id}`);
-    }
-  };
+ const handleEdit = () => {
+  if (currentAdmin) {
+    navigate(`/admin/edit-admin/${currentAdmin.id}`);
+  }
+};
+
 
   const toggleOptions = () => setShowOptions(prev => !prev);
   const toggleManageAdmins = () => setShowManageAdmins(prev => !prev);
@@ -160,7 +141,9 @@ useEffect(() => {
             </IconButton>
           </h2>
 
-          {showManageButtons && (
+{Number(localStorage.getItem('adminType')) === 1 && (
+  // הצג את הכפתורים כאן
+
             <div
               style={{
                 display: 'flex',

@@ -60,7 +60,7 @@ setCurrentUser(user) {
 
   async fetchUsers() {
     try {
-      const response = await axios.get('https://13.51.154.134:7245/api/Users');
+      const response = await axios.get('https://localhost:7245/api/Users');
       this.users = response.data;
     } catch (error) {
       this.error = 'שגיאה בעת טעינת משתמשים';
@@ -76,7 +76,7 @@ setCurrentUser(user) {
 
   async login(user, navigate) {
     try {
-      const response = await axios.get('https://13.51.154.134:7245/api/Users');
+      const response = await axios.get('https://localhost:7245/api/Users');
       const users = response.data;
 
       const userByName = users.find(u => u.name === user.username);
@@ -123,7 +123,7 @@ setCurrentUser(user) {
 
   async register(user, navigate) {
     try {
-      const response = await axios.get('https://13.51.154.134:7245/api/Users');
+      const response = await axios.get('https://localhost:7245/api/Users');
       const existingUser = response.data.find(
         (u) => u.name === user.name && u.phone === user.phone
       );
@@ -138,7 +138,7 @@ setCurrentUser(user) {
         return;
       }
 
-      const result = await axios.post('https://13.51.154.134:7245/api/Users/AddUser', user);
+      const result = await axios.post('https://localhost:7245/api/Users/AddUser', user);
 
       console.log('Registered user for:', result.data);
 
@@ -169,19 +169,21 @@ setCurrentUser(user) {
 
 async updateUser(updatedUser, callback) {
   try {
-    const response = await axios.put(`https://13.51.154.134:7245/api/Users/${updatedUser.id}`, updatedUser);
+    const response = await axios.put(`https://localhost:7245/api/Users/${updatedUser.id}`, updatedUser);
     const updatedUserFromServer = response.data;
 
     runInAction(() => {
       this.setCurrentUser(updatedUserFromServer);
     });
 
-    Swal.fire({
-      title: 'הצלחה',
-      text: 'הפרטים עודכנו בהצלחה!',
+    await Swal.fire({
+      title: 'הצלחה!',
+      text: 'הפרטים עודכנו בהצלחה.',
       icon: 'success',
       confirmButtonText: 'סגור',
-      customClass: { popup: 'custom-swal-zindex' }
+      customClass: {
+        popup: 'custom-z-index',
+      },
     });
 
     if (callback) callback();
@@ -196,7 +198,6 @@ async updateUser(updatedUser, callback) {
     });
   }
 }
-
 
 
 

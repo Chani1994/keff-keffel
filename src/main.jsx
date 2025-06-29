@@ -3,13 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 
 import './index.css'
-// import App from './App.jsx'
 import HomePage from './components/HomePage.jsx'
 import AdminLogin from './components/admin/AdminLogin.jsx'
-import UserHome from './components/user/UserHome.jsx'
+import UserLogin from './components/user/UserLogin.jsx'
 import AdminPage from './components/admin/AdminPage.jsx'
 import AddAdmin from './components/admin/AddAdmin.jsx'
-// import ErrorPage from './components/error/ErrorPage.jsx'
 import AddSchool from './components/school/AddSchool.jsx'
 import EditSchool from './components/school/EditSchool.jsx'
 import UserRegister from './components/user/UserRegister.jsx'
@@ -64,7 +62,7 @@ const routesArray = createBrowserRouter([
    ,
   {
     path: '/user/login',
-    element: <UserHome />
+    element: <UserLogin />
   },
   {
     path: '/user/register',
