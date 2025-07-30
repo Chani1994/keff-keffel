@@ -38,126 +38,109 @@ const SchoolList = observer(() => {
   if (error) return <div style={{ color: 'red' }}>{error}</div>;
 
   return (
-    <Box
-      sx={{
-        direction: 'rtl',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100vw',
-        backgroundColor: '#000000',
-        overflow: 'hidden',
-        position: 'relative',
-      }}
-    >
-      {/* רקע לוגו מטושטש */}
-      <Box
+<Box
+  sx={{
+    p: 2,
+    direction: 'rtl',          // כיוון מימין לשמאל
+    display: 'flex',
+    justifyContent: 'center',  // מרכז אופקי
+    alignItems: 'center',      // מרכז אנכי
+    minHeight: '100vh',
+    width: '100vw',
+    backgroundColor: '#000',
+    overflow: 'auto',
+    position: 'relative',
+  }}
+>
+  <Paper
+    elevation={6}
+    sx={{
+      p: 4,
+      width: '50%',
+      maxWidth: 1000,
+      backgroundColor: '#fff',
+      borderRadius: 2,
+      boxShadow: 6,
+      display: 'flex',
+      flexDirection: 'column',
+      direction: 'rtl',       // חשוב שגם בתוך הפייפר הטקסט יהיה מימין לשמאל
+      textAlign: 'right',     // אם תרצה שהטקסט יהיה מיושר לימין
+    }}
+  >
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      mb: 3,
+      pt: 4,
+    }}
+  >
+    <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+      <img src="/logo1.png" alt="לוגו" style={{ width: 80}} />
+      <Typography
+        variant="h4"
         sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '80vw',
-          height: '80vh',
-          backgroundImage: 'url("/logo3.png")',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'contain',
-          backgroundPosition: 'center',
-          opacity: 0.05,
-          pointerEvents: 'none',
-          zIndex: 10,
-        }}
-      />
-
-      <Paper
-        elevation={6}
-        sx={{
-          p: 4,
-          width: 1000,
-          maxHeight: '70vh',
-          backgroundColor: '#ffffff',
-          borderRadius: '20px',
-          color: '#333',
-          overflowY: 'auto',
-          boxShadow:
-            '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
-          zIndex: 2,
-          display: 'flex',
-          flexDirection: 'column',
+          fontWeight: 'bold',
+          background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          lineHeight: 1.2,
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            mb: 2,
-            paddingTop: '30px',
-          }}
-        >
-          <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
-            <img src="/logo1.png" alt="לוגו" style={{ width: 80}} />
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 'bold',
-                background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                lineHeight: 1.2,
-              }}
-            >
-              רשימת מוסדות
-            </Typography>
-          </Box>
-        </Box>
-
-        <table style={tableStyle}>
-          <thead>
-            <tr>
-              <th style={thStyle}>שם מוסד</th>
-              <th style={thStyle}>מספר כיתות</th>
-              <th style={thStyle}>מספר תלמידים</th>
-              <th style={thStyle}>פעולות</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(schools) && schools.length > 0 ? (
-              schools.map((school) => (
-                <tr key={school.id}>
-                  <td style={tdStyle}>{school.nameSchool}</td>
-                  <td style={tdStyle}>{school.numClass}</td>
-                  <td style={tdStyle}>{school.numStudent}</td>
-                  <td style={tdStyle}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
-                      <IconButton
-                        onClick={() => navigate(`/admin/edit-school/${school.id}`)}
-                        sx={editButtonStyle}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDelete(school.id, school.nameSchool)}
-                        sx={deleteButtonStyle}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
-                  אין מוסדות להצגה
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </Paper>
+        רשימת מוסדות
+      </Typography>
     </Box>
+  </Box>
+
+  <Box sx={{ overflowX: 'auto' }}>
+    <table style={tableStyle}>
+      <thead>
+        <tr>
+          <th style={thStyle}>שם מוסד</th>
+          <th style={thStyle}>מספר כיתות</th>
+          <th style={thStyle}>מספר תלמידים</th>
+          <th style={thStyle}>פעולות</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.isArray(schools) && schools.length > 0 ? (
+          schools.map((school) => (
+            <tr key={school.id}>
+              <td style={tdStyle}>{school.nameSchool}</td>
+              <td style={tdStyle}>{school.numClass}</td>
+              <td style={tdStyle}>{school.numStudent}</td>
+              <td style={tdStyle}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                  <IconButton
+                    onClick={() => navigate(`/admin/edit-school/${school.id}`)}
+                    sx={editButtonStyle}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleDelete(school.id, school.nameSchool)}
+                    sx={deleteButtonStyle}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+              </td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={4} style={{ textAlign: 'center', padding: '20px' }}>
+              אין מוסדות להצגה
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </Box>
+</Paper>
+  </Box>
+
   );
 });
 

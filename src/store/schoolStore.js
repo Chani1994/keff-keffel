@@ -1,4 +1,7 @@
 import axios from 'axios';
+import Swal from 'sweetalert2';
+import userStore from './userStore'; 
+
 import { makeAutoObservable, toJS, runInAction,reaction  } from "mobx";
 
 class SchoolStore {
@@ -12,6 +15,7 @@ class SchoolStore {
   NumStudent = 0;
   ClassList = [];
   students = [];  
+  SchoolId = "";
 
   constructor() {
     makeAutoObservable(this, {
@@ -74,20 +78,6 @@ class SchoolStore {
       this.ClassList.splice(num);
     }
   }
-async fetchSchoolIdFromBarcode() {
-  try {
-    const response = await axios.get(`https://localhost:7245/api/SchoolId?barcode=${this.Barcode}`);
-    runInAction(() => {
-      this.SchoolId = response.data; // או כל שם שדה מתאים
-      // עדכון idSchool של כל כיתה לפי ה־Barcode שהוחזר
-      this.ClassList.forEach(cls => {
-        cls.idSchool = response.data;
-      });
-    });
-  } catch (error) {
-    console.error("❌ שגיאה בשליפת קוד מוסד לפי ברקוד:", error);
-  }
-}
 
   updateClass(classIndex, field, value) {
     this.ClassList[classIndex][field] = value;
@@ -100,30 +90,32 @@ updateStudent(classIndex, studentIndex, field, value) {
 
 
 setNumStudentsInClass(classIndex, numStudents) {
-  let students = this.ClassList[classIndex].students;
+  const cls = this.ClassList[classIndex];
+  if (!cls.students) cls.students = [];
 
-  if (numStudents > students.length) {
-    for (let i = students.length; i < numStudents; i++) {
-     students.push({
-  name: "",
-  school: this.NameSchool,
-  classNum: this.ClassList[classIndex].name || '',
-  phone: "",
-  points: 0,
-  timeLessons: 0,
-  success: false,
-  index: 0,
-});
+  while (cls.students.length < numStudents) {
+    cls.students.push({
+      name: "",
+      school: this.NameSchool,
+      classNum: cls.name || '',
+      phone: "",
+      points: 0,
+      timeLessons: 0,
+      success: false,
+      index: cls.students.length,
+      paymentStatus: 0,
+      subscriptionStartDate: new Date().toISOString(),
+      subscriptionEndDate: new Date().toISOString(),
+      isActive: true,
+    });
+  }
 
-    }
-  } else if (numStudents < students.length) {
-    // במקרה כזה נחתוך את הרשימה – אבל רק מהסוף, נשארים עם התלמידים שכבר מולאו
-    this.ClassList[classIndex].students = students.slice(0, numStudents);
+  if (cls.students.length > numStudents) {
+    cls.students.splice(numStudents);
   }
 
   this.updateClassNamesForStudents();
 }
-
 
   resetSchoolData() {
     this.NameSchool = "";
@@ -132,8 +124,7 @@ setNumStudentsInClass(classIndex, numStudents) {
     this.NumStudent = 0;
     this.ClassList = [];
   }
-
-  async addSchool() {
+async addSchool() {
   try {
     // בדיקת כפילות לפי שם מוסד
     const existing = this.schools.find(
@@ -148,15 +139,14 @@ setNumStudentsInClass(classIndex, numStudents) {
       });
       return;
     }
-
-    const classListPlain = toJS(this.ClassList);
+console.log('ClassList לפני שליחה:', this.ClassList);
 
     const schoolData = {
       NameSchool: this.NameSchool,
       NumClass: this.NumClass,
       Barcode: this.Barcode,
       NumStudent: this.NumStudent,
-      ClassList: classListPlain,
+      ClassList: this.ClassList.length ? toJS(this.ClassList) : []
     };
 
     console.log("📤 שולח מוסד לשרת:", schoolData);
@@ -168,10 +158,45 @@ setNumStudentsInClass(classIndex, numStudents) {
     });
 
     console.log("✅ המוסד נוסף בהצלחה:", response.data);
+for (const cls of this.ClassList) {
+  if (Array.isArray(cls.students)) {
+    for (const student of cls.students) {
+      console.log("Adding student:", student);
+      // שאר הקוד
+    }
+  }
+}
+
+    // מוסיפים תלמידים ל-userStore עם await ולולאת for...of
+    for (const cls of this.ClassList) {
+      if (Array.isArray(cls.students)) {
+        for (const student of cls.students) {
+          const exists = userStore.users.some(u => u.phone === student.phone);
+          if (!exists) {
+            try {
+              await userStore.addUser({
+                name: student.name,
+                phone: student.phone,
+                school: this.NameSchool,
+                classes: cls.name,
+                paymentStatus: student.paymentStatus || 0,
+                subscriptionStartDate: student.subscriptionStartDate || new Date().toISOString(),
+                subscriptionEndDate: student.subscriptionEndDate || new Date().toISOString(),
+                isActive: student.isActive !== undefined ? student.isActive : true,
+                index: student.index || 0,
+                success: student.success || 0,
+              });
+            } catch (err) {
+              console.error('שגיאה בהוספת תלמיד:', err);
+            }
+          }
+        }
+      }
+    }
 
     runInAction(() => {
       this.resetSchoolData();
-      this.schools.push(response.data); // אפשר לעדכן גם את הרשימה המקומית
+      this.schools.push(response.data);
     });
 
     Swal.fire({
@@ -189,24 +214,31 @@ setNumStudentsInClass(classIndex, numStudents) {
     });
   }
 }
-async loadSchoolById(id) {
-  try {
-    const res = await axios.get(`https://localhost:7245/api/School/${id}`);
-    const data = res.data;
 
-    // עדכון בהתאמה לשמות השדות כפי שהם מגיעים מהשרת:
-    this.NameSchool = data.nameSchool || '';
-    this.Barcode = data.barcode || '';
-    this.NumClass = data.numClass || 0;
-    this.NumStudent = data.numStudent || 0;
-    this.ClassList = data.classList || [];
+async loadSchoolById(schoolId) {
+  try {
+    console.log('📥 טוען מוסד עם ID:', schoolId);
+    const response = await axios.get(`https://localhost:7245/api/School/${schoolId}`);
+    const data = response.data;
+    console.log('✅ קיבלתי:', data);
+
+    // בדיקות שמירה עם לוגים
+    this.NameSchool = data.nameSchool;
+    this.Barcode = data.barcode;
+    this.NumClass = data.numClass;
+    this.NumStudent = data.numStudent;
+
+    this.ClassList = Array.isArray(data.classList) ? data.classList : [];
+    this.students = Array.isArray(data.students) ? data.students : [];
+
+    console.log('📦 ClassList אחרי:', this.ClassList);
+    console.log('👨‍🎓 students אחרי:', this.students);
 
   } catch (error) {
-    console.error("שגיאה בטעינת המוסד:", error);
+    console.error('❌ שגיאה בטעינת מוסד:', error);
     throw error;
   }
 }
-
 
 
   async fetchSchools() {
@@ -221,6 +253,8 @@ async loadSchoolById(id) {
       runInAction(() => {
         this.schools = response.data;
         console.log('✅ מוסדות נטענו:', this.schools);
+        console.log('schools in store:', JSON.parse(JSON.stringify(schoolStore.schools)));
+
       });
     } catch (err) {
       console.error('❌ שגיאה בטעינת מוסדות:', err);
@@ -266,23 +300,26 @@ generateStudents() {
   this.SchoolId = '';
 };
 
-  async updateSchool(id, updatedSchool) {
-    try {
-      console.log('Sending updated school:', updatedSchool);
+ async updateSchool(id, updatedSchool) {
+  try {
+    console.log('📤 שולח לעדכון:', id, updatedSchool);
+    const response = await axios.put(`https://localhost:7245/api/School/${id}`, updatedSchool, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.log('✅ עדכון הצליח:', response.data);
 
-      const response = await axios.put(`https://localhost:7245/api/School/${id}`, updatedSchool);
-      console.log('Response from server:', response.data);
-
-      runInAction(() => {
-        const index = this.schools.findIndex(school => school.id === id);
-        if (index > -1) {
-          this.schools[index] = response.data;
-        }
-      });
-    } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to update school');
-    }
+    runInAction(() => {
+      const index = this.schools.findIndex((s) => s.id === id);
+      if (index > -1) {
+        this.schools[index] = response.data;
+      }
+    });
+  } catch (error) {
+    console.error('❌ שגיאה בעדכון:', error);
+    throw error;
   }
+}
+
 
   async deleteSchool(schoolId) {
     try {

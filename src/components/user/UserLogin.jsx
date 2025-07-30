@@ -12,20 +12,20 @@ import userStore from '../../store/userStore';
 import '../../css/login.css';
 
 function UserLogin() {
-  const [username, setUsername] = useState('');
+  // const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = () => {
     setError('');
-    if (!username || !phone) {
+    if ( !phone) {
       setError('אנא מלא את כל השדות');
       return;
     }
 
     try {
-      userStore.login({ username, phone }, navigate);
+       userStore.loginByPhone(phone, navigate);
     } catch (err) {
       setError('שגיאה בהתחברות. ודא שהפרטים נכונים.');
     }
@@ -40,14 +40,14 @@ function UserLogin() {
           התחברות משתמש
         </Typography>
 
-        <TextField
+        {/* <TextField
           label="שם משתמש"
           variant="outlined"
           fullWidth
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="login-textfield"
-        />
+        /> */}
 
         <TextField
           label="טלפון"

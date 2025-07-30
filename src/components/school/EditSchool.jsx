@@ -23,20 +23,21 @@ const EditSchool = observer(() => {
 useEffect(() => {
   console.log('🔍 schoolId from useParams:', schoolId);
 }, [schoolId]);
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      try {
-        await schoolStore.loadSchoolById(schoolId);
-      } catch (error) {
-        Swal.fire('שגיאה', 'לא ניתן לטעון את פרטי המוסד', 'error');
-        navigate(-1);
-      } finally {
-        setLoading(false);
-      }
+ useEffect(() => {
+  async function fetchData() {
+    setLoading(true);
+    try {
+      await schoolStore.loadSchoolById(schoolId);
+    } catch (error) {
+      console.error("❌ שגיאה בפרטי המוסד:", error);
+      Swal.fire('שגיאה', `שגיאה: ${error.message || error}`, 'error');
+      navigate(-1);
+    } finally {
+      setLoading(false);
     }
-    fetchData();
-  }, [schoolId, navigate]);
+  }
+  fetchData();
+}, [schoolId, navigate]);
 
   const validate = () => {
     const newErrors = {};
@@ -51,21 +52,31 @@ useEffect(() => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validate()) return;
 
-    setLoading(true);
-    try {
-      await schoolStore.updateSchool();
-      Swal.fire('הצלחה', 'פרטי המוסד עודכנו בהצלחה', 'success');
-      navigate(-1);
-    } catch (error) {
-      Swal.fire('שגיאה', 'אירעה שגיאה בעדכון המוסד', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  setLoading(true);
+
+  try {
+    const updatedSchool = {
+      nameSchool: schoolStore.NameSchool,
+      barcode: schoolStore.Barcode,
+      numClass: schoolStore.NumClass,
+      numStudent: schoolStore.NumStudent,
+      classList: schoolStore.ClassList,
+      students: schoolStore.students,
+    };
+    await schoolStore.updateSchool(schoolId, updatedSchool);
+    Swal.fire('הצלחה', 'פרטי המוסד עודכנו בהצלחה', 'success');
+    navigate(-1);
+  } catch (error) {
+    Swal.fire('שגיאה', 'אירעה שגיאה בעדכון המוסד', 'error');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChange = (field, value) => {
     schoolStore.setField(field, value);

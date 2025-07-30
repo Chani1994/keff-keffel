@@ -4,13 +4,36 @@ import { toJS } from 'mobx';
 import { runInAction } from 'mobx';
 
 import axios from 'axios';
-
+function buildFullUser(user) {
+  return {
+    name: user.name,
+    phone: user.phone,
+    school: user.school || '',
+    classes: user.classes || '',
+    paymentStatus: user.paymentStatus !== undefined ? user.paymentStatus : 0,
+    subscriptionStartDate: user.subscriptionStartDate || new Date().toISOString(),
+    subscriptionEndDate: user.subscriptionEndDate || new Date().toISOString(),
+    isActive: user.isActive !== undefined ? user.isActive : true,
+    index: user.index !== undefined ? user.index : 0,
+    success: user.success !== undefined ? user.success : 0,
+  };
+}
 class UserStore {
   name = '';
   phone = '';
   error = '';
   users = [];
   currentUser = null;
+
+school = '';
+classes = '';
+paymentStatus = 0;
+subscriptionStartDate = new Date().toISOString();
+subscriptionEndDate = new Date().toISOString();
+isActive = true;
+index = 0;
+success = 0;
+
 
   constructor() {
     makeAutoObservable(this);
@@ -74,44 +97,48 @@ setCurrentUser(user) {
     }
   }
 
-  async login(user, navigate) {
-    try {
-      const response = await axios.get('https://localhost:7245/api/Users');
-      const users = response.data;
+  
+async loginByPhone(phone, navigate) {
+  try {
+    console.log("Trying to login with phone:", phone);
 
-      const userByName = users.find(u => u.name === user.username);
-      const matchedUser = users.find(
-        u => u.name === user.username && u.phone === user.phone
-      );
+    // לא שולחים טוקן כי זו התחברות ראשונית
+    const response = await axios.get(
+      `https://localhost:7245/api/Users/getByPhone/${encodeURIComponent(phone)}`
+    );
 
-      if (matchedUser) {
-        this.setCurrentUser(matchedUser);
-        Swal.fire({
-          icon: 'success',
-          title: 'התחברת בהצלחה!',
-          text: `שלום ${matchedUser.name}`,
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        navigate('/user/details');
-      } else if (userByName) {
-        Swal.fire({
-          icon: 'error',
-          title: 'שגיאה',
-          text: 'מספר הטלפון שגוי.',
-          confirmButtonText: 'אישור',
-        });
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'משתמש לא קיים במערכת',
-          text: 'אנא ודא שהזנת את הפרטים הנכונים או בצע הרשמה.',
-          confirmButtonText: 'אישור',
-        });
-      }
+    const { token, user } = response.data;
 
-    } catch (error) {
-      console.error('Login error:', error);
+    // שמירת הטוקן שקיבלת מהשרת
+   sessionStorage.setItem('jwtToken', token);
+localStorage.setItem('token', token);
+
+
+    this.setCurrentUser(user);
+
+    Swal.fire({
+      icon: 'success',
+      title: 'התחברת בהצלחה!',
+      text: `שלום ${user.name}`,
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    navigate(`/user/details/${user.id}`);
+
+  } catch (error) {
+    const status = error.response?.status;
+
+    console.error('Login error:', error);
+
+    if (status === 404) {
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'לא נמצא משתמש עם מספר טלפון זה.',
+        confirmButtonText: 'אישור',
+      });
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'שגיאת שרת',
@@ -120,72 +147,148 @@ setCurrentUser(user) {
       });
     }
   }
+}
+async addUser(user) {
+  try {
+    const exists = this.users.some(u => u.phone === user.phone);
+    if (exists) {
+      throw new Error('משתמש עם מספר טלפון זה כבר קיים');
+    }
+    console.log('משתמש שנשלח לשרת:', user);
 
-  async register(user, navigate) {
-    try {
-      const response = await axios.get('https://localhost:7245/api/Users');
-      const existingUser = response.data.find(
-        (u) => u.name === user.name && u.phone === user.phone
-      );
+    const response = await axios.post('https://localhost:7245/api/Users/AddUser', user);
+    const addedUser = response.data;
 
-      if (existingUser) {
-        Swal.fire({
-          icon: 'error',
-          title: 'משתמש כבר קיים',
-          text: 'יש כבר משתמש עם שם או טלפון זהים',
-          confirmButtonText: 'אישור',
-        });
-        return;
-      }
+    runInAction(() => {
+      this.users.push(addedUser);
+    });
 
-      const result = await axios.post('https://localhost:7245/api/Users/AddUser', user);
+    return addedUser;
+  } catch (error) {
+    console.error('שגיאה בהוספת משתמש:', error);
+    throw error;
+  }
+}
 
-      console.log('Registered user for:', result.data);
+ async register(user, navigate) {
+  try {
+    // שלב 1: טוען
+    Swal.fire({
+      title: 'מתבצעת הרשמה...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
 
-      this.setCurrentUser(result.data);
-      console.log('Registered user after:', result.data);
+    // שלב 2: בדיקה אם המשתמש כבר קיים לפי טלפון
+    const usersResponse = await axios.get('https://localhost:7245/api/Users');
+    const existingUser = usersResponse.data.find((u) => u.phone === user.phone);
 
-
-      Swal.fire({
-        icon: 'success',
-        title: 'נרשמת בהצלחה!',
-        text: `ברוך הבא ${user.name}`,
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      navigate('/user/details');
-
-    } catch (error) {
-      console.error('Register error:', error);
-      Swal.fire({
+    if (existingUser) {
+      Swal.close();
+      await Swal.fire({
         icon: 'error',
-        title: 'שגיאה',
-        text: error.message || 'שגיאה בהרשמה.',
+        title: 'משתמש כבר קיים',
+        text: 'כבר קיים משתמש עם מספר טלפון זהה',
         confirmButtonText: 'אישור',
       });
+      return;
     }
+
+    // שלב 3: שמירת המשתמש לזיכרון זמני ולשלוח לתשלום
+    localStorage.setItem('pendingUser', JSON.stringify(user));
+
+    Swal.close();
+
+    // שלב 4: הפניה לתשלום דרך השרת שלך
+    const returnUrl = encodeURIComponent(window.location.origin + '/user/register?paid=true');
+
+    // דוגמה לכתובת שרת שמחזיר לינק תשלום ייחודי (אם אתה בונה תהליך כזה)
+    window.location.href =
+      `https://www.matara.pro/nedarimplus/online/?S=VOgq&ReturnUrl=${returnUrl}`;
+
+  } catch (error) {
+    Swal.close();
+    console.error('Register error:', error);
+
+    const errorMessage =
+      error.response?.data?.message || error.message || 'שגיאה בהרשמה.';
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: errorMessage,
+      confirmButtonText: 'אישור',
+    });
   }
+}
+async finishRegistration(user, navigate) {
+  try {
+    Swal.fire({
+      title: 'מעדכן הרשמה...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+
+    // הרשמת המשתמש בפועל
+    const fullUser = { ...user};
+
+    const result = await axios.post(
+      'https://localhost:7245/api/Users/AddUser',
+      fullUser
+    );
+
+    this.setCurrentUser(result.data);
+
+    Swal.close();
+
+    await Swal.fire({
+      icon: 'success',
+      title: 'נרשמת בהצלחה!',
+      text: `ברוך הבא ${user.name}`,
+      timer: 2000,
+      showConfirmButton: false,
+      timerProgressBar: true,
+    });
+
+    navigate('/user/details/' + result.data.id);
+
+  } catch (error) {
+    Swal.close();
+    console.error('Finish registration error:', error);
+
+    const errorMessage =
+      error.response?.data?.message || error.message || 'שגיאה בסיום הרשמה.';
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: errorMessage,
+      confirmButtonText: 'אישור',
+    });
+  }
+}
+
+
 
 async updateUser(updatedUser, callback) {
   try {
-    const response = await axios.put(`https://localhost:7245/api/Users/${updatedUser.id}`, updatedUser);
-    const updatedUserFromServer = response.data;
+    const { data: updatedUserFromServer } =
+      await axios.put(`https://localhost:7245/api/Users/${updatedUser.id}`, updatedUser);
 
-    runInAction(() => {
-      this.setCurrentUser(updatedUserFromServer);
-    });
+    runInAction(() => this.setCurrentUser(updatedUserFromServer));
 
+    // ✨ מודאל עם טיימר ובלי כפתור אישור
     await Swal.fire({
       title: 'הצלחה!',
       text: 'הפרטים עודכנו בהצלחה.',
       icon: 'success',
-      confirmButtonText: 'סגור',
-      customClass: {
-        popup: 'custom-z-index',
-      },
+      timer: 1500,          // נסגר אחרי 1.5 שניות
+      showConfirmButton: false,
+      customClass: { popup: 'custom-z-index' },
     });
 
+    // ברגע שה‑Swal נסגר – נסגור גם את הדיאלוג
     if (callback) callback();
 
   } catch (error) {
@@ -194,10 +297,11 @@ async updateUser(updatedUser, callback) {
       icon: 'error',
       title: 'אירעה שגיאה בעדכון',
       text: error.response?.data?.message || error.message || 'נסה שוב מאוחר יותר',
-      confirmButtonText: 'סגור'
+      confirmButtonText: 'סגור',
     });
   }
 }
+
 
 
 

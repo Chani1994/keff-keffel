@@ -17,6 +17,7 @@ import SchoolList from './components/school/SchoolList.jsx'
 import UserDetails from './components/user/UserDetails.jsx'
 import UserLearningReport from './components/user/UserLearningReport.jsx'
 import ErrorPage from './components/error/ErrorPage.jsx'
+import UserData from './components/user/UserData.jsx'
 
 const routesArray = createBrowserRouter([
   {
@@ -60,6 +61,9 @@ const routesArray = createBrowserRouter([
         path:'/admins',
         element: <AllAdmin />}
    ,
+    {
+        path:'/admin/user-data',
+        element: <UserData />},
   {
     path: '/user/login',
     element: <UserLogin />
@@ -69,7 +73,7 @@ const routesArray = createBrowserRouter([
     element: <UserRegister />
   },
   {
-  path: '/user/details',
+  path: '/user/details/:id',
   element: <UserDetails />,
   children: [
     {

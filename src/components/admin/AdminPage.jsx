@@ -226,7 +226,8 @@ useEffect(() => {
               <button
                 style={hoveredButton === 'showData' ? { ...buttonStyle, ...hoverStyle } : buttonStyle}
                 onMouseEnter={() => setHoveredButton('showData')}
-                onMouseLeave={() => setHoveredButton(null)}
+                onMouseLeave={() => setHoveredButton(null)}  onClick={() => navigate('/admin/user-data')}
+
               >
                 הצגת נתונים ע"פ קריטריונים
               </button>

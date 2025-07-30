@@ -14,6 +14,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import schoolStore from '../../store/schoolStore';
+import userStore from '../../store/userStore';
 
 const AddSchool = observer(() => {
   const navigate = useNavigate();
@@ -25,9 +26,17 @@ useEffect(() => {
 
 useEffect(() => {
   if (schoolStore.Barcode) {
-    schoolStore.fetchSchoolIdFromBarcode();
+    // כאן תכתבי את הלוגיקה שתחזיר את קוד המוסד לפי הברקוד שהוקלד
+    const computedSchoolId = yourLogicToGetSchoolId(schoolStore.Barcode);
+    schoolStore.setField('SchoolId', computedSchoolId);
+  } else {
+    schoolStore.setField('SchoolId', '');
   }
 }, [schoolStore.Barcode]);
+const yourLogicToGetSchoolId = (barcode) => {
+  return  barcode;
+}
+
 
   const validate = () => {
     const newErrors = {};
@@ -42,12 +51,35 @@ useEffect(() => {
 
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validate()) return;
+  e.preventDefault();
+  if (!validate()) return;
 
-    setLoading(true);
-   
+  setLoading(true);
+  try {
+await schoolStore.addSchool();
+
+for (const student of schoolStore.students) {
+  const user = {
+    name: student.name,
+    phone: student.phone,
+    school: schoolStore.NameSchool,
+    classes: student.classNum,
+    paymentStatus: student.paymentStatus,
+    subscriptionStartDate: student.subscriptionStartDate,
+    subscriptionEndDate: student.subscriptionEndDate,
+    isActive: student.isActive,
+    success: 0,
   };
+
+  await userStore.addUser(user); // קריאה אמיתית לשרת
+}    navigate(-1); // ניווט אחורה או לפי הצורך
+  } catch (error) {
+    console.error('Error adding school:', error);
+    // אפשר להציג הודעת שגיאה אחרת כאן אם רוצים
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleChange = (field, value) => {
     schoolStore.setField(field, value);
@@ -346,7 +378,6 @@ const handleStudentChange = (studentIndex, field, value) => {
           </Typography>
 {(schoolStore.students || []).map((student, idx) => (
   <Grid container spacing={2} key={idx} alignItems="center" sx={{ mb: 2 }}>
-    
     <Grid item xs={12} md={3}>
       <TextField
         label="שם תלמיד"
@@ -360,26 +391,25 @@ const handleStudentChange = (studentIndex, field, value) => {
       />
     </Grid>
 
-    <Grid item xs={12} md={3}>
-  <TextField
-    label="כיתה "
-    variant="outlined"
-    fullWidth
-    value={student.classNum || ""}
-    onChange={(e) => handleStudentChange(idx, 'classNum', e.target.value)}
-    inputProps={{ style: { textAlign: 'right' } }}
-    InputLabelProps={{ sx: labelSx }}
-    sx={inputSx}
-  />
-</Grid>
+    <Grid item xs={12} md={2}>
+      <TextField
+        label="כיתה"
+        variant="outlined"
+        fullWidth
+        value={student.classNum || ""}
+        onChange={(e) => handleStudentChange(idx, 'classNum', e.target.value)}
+        inputProps={{ style: { textAlign: 'right' } }}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
 
-
-    <Grid item xs={12} md={3}>
+    <Grid item xs={12} md={2}>
       <TextField
         label="טלפון"
         variant="outlined"
         fullWidth
-value={student.phone || ""}
+        value={student.phone || ""}
         onChange={(e) => handleStudentChange(idx, 'phone', e.target.value)}
         inputProps={{ style: { textAlign: 'right' } }}
         InputLabelProps={{ sx: labelSx }}
@@ -387,63 +417,66 @@ value={student.phone || ""}
       />
     </Grid>
 
-    <Grid item xs={12} md={2}>
+  
+
+    <Grid item xs={12} md={1.5}>
       <TextField
-        label="נקודות"
+        label=" מין"
         type="number"
         variant="outlined"
         fullWidth
-value={student.points ?? 0}
-        onChange={(e) => handleStudentChange(idx, 'points', parseInt(e.target.value) || 0)}
+        value={student.paymentStatus ?? 0}
+        onChange={(e) => handleStudentChange(idx, 'paymentStatus', parseInt(e.target.value) || 0)}
         inputProps={{ style: { textAlign: 'right' } }}
         InputLabelProps={{ sx: labelSx }}
         sx={inputSx}
       />
     </Grid>
 
-    <Grid item xs={12} md={2}>
+    <Grid item xs={12} md={3}>
       <TextField
-        label="מס' שיעורים"
-        type="number"
-        variant="outlined"
+        label="תאריך התחלה"
+        type="datetime-local"
         fullWidth
-value={student.timeLessons ?? 0}
-        onChange={(e) => handleStudentChange(idx, 'timeLessons', parseInt(e.target.value) || 0)}
-        inputProps={{ style: { textAlign: 'right' } }}
-        InputLabelProps={{ sx: labelSx }}
+        value={student.subscriptionStartDate?.slice(0, 16) || ""}
+        onChange={(e) => handleStudentChange(idx, 'subscriptionStartDate', e.target.value)}
+        InputLabelProps={{ shrink: true, sx: labelSx }}
         sx={inputSx}
-      />
-    </Grid>
-<Grid item xs={12} md={1}>
-      <TextField
-        label="אינדקס"
-        type="number"
-        variant="outlined"
-        fullWidth
-value={student.index ?? 0}
-        onChange={(e) => handleStudentChange(idx, 'index', parseInt(e.target.value) || 0)}
-        inputProps={{ style: { textAlign: 'right' } }}
-        InputLabelProps={{ sx: labelSx }}
-        sx={inputSx}
-      />
-    </Grid>
-    <Grid item xs={12} md={2}>
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={student.success}
-            onChange={() => toggleStudentCheckbox(idx, 'success')}
-            color="primary"
-          />
-        }
-        label="עבר בהצלחה"
-        sx={{ '& .MuiTypography-root': { fontWeight: 'bold' } }}
       />
     </Grid>
 
-    
+    <Grid item xs={12} md={3}>
+      <TextField
+        label="תאריך סיום"
+        type="datetime-local"
+        fullWidth
+        value={student.subscriptionEndDate?.slice(0, 16) || ""}
+        onChange={(e) => handleStudentChange(idx, 'subscriptionEndDate', e.target.value)}
+        InputLabelProps={{ shrink: true, sx: labelSx }}
+        sx={inputSx}
+      />
+    </Grid>
+
+    <Grid item xs={12} md={2}>
+      <TextField
+        label="פעיל?"
+        select
+        fullWidth
+        SelectProps={{ native: true }}
+        value={student.isActive ? 'true' : 'false'}
+        onChange={(e) => handleStudentChange(idx, 'isActive', e.target.value === 'true')}
+        InputLabelProps={{ sx: labelSx }}
+        sx={inputSx}
+      >
+        <option value="true">כן</option>
+        <option value="false">לא</option>
+      </TextField>
+    </Grid>
+
+  
   </Grid>
 ))}
+
 
 
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>

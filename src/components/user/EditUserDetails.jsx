@@ -42,9 +42,10 @@ const EditUserDetails = observer(({ closeDialog }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    userStore.updateUser(user, navigate);
-  };
+  e.preventDefault();
+  // שולח את הפונקציה שסוגרת את הדיאלוג אל ה‑store
+  userStore.updateUser(user, closeDialog);
+};
 
   return (
 <Box
