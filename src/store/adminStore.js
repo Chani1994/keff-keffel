@@ -86,10 +86,10 @@ async login({ nameAdmin, password },navigate) {
 
   await this.fetchAdmins();
 
-  console.log('רשימת מנהלים:', this.admins.map(a => ({
-    nameAdmin: a.nameAdmin?.toLowerCase().trim(),
-    password: a.password
-  })));
+  // console.log('רשימת מנהלים:', this.admins.map(a => ({
+  //   nameAdmin: a.nameAdmin?.toLowerCase().trim(),
+  //   password: a.password
+  // })));
 
   const exact = this.admins.find(
     (a) =>
@@ -130,6 +130,50 @@ async login({ nameAdmin, password },navigate) {
     confirmButtonText: 'אישור'
   });
 }
+// async login({ nameAdmin, password }, navigate) {
+//   console.log('login called with:', nameAdmin, password);
+
+//   const trimmedName = nameAdmin?.toLowerCase().trim();
+
+//   try {
+//     // קריאת API התחברות לפי שם וסיסמה (GET עם פרמטרים ב-URL)
+//     const response = await axios.get(
+//       `https://localhost:7245/api/Admin/LoginAdmin/${encodeURIComponent(trimmedName)},${encodeURIComponent(password)}`
+//     );
+//     console.log('Login response object:', response.data);
+
+//     if (response.data === true) {
+//       // התחברות הצליחה - שומרים את שם המנהל בלבד
+//       localStorage.setItem('adminName', trimmedName);
+//       this.currentAdmin = { nameAdmin: trimmedName };
+
+//       await Swal.fire({
+//         icon: 'success',
+//         title: 'ברוך הבא!',
+//         text: `שלום ${nameAdmin}, התחברת בהצלחה.`,
+//         confirmButtonText: 'המשך'
+//       });
+
+//       navigate('/admin');
+//     } else {
+//       await Swal.fire({
+//         icon: 'error',
+//         title: 'שגיאה',
+//         text: 'שם משתמש או סיסמה שגויים',
+//         confirmButtonText: 'אישור'
+//       });
+//     }
+//   } catch (error) {
+//     console.error('Login error:', error);
+//     await Swal.fire({
+//       icon: 'error',
+//       title: 'שגיאה',
+//       text: 'שגיאה בשרת, נסה שוב מאוחר יותר',
+//       confirmButtonText: 'אישור'
+//     });
+//   }
+// }
+
 
   async addAdmin(newAdmin, navigate) {
   try {

@@ -56,7 +56,7 @@ const SchoolList = observer(() => {
     elevation={6}
     sx={{
       p: 4,
-      width: '50%',
+      width: '70%',
       maxWidth: 1000,
       backgroundColor: '#fff',
       borderRadius: 2,
@@ -93,9 +93,9 @@ const SchoolList = observer(() => {
     </Box>
   </Box>
 
-  <Box sx={{ overflowX: 'auto' }}>
-    <table style={tableStyle}>
-      <thead>
+<Box sx={{ maxHeight: 800, overflowY: 'auto', width: '100%' }}>
+  <table style={tableStyle}>
+    <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#263238' }}>
         <tr>
           <th style={thStyle}>שם מוסד</th>
           <th style={thStyle}>מספר כיתות</th>
@@ -148,22 +148,27 @@ const tableStyle = {
   width: '100%',
   borderCollapse: 'collapse',
   marginTop: '30px',
+  tableLayout: 'fixed', // מונע "קפיצות" בעיצוב
 };
 
+
 const thStyle = {
-  padding: '12px',
+  padding: '12px 24px',
   background: '#263238',
   color: '#00bcd4',
   borderBottom: '1px solid #00bcd4',
   fontSize: '16px',
+  minWidth: '160px',
+  textAlign: 'center',  // הוספה כאן
 };
 
 const tdStyle = {
-  padding: '12px',
+  padding: '12px 24px',
   color: '#333',
   borderBottom: '1px solid #ccc',
   textAlign: 'center',
   fontSize: '15px',
+  minWidth: '160px', // זהה ל-th
 };
 
 const editButtonStyle = {

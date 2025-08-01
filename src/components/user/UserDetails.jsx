@@ -315,10 +315,19 @@ useEffect(() => {
               </Grid>
             ))}
           </Grid>
-
-          <Box mt={4}>
-            <UserLearningReport userId={user.id} />
-          </Box>
+<Box
+  mt={4}
+  sx={{
+    maxHeight: '65px', // או גובה שתרצה
+    overflowY: 'auto',
+    border: '1px solid #ccc',
+    borderRadius: '8px',
+    p: 2,
+    backgroundColor: '#f5f5f5',
+  }}
+>
+  <UserLearningReport userId={user.id} />
+</Box>
         </Paper>
         
       </Box>

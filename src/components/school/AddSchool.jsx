@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import schoolStore from '../../store/schoolStore';
 import userStore from '../../store/userStore';
+import { MenuItem } from '@mui/material';
 
 const AddSchool = observer(() => {
   const navigate = useNavigate();
@@ -56,20 +57,21 @@ const yourLogicToGetSchoolId = (barcode) => {
 
   setLoading(true);
   try {
-await schoolStore.addSchool();
+await schoolStore.addSchool(); // פעולה שמעדכנת את NameSchool
+console.log('📌 אחרי הוספת מוסד, שם מוסד:', schoolStore.NameSchool);
 
 for (const student of schoolStore.students) {
   const user = {
-    name: student.name,
-    phone: student.phone,
-    school: schoolStore.NameSchool,
-    classes: student.classNum,
-    paymentStatus: student.paymentStatus,
-    subscriptionStartDate: student.subscriptionStartDate,
-    subscriptionEndDate: student.subscriptionEndDate,
-    isActive: student.isActive,
-    success: 0,
-  };
+  name: student.name?.trim() || '',
+  phone: student.phone?.trim() || '',
+  school: schoolStore.NameSchool?.trim() || '',
+  classes: student.classNum?.trim() || '',
+  status: student.status ?? 1,
+  subscriptionStartDate: student.subscriptionStartDate || null,
+  subscriptionEndDate: student.subscriptionEndDate || null,
+  isActive: student.isActive ?? false,
+  success: 0
+};
 
   await userStore.addUser(user); // קריאה אמיתית לשרת
 }    navigate(-1); // ניווט אחורה או לפי הצורך
@@ -419,19 +421,22 @@ const handleStudentChange = (studentIndex, field, value) => {
 
   
 
-    <Grid item xs={12} md={1.5}>
-      <TextField
-        label=" מין"
-        type="number"
-        variant="outlined"
-        fullWidth
-        value={student.paymentStatus ?? 0}
-        onChange={(e) => handleStudentChange(idx, 'paymentStatus', parseInt(e.target.value) || 0)}
-        inputProps={{ style: { textAlign: 'right' } }}
-        InputLabelProps={{ sx: labelSx }}
-        sx={inputSx}
-      />
-    </Grid>
+   <Grid item xs={12} md={1.5}>
+  <TextField
+    select
+    label="מין"
+    variant="outlined"
+    fullWidth
+    value={student.status ?? 1} // ברירת מחדל לזכר
+    onChange={(e) => handleStudentChange(idx, 'status', parseInt(e.target.value))}
+    inputProps={{ style: { textAlign: 'right' } }}
+    InputLabelProps={{ sx: labelSx }}
+    sx={inputSx}
+  >
+    <MenuItem value={1}>זכר</MenuItem>
+    <MenuItem value={2}>נקבה</MenuItem>
+  </TextField>
+</Grid>
 
     <Grid item xs={12} md={3}>
       <TextField

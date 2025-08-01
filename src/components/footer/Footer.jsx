@@ -3,6 +3,8 @@ import { Box, Typography, IconButton, Link } from '@mui/material';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
+import { Tooltip } from '@mui/material';
+import LocationOnIcon from '@mui/icons-material/LocationOn'; // או Email
 
 // כפתור טלפון
 const PhoneButton = () => {
@@ -79,15 +81,17 @@ const Footer = () => {
         </Typography>
 
         <Box sx={{ display: 'flex', gap: 2, mr: 2 }}>
-          <IconButton
-            component={Link}
-            href="https://github.com/yourusername"
-            target="_blank"
-            rel="noopener"
-            sx={iconButtonStyle('#ffffff', '#00bcd4')}
-          >
-            <GitHubIcon />
-          </IconButton>
+         <Tooltip title="מעונות עזרא 53 בני ברק" arrow>
+  <IconButton
+    component="a"
+    href="https://maps.google.com/?q=מעונות עזרא 53 בני ברק"
+    target="_blank"
+    rel="noopener"
+    sx={iconButtonStyle('#ffffff', '#00bcd4')}
+  >
+    <LocationOnIcon />
+  </IconButton>
+</Tooltip>
 
           <IconButton
             component={Link}

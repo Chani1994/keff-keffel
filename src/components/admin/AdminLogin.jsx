@@ -91,7 +91,7 @@ function AdminLogin() {
           התחבר
         </Button>
 
-        <Typography variant="body2" className="login-register">
+        {/* <Typography variant="body2" className="login-register">
           שכחת סיסמא?{' '}
           <Link
             component="button"
@@ -100,7 +100,7 @@ function AdminLogin() {
           >
             איפוס סיסמא
           </Link>
-        </Typography>
+        </Typography> */}
       </Paper>
     </Box>
   );

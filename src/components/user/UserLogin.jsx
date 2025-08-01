@@ -12,7 +12,6 @@ import userStore from '../../store/userStore';
 import '../../css/login.css';
 
 function UserLogin() {
-  // const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
