@@ -114,19 +114,6 @@ html, body {
   }
 }
 
-/* אלמנט מתחת ללוגו
-.bottom-content {
-  position: absolute;
-  bottom: 5%;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 5%;
-  flex-wrap: wrap;
-  gap: 15px;
-  z-index: 20;
-} */
 
 .side-content {
   display: flex;

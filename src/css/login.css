@@ -114,15 +114,9 @@
   background-color: #ffffff !important;
   border-radius: 20px !important;
   padding: 32px;
-  /* width: 500px; */
   max-height: 75vh;
   overflow-y: auto;
-  box-shadow:
-    0 0 10px #e91e63,
-    0 0 20px #ff9800,
-    0 0 30px #ffc107,
-    0 0 80px #4dd0e1,
-    0 0 20px #e91e63 !important;
+
   display: flex;
   flex-direction: column;
   justify-content: center;

@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
+
 
 const SchoolList = observer(() => {
   const navigate = useNavigate();
@@ -55,18 +57,38 @@ const SchoolList = observer(() => {
   <Paper
     elevation={6}
     sx={{
-      p: 4,
-      width: '70%',
-      maxWidth: 1000,
-      backgroundColor: '#fff',
-      borderRadius: 2,
-      boxShadow: 6,
-      display: 'flex',
-      flexDirection: 'column',
-      direction: 'rtl',       // חשוב שגם בתוך הפייפר הטקסט יהיה מימין לשמאל
-      textAlign: 'right',     // אם תרצה שהטקסט יהיה מיושר לימין
-    }}
+                p: 4,
+                width: 1000,
+                maxHeight: '70vh',
+                backgroundColor: '#ffffff',
+                borderRadius: '20px',
+                color: '#333',
+                overflowY: 'auto',
+                boxShadow:
+                  '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
+                zIndex: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
   >
+                  <IconButton
+      onClick={() => navigate(-1)}
+      sx={{
+        alignSelf: 'flex-start',
+        color: '#e91e63',
+        border: '1px solid #e91e63',
+        borderRadius: '8px',
+        mb: 2,
+        transition: 'all 0.3s ease-in-out',
+        '&:hover': {
+          backgroundColor: '#e91e63',
+          color: '#fff',
+        },
+      }}
+    >
+      <ArrowForwardRoundedIcon />
+      <Typography sx={{ ml: 1, fontSize: '14px' }}>חזרה</Typography>
+    </IconButton>
   <Box
     sx={{
       display: 'flex',

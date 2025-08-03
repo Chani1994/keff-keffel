@@ -55,22 +55,66 @@ const UserRegister = observer(() => {
       return;
     }
 
-    const userWithStatus = { ...user};
-    await userStore.register(userWithStatus, navigate); // התשלום נעשה כאן ב־store
+    try {
+      const userWithStatus = { ...user };
+
+      // שמירת המשתמש לזיכרון זמני
+      localStorage.setItem('pendingUser', JSON.stringify(userWithStatus));
+
+      // כתובת החזרה לאחר התשלום
+      const returnUrl = encodeURIComponent(window.location.origin + '/user/register?paid=true');
+
+      // פתיחת חלון תשלום חדש
+      const paymentWindow = window.open(
+        `https://www.matara.pro/nedarimplus/online/?S=VOgq&ReturnUrl=${returnUrl}`,
+        'PaymentWindow',
+        'width=600,height=700'
+      );
+
+      // בדיקה מתי החלון נסגר
+      const timer = setInterval(() => {
+        if (paymentWindow.closed) {
+          clearInterval(timer);
+          const savedUser = localStorage.getItem('pendingUser');
+          if (savedUser) {
+            const parsedUser = JSON.parse(savedUser);
+            userStore.finishRegistration(parsedUser, navigate);
+            localStorage.removeItem('pendingUser');
+          }
+        }
+      }, 1000);
+
+    } catch (error) {
+      console.error('Payment initiation error:', error);
+      setErrors(prev => ({ ...prev, form: 'אירעה שגיאה בתהליך התשלום. נסה שוב.' }));
+    }
   };
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const paid = params.get('paid');
-    if (paid === 'true') {
-      const savedUser = localStorage.getItem('pendingUser');
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        userStore.finishRegistration(parsedUser, navigate);
-        localStorage.removeItem('pendingUser');
-      }
+  const params = new URLSearchParams(window.location.search);
+  const paid = params.get('paid');
+  if (paid === 'true') {
+    const savedUser = localStorage.getItem('pendingUser');
+    if (savedUser) {
+      const parsedUser = JSON.parse(savedUser);
+
+      const today = new Date();
+      const threeMonthsLater = new Date();
+      threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+
+      const fullUser = {
+        ...parsedUser,
+        startDate: today.toISOString(),
+        endDate: threeMonthsLater.toISOString(),
+        active: true,
+      };
+
+      userStore.finishRegistration(fullUser, navigate);
+      localStorage.removeItem('pendingUser');
     }
-  }, [navigate]);
+  }
+}, [navigate]);
+
 
   return (
     <Box className="login-page" component="form" noValidate onSubmit={handlePayClick}>
@@ -82,104 +126,97 @@ const UserRegister = observer(() => {
           <img src="/logo1.png" alt="לוגו" style={{ width: 70, height: 'auto' }} />
         </Box>
 
-      <Grid container spacing={2} justifyContent="center">
-  {/* שורה 1: שם מלא + כיתה */}
-  <Grid item xs={12} md={6}>
-    <TextField
-      label="שם מלא"
-      name="name"
-      variant="outlined"
-      fullWidth
-      value={user.name}
-      onChange={handleChange}
-      inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'שם מלא' }}
-      error={!!errors.name}
-      helperText={errors.name}
-                className="login-textfield"
+        <Grid container spacing={2} justifyContent="center">
+          {/* שורה 1: שם מלא + כיתה */}
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="שם מלא"
+              name="name"
+              variant="outlined"
+              fullWidth
+              value={user.name}
+              onChange={handleChange}
+              inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'שם מלא' }}
+              error={!!errors.name}
+              helperText={errors.name}
+              className="login-textfield"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="כיתה"
+              name="classes"
+              variant="outlined"
+              fullWidth
+              value={user.classes}
+              onChange={handleChange}
+              inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'כיתה' }}
+              error={!!errors.classes}
+              helperText={errors.classes}
+              className="login-textfield"
+            />
+          </Grid>
 
-    />
-  </Grid>
-  <Grid item xs={12} md={6}>
-    <TextField
-      label="כיתה"
-      name="classes"
-      variant="outlined"
-      fullWidth
-      value={user.classes}
-      onChange={handleChange}
-      inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'כיתה' }}
-      error={!!errors.classes}
-      helperText={errors.classes}
-                className="login-textfield"
+          {/* שורה 2: טלפון + בית ספר */}
+          <Grid item xs={12} md={6}>
+            <TextField
+              label="טלפון"
+              name="phone"
+              variant="outlined"
+              fullWidth
+              value={user.phone}
+              onChange={handleChange}
+              inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'טלפון' }}
+              error={!!errors.phone}
+              helperText={errors.phone}
+              className="login-textfield"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              label="בית-ספר (אופציונלי)"
+              name="school"
+              variant="outlined"
+              fullWidth
+              value={user.school}
+              onChange={handleChange}
+              inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'בית-ספר' }}
+              SelectProps={{ native: true }}
+              disabled={schoolStore.loading}
+              className="login-textfield"
+            >
+              <option value=""> </option>
+              {schoolStore.schools.map((school) => (
+                <option key={school.id} value={school.nameSchool}>
+                  {school.nameSchool} - {school.barcode}
+                </option>
+              ))}
+            </TextField>
+          </Grid>
 
-    />
-  </Grid>
-
-  {/* שורה 2: טלפון + מין */}
-  <Grid item xs={12} md={6}>
-    <TextField
-      label="טלפון"
-      name="phone"
-      variant="outlined"
-      fullWidth
-      value={user.phone}
-      onChange={handleChange}
-      inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'טלפון' }}
-      error={!!errors.phone}
-      helperText={errors.phone}
-                className="login-textfield"
-
-    />
-  </Grid>
-  <Grid item xs={12} md={6}>
-    <TextField
-      select
-      label="בית-ספר (אופציונלי)"
-      name="school"
-      variant="outlined"
-      fullWidth
-      value={user.school}
-      onChange={handleChange}
-      inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'בית-ספר' }}
-      SelectProps={{ native: true }}
-      disabled={schoolStore.loading}
-                className="login-textfield"
-
-    >
-      <option value=""> </option>
-      {schoolStore.schools.map((school) => (
-        <option key={school.id} value={school.nameSchool}>
-          {school.nameSchool} - {school.barcode}
-        </option>
-      ))}
-    </TextField>
-    
-  </Grid>
-
-  {/* שורה 3: בית ספר (שדה יחיד במרכז) */}
-  <Grid item xs={12} md={8}>
-    <TextField
-      select
-      label="מין"
-      name="status"
-      variant="outlined"
-      fullWidth
-      value={user.status}
-      onChange={handleChange}
-      inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'מין' }}
-      error={!!errors.status}
-      helperText={errors.status}
-      SelectProps={{ native: true }}
-                className="login-textfield"
-
-    >
-      <option value="" disabled>בחר מין</option>
-      <option value="male">זכר</option>
-      <option value="female">נקבה</option>
-    </TextField>
-  </Grid>
-</Grid>
-
+          {/* שורה 3: מין */}
+          <Grid item xs={12} md={8}>
+            <TextField
+              select
+              label="מין"
+              name="status"
+              variant="outlined"
+              fullWidth
+              value={user.status?? 2}
+              onChange={handleChange}
+              inputProps={{ style: { textAlign: 'right' }, 'aria-label': 'מין' }}
+              error={!!errors.status}
+              helperText={errors.status}
+              SelectProps={{ native: true }}
+              className="login-textfield"
+            >
+              <option value="" disabled>בחר מין</option>
+              <option value={1}>זכר</option>
+              <option value={2}>נקבה</option>
+            </TextField>
+          </Grid>
+        </Grid>
 
         {errors.form && (
           <Typography color="error" align="center" sx={{ mt: 2 }}>

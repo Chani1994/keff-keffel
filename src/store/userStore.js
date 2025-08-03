@@ -55,6 +55,24 @@ success = 0;
     this.currentUser = null;
   }
 }
+get isLoggedIn() {
+  return !!this.currentUser;
+}
+autoLogin() {
+  const savedUser = localStorage.getItem('currentUser');
+  if (savedUser && savedUser !== '""') {
+    try {
+      const parsed = JSON.parse(savedUser);
+      if (parsed && parsed.id) {
+        this.currentUser = parsed;
+      }
+    } catch (error) {
+      console.error('שגיאה בשחזור משתמש מהאחסון:', error);
+      this.clearUser();
+    }
+  }
+}
+
 
  saveUserToStorage(user) {
   if (user && typeof user === 'object' && Object.keys(user).length > 0) {
@@ -152,8 +170,15 @@ async addUser(user) {
   try {
     const exists = this.users.some(u => u.phone === user.phone);
     if (exists) {
-      throw new Error('משתמש עם מספר טלפון זה כבר קיים');
+      await Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'משתמש עם מספר טלפון זה כבר קיים',
+        confirmButtonText: 'אישור',
+      });
+      return null;  // או throw אם רוצים לקטוע את הזרימה
     }
+
     console.log('משתמש שנשלח לשרת:', user);
 
     const response = await axios.post('https://localhost:7245/api/Users/AddUser', user);
@@ -169,6 +194,7 @@ async addUser(user) {
     throw error;
   }
 }
+
 
  async register(user, navigate) {
   try {
@@ -229,33 +255,34 @@ async finishRegistration(user, navigate) {
       didOpen: () => Swal.showLoading(),
     });
 
+    // השתמש בפונקציה שמבנה את המשתמש המלא
+    const fullUser = buildFullUser(user);
 
-    // הרשמת המשתמש בפועל
-    const fullUser = { ...user};
+    console.log('Sending user to server:', fullUser);
 
     const result = await axios.post(
       'https://localhost:7245/api/Users/AddUser',
       fullUser
     );
 
-    this.setCurrentUser(result.data);
+    this.setCurrentUser?.(result.data);
 
     Swal.close();
 
     await Swal.fire({
       icon: 'success',
       title: 'נרשמת בהצלחה!',
-      text: `ברוך הבא ${user.name}`,
+      text: `ברוך הבא ${user.name || ''}`,
       timer: 2000,
       showConfirmButton: false,
       timerProgressBar: true,
     });
 
-    navigate('/user/details/' + result.data.id);
-
+    navigate(`/user/details/${result.data.id}`);
   } catch (error) {
     Swal.close();
     console.error('Finish registration error:', error);
+    console.error('Server response errors:', error.response?.data?.errors);
 
     const errorMessage =
       error.response?.data?.message || error.message || 'שגיאה בסיום הרשמה.';
@@ -268,6 +295,7 @@ async finishRegistration(user, navigate) {
     });
   }
 }
+
 
 
 

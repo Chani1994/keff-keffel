@@ -110,6 +110,13 @@ const [loading, setLoading] = useState(false);
     setLoading(false);
   }
 };
+const handleBarcodeScan = (scannedCode) => {
+  const school = schoolStore.schools.find(s => s.barcode === scannedCode);
+  if (school) {
+    setSchoolName(school.name); // זהו השם שתוצג בשדה
+    // אפשר גם להכניס את זה ל־userStore.NameSchool אם צריך
+  }
+};
 
 
   return (
@@ -259,6 +266,7 @@ const [loading, setLoading] = useState(false);
       />
     </Grid>
 
+
     <Grid item xs={12} sm={4}>
       <TextField
         label="אימייל"
@@ -375,8 +383,8 @@ const [loading, setLoading] = useState(false);
       />
     </Grid>
   <Grid container spacing={2} wrap="nowrap" justifyContent="flex-start" alignItems="center">
-  <Grid item xs={6} sm={6} sx={{ minWidth: 200 }}>
-<FormControl fullWidth sx={{ textAlign: 'right' }}>
+  {/* <Grid item xs={6} sm={6} sx={{ minWidth: 200 }}> */}
+{/* <FormControl fullWidth sx={{ textAlign: 'right' }}>
   <InputLabel
     shrink
     sx={{
@@ -441,10 +449,10 @@ const [loading, setLoading] = useState(false);
       </MenuItem>
     ))}
   </Select>
-</FormControl>
+</FormControl> */}
 
 
-  </Grid>
+  {/* </Grid> */}
 
   <Grid item xs={6} sm={6} sx={{ minWidth: 200 }}>
  <FormControl fullWidth sx={{ textAlign: 'right' }}>
@@ -492,13 +500,13 @@ const [loading, setLoading] = useState(false);
       borderRadius: '10px',
     },
   }}
-  MenuProps={{
-    PaperProps: {
-      sx: {
-        minWidth: 200,
-      },
-    },
-  }}
+  // MenuProps={{
+  //   PaperProps: {
+  //     sx: {
+  //       minWidth: 200,
+  //     },
+  //   },
+  // }}
 >
    <MenuItem value="" disabled>
        הגדר סוג מנהל
@@ -523,6 +531,74 @@ const [loading, setLoading] = useState(false);
       {/* Select סוג מנהל */}
     </Grid>
   </Grid>
+{adminType !=1  &&(
+  <Grid item xs={6} sm={6} sx={{ minWidth: 200 }}>
+    <FormControl fullWidth sx={{ textAlign: 'right' }}>
+      <InputLabel
+        shrink
+        sx={{
+          right: 16,
+          left: 'auto',
+          transformOrigin: 'top right',
+          fontWeight: 'bold',
+          background: '#fff',
+          px: 0.5,
+          backgroundImage: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+          backgroundClip: 'text',
+          WebkitBackgroundClip: 'text',
+          color: 'transparent',
+          WebkitTextFillColor: 'transparent',
+        }}
+      >
+        מוסד
+      </InputLabel>
+
+      <Select
+        value={idSchool}
+        onChange={(e) => setIdSchool(e.target.value)}
+        displayEmpty
+        label="מוסד"
+        renderValue={
+          idSchool !== "" ? undefined : () => <span style={{ color: '#aaa' }}>בחר מוסד</span>
+        }
+    sx={{
+    direction: 'rtl',
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#ddd',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: '#e91e63',
+      boxShadow: '0 0 10px #e91e63',
+    },
+    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'white',
+      boxShadow: '0 0 12px #e91e63',
+    },
+    '& .MuiOutlinedInput-root': {
+      backgroundColor: '#f9f9f9',
+      borderRadius: '10px',
+    },
+  }}
+        // MenuProps={{
+        //   PaperProps: {
+        //     sx: {
+        //       minWidth: 200,
+        //     },
+        //   },
+        // }}
+      >
+        <MenuItem value="" disabled>
+          בחר מוסד
+        </MenuItem>
+        {schoolStore.schools.map((school) => (
+          <MenuItem key={school.id} value={school.barcode}>
+            {school.nameSchool}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  </Grid>
+)}
 
   {/* כפתורים בשורה חדשה */}
   <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 3 }}>

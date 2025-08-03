@@ -5,6 +5,7 @@ import adminStore from '../../store/adminStore';
 import { IconButton, Box, Paper, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 
 const AllAdmin = observer(() => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const AllAdmin = observer(() => {
   };
 
   return (
+    
     <Box
           sx={{
             direction: 'rtl',
@@ -36,6 +38,7 @@ const AllAdmin = observer(() => {
             position: 'relative',
           }}
         >
+          
           <Box
             sx={{
               position: 'absolute',
@@ -53,6 +56,7 @@ const AllAdmin = observer(() => {
               zIndex: 10,
             }}
           />
+          
       {/* תוכן */}
       <Paper
               elevation={6}
@@ -71,6 +75,7 @@ const AllAdmin = observer(() => {
                 flexDirection: 'column',
               }}
             >
+              
               <Box
                 sx={{
                   display: 'flex',
@@ -87,6 +92,25 @@ const AllAdmin = observer(() => {
                   gap={2}
                   mb={2}
                 >
+                  <IconButton
+  onClick={() => navigate(-1)}
+  sx={{
+    alignSelf: 'flex-start',
+    color: '#e91e63',
+    border: '1px solid #e91e63',
+    borderRadius: '8px',
+    mb: 2,
+    transition: 'all 0.3s ease-in-out',
+    '&:hover': {
+      backgroundColor: '#e91e63',
+      color: '#fff',
+    },
+  }}
+>
+  <ArrowForwardRoundedIcon />
+  <Typography sx={{ ml: 1, fontSize: '14px' }}>חזרה</Typography>
+</IconButton>
+
                   <img src="/logo1.png" alt="לוגו" style={{ width: 80 }} />
                   <Typography
                     variant="h4"

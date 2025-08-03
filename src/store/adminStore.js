@@ -10,6 +10,9 @@ class AdminStore {
   currentAdmin = null;
   adminType = null;
 
+
+  isLoading = true;
+
   constructor() {
     makeAutoObservable(this);
   }
@@ -17,6 +20,27 @@ get isSuperAdmin() {
   return this.adminType === 1;
 }
 
+get isLoggedIn() {
+  return !!this.currentAdmin;
+}
+// autoLogin() {
+//   const adminId = localStorage.getItem('adminId');
+//   const adminType = Number(localStorage.getItem('adminType'));
+
+//   if (!adminId) return;
+
+//   axios.get(`https://localhost:7245/api/Admin/${adminId}`)
+//     .then(res => {
+//       runInAction(() => {
+//         this.currentAdmin = res.data;
+//         this.adminType = adminType;
+//       });
+//     })
+//     .catch(err => {
+//       console.error('שגיאה בשחזור התחברות:', err);
+//       this.logout(); // לנקות במקרה של שגיאה
+//     });
+// }
 
 fetchCurrentAdmin() {
   const adminId = localStorage.getItem('adminId');
@@ -43,40 +67,57 @@ fetchCurrentAdmin() {
     this.password = value;
   }
 
-  async fetchAdmins() {
-    try {
-      const response = await axios.get('https://localhost:7245/api/Admin');
-      runInAction(() => {
-        this.admins = response.data;
-      });
-    } catch (error) {
-      runInAction(() => {
-        this.error = 'שגיאה בעת טעינת מנהלים';
-      });
-      console.error('שגיאה:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'שגיאת שרת',
-        text: error.message,
-        confirmButtonText: 'אישור'
-      });
-    }
+ async fetchAdmins() {
+  try {
+    const response = await axios.get('https://localhost:7245/api/Admin');
+    runInAction(() => {
+      this.admins = response.data;
+    });
+    console.log('fetchAdmins - data received:', response.data); // כאן
+  } catch (error) {
+    runInAction(() => {
+      this.error = 'שגיאה בעת טעינת מנהלים';
+    });
+    console.error('שגיאה:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'שגיאת שרת',
+      text: error.message,
+      confirmButtonText: 'אישור'
+    });
+  }
+}
+
+ 
+  autoLogin = async () => {
+  const adminId = localStorage.getItem('adminId');
+  const adminType = Number(localStorage.getItem('adminType'));
+
+  if (!adminId) {
+    this.isLoading = false;
+    return;
   }
 
-  async fetchCurrentAdmin() {
-    const adminId = localStorage.getItem('adminId');
-    if (!adminId) return;
-
-    try {
-      const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
-      runInAction(() => {
-        this.currentAdmin = response.data;
-      });
-    } catch (error) {
-      console.error('שגיאה בשליפת המנהל הנוכחי:', error);
-    }
+  try {
+    const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
+    runInAction(() => {
+      this.currentAdmin = response.data;
+      console.log(this.currentAdmin, this.adminType)
+      this.adminType = adminType;
+      this.isLoading = false;
+    });
+  } catch (error) {
+    runInAction(() => {
+      this.currentAdmin = null;
+      this.adminType = null;
+      this.isLoading = false;
+    });
+    console.error('שגיאה בשחזור התחברות:', error);
   }
-async login({ nameAdmin, password },navigate) {
+};
+
+
+async login({ nameAdmin, password }, navigate) {
   console.log('login called with:', nameAdmin, password);
   const trimmedName = nameAdmin?.toLowerCase().trim();
   const trimmedPassword = password;
@@ -86,23 +127,28 @@ async login({ nameAdmin, password },navigate) {
 
   await this.fetchAdmins();
 
-  // console.log('רשימת מנהלים:', this.admins.map(a => ({
-  //   nameAdmin: a.nameAdmin?.toLowerCase().trim(),
-  //   password: a.password
-  // })));
+  console.log('login - admins list:', this.admins); // כאן
 
-  const exact = this.admins.find(
-    (a) =>
-      a.nameAdmin?.toLowerCase().trim() === trimmedName &&
-      a.password === trimmedPassword
-  );
+ const exact = this.admins.find(
+  (a) => {
+    const nameMatch = a.nameAdmin?.toLowerCase().trim() === trimmedName;
+    const passwordMatch = a.password === trimmedPassword;
+    console.log(`Checking admin "${a.nameAdmin}": nameMatch=${nameMatch}, passwordMatch=${passwordMatch}`);
+    return nameMatch && passwordMatch;
+  }
+);
+
+  console.log('login - exact match:', exact); // כאן
 
   if (exact) {
-    localStorage.setItem('adminId', exact.id || exact.id);
+    localStorage.setItem('adminId', exact.id);
     localStorage.setItem('adminType', exact.adminType);
     localStorage.setItem('adminName', exact.nameAdmin);
 
     this.currentAdmin = exact;
+    this.adminType = exact.adminType; // חשוב לעדכן כאן
+
+    console.log('login - currentAdmin set:', this.currentAdmin); // כאן
 
     await Swal.fire({
       icon: 'success',
@@ -111,7 +157,7 @@ async login({ nameAdmin, password },navigate) {
       confirmButtonText: 'המשך'
     });
 
-    navigate('/admin');
+    navigate('/admin/admin-home');
     return;
   }
 
@@ -120,6 +166,8 @@ async login({ nameAdmin, password },navigate) {
       a.nameAdmin?.toLowerCase().trim() === trimmedName ||
       a.password === trimmedPassword
   );
+
+  console.log('login - partial match:', partial); // כאן
 
   await Swal.fire({
     icon: partial ? 'error' : 'warning',
@@ -130,50 +178,6 @@ async login({ nameAdmin, password },navigate) {
     confirmButtonText: 'אישור'
   });
 }
-// async login({ nameAdmin, password }, navigate) {
-//   console.log('login called with:', nameAdmin, password);
-
-//   const trimmedName = nameAdmin?.toLowerCase().trim();
-
-//   try {
-//     // קריאת API התחברות לפי שם וסיסמה (GET עם פרמטרים ב-URL)
-//     const response = await axios.get(
-//       `https://localhost:7245/api/Admin/LoginAdmin/${encodeURIComponent(trimmedName)},${encodeURIComponent(password)}`
-//     );
-//     console.log('Login response object:', response.data);
-
-//     if (response.data === true) {
-//       // התחברות הצליחה - שומרים את שם המנהל בלבד
-//       localStorage.setItem('adminName', trimmedName);
-//       this.currentAdmin = { nameAdmin: trimmedName };
-
-//       await Swal.fire({
-//         icon: 'success',
-//         title: 'ברוך הבא!',
-//         text: `שלום ${nameAdmin}, התחברת בהצלחה.`,
-//         confirmButtonText: 'המשך'
-//       });
-
-//       navigate('/admin');
-//     } else {
-//       await Swal.fire({
-//         icon: 'error',
-//         title: 'שגיאה',
-//         text: 'שם משתמש או סיסמה שגויים',
-//         confirmButtonText: 'אישור'
-//       });
-//     }
-//   } catch (error) {
-//     console.error('Login error:', error);
-//     await Swal.fire({
-//       icon: 'error',
-//       title: 'שגיאה',
-//       text: 'שגיאה בשרת, נסה שוב מאוחר יותר',
-//       confirmButtonText: 'אישור'
-//     });
-//   }
-// }
-
 
   async addAdmin(newAdmin, navigate) {
   try {

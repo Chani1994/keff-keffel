@@ -216,6 +216,7 @@ useEffect(() => {
       {/* גוף עיקרי */}
      <Box
   sx={{
+    
     display: 'flex',
     flexGrow: 1,
     justifyContent: 'center',
@@ -243,6 +244,7 @@ useEffect(() => {
         />
 
         <Paper
+        
   elevation={6}
   sx={{
     width: '100%',
@@ -250,6 +252,8 @@ useEffect(() => {
     p: 4,
     borderRadius: '10px',
     backgroundColor: '#fff',
+      overflowX: 'hidden', // חשוב
+
     zIndex: 2,
     boxShadow:
       '0 0 10px #e91e63, 0 0 15px #ff9800, 0 0 40px #ffc107, 0 0 60px #4dd0e1',
@@ -259,6 +263,7 @@ useEffect(() => {
 
           <Box
             sx={{
+
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -319,6 +324,8 @@ useEffect(() => {
   mt={4}
   sx={{
     maxHeight: '65px', // או גובה שתרצה
+    maxWidth: '700px', 
+
     overflowY: 'auto',
     border: '1px solid #ccc',
     borderRadius: '8px',
@@ -348,7 +355,7 @@ useEffect(() => {
       </Dialog>
 
       {/* פוטר */}
-    <Box sx={{ bgcolor: '#111', py: 1, width: '100%' }}>
+    <Box sx={{ bgcolor: '#111', py: 1, width: '100%', direction: 'ltr' }}>
         <Footer />
       </Box>
     </Box>
