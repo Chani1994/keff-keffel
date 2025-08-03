@@ -39,7 +39,21 @@ function AdminLogin() {
 
   return (
 <Box className="login-page" component="form" noValidate>
-<Paper className="login-box login-box-narrow" >
+<Paper className="login-box login-box-narrow"  sx={{
+                p: 4,
+                width: 1000,
+                maxHeight: '70vh',
+                backgroundColor: '#ffffff',
+                borderRadius: '20px',
+                color: '#333',
+                overflowY: 'hidden',
+                boxShadow:
+                  '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
+                zIndex: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+  >
         <img src="/logo1.png" alt="לוגו כיף כפל" className="login-logo" />
 
         <Typography variant="h5" gutterBottom className="login-title">

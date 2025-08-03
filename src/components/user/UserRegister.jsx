@@ -118,8 +118,22 @@ const UserRegister = observer(() => {
 
   return (
     <Box className="login-page" component="form" noValidate onSubmit={handlePayClick}>
-      <Paper className="login-box login-box-wide">
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
+<Paper  sx={{
+                p: 4,
+width: '500px',
+maxWidth: '60vw',
+                maxHeight: '90vh',
+                backgroundColor: '#ffffff',
+                borderRadius: '20px',
+                color: '#333',
+                overflowY: 'hidden',
+                boxShadow:
+                  '0 0 10px #e91e63, 0 0 20px #ff9800, 0 0 30px #ffc107, 0 0 80px #4dd0e1, 0 0 20px #e91e63',
+                zIndex: 2,
+                // display: 'flex',
+                // flexDirection: 'column',
+              }}
+  >        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2, mb: 2 }}>
           <Typography variant="h5" className="login-title" component="div">
             הרשמה
           </Typography>
@@ -230,7 +244,11 @@ const UserRegister = observer(() => {
 
         <Typography variant="body2" className="login-register">
           יש לך חשבון?{' '}
-          <Link component="button" onClick={() => navigate('/user/login')} className="login-register-link">
+          <Link component="button" 
+          onClick={() => navigate('/user/login')} 
+          className="login-register-link"
+          >
+
             התחבר כאן
           </Link>
         </Typography>
