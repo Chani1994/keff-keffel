@@ -1,0 +1,203 @@
+.admin-wrapper {
+  direction: rtl;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #000000;
+  overflow: hidden;
+  position: relative;
+}
+
+.admin-bg-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80vw;
+  height: 80vh;
+  background-image: url("/logo3.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.admin-paper {
+      border: 2px solid #e91e63;  /* הוסף מסגרת */
+
+  padding: 32px; /* p:4 = 4*8px = 32px */
+  width: 60vw;
+  max-height: 85vh;
+  background-color: #ffffff;
+  border-radius: 20px;
+  color: #333;
+  overflow-y: auto;
+  box-shadow:
+    0 0 10px #e91e63,
+    0 0 20px #ff9800,
+    0 0 30px #ffc107,
+    0 0 80px #4dd0e1;
+  z-index: 2;
+  position: relative;
+}
+
+.admin-logo-container {
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-title {
+  font-weight: bold;
+  background: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;       /* הוסף */
+  color: transparent;          /* הוסף */
+  text-align: center;
+  margin-bottom: 24px;
+}
+.admin-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+/* שדות טקסט */
+.admin-textfield {
+  direction: rtl;
+  width: 100%;
+}
+
+.admin-textfield .MuiOutlinedInput-root {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.admin-textfield .MuiOutlinedInput-root fieldset {
+  border-color: #ddd;
+}
+
+.admin-textfield .MuiOutlinedInput-root:hover fieldset {
+  border-color: #e91e63;
+  box-shadow: 0 0 10px #e91e63;
+}
+
+.admin-textfield .MuiOutlinedInput-root.Mui-focused fieldset {
+  border-color: white;
+  box-shadow: 0 0 12px #e91e63;
+}
+
+/* תווית (Label) */
+.admin-label {
+  right: 16px !important;
+  left: auto !important;
+  transform-origin: top right !important;
+  background: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  font-weight: bold !important;
+  text-align: right;
+}
+
+/* יישור טקסט בשדה */
+.admin-input-text {
+  text-align: right;
+}
+
+/* כפתורים */
+.admin-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.admin-button-submit {
+  border-radius: 50px;
+  border: 2px solid #e91e63;
+  color: #e91e63;
+  background: transparent;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 0 8px #e91e63;
+  padding: 12px 32px;
+  text-transform: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.admin-button-submit:hover {
+  background: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107);
+  color: #fff;
+  border-color: #e91e63;
+  box-shadow: 0 0 20px #e91e63;
+}
+
+.admin-button-cancel {
+  border-radius: 50px;
+  border: 2px solid #999;
+  color: #999;
+  background: transparent;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: 0 0 8px #ccc;
+  padding: 12px 32px;
+  text-transform: none;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.admin-button-cancel:hover {
+  background-color: #f0f0f0;
+  color: #555;
+  border-color: #888;
+  box-shadow: 0 0 12px #e91e63;
+}
+
+/* Select */
+.admin-select {
+  direction: rtl;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.admin-select .MuiOutlinedInput-notchedOutline {
+  border-color: #ddd;
+}
+
+.admin-select:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #e91e63;
+  box-shadow: 0 0 10px #e91e63;
+}
+
+.admin-select.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: white;
+  box-shadow: 0 0 12px #e91e63;
+}
+
+.admin-select .MuiSelect-select {
+  padding-right: 24px;
+  text-align: right;
+}
+
+/* Select Label */
+.admin-select-label {
+  right: 16px !important;
+  left: auto !important;
+  transform-origin: top right !important;
+  font-weight: bold !important;
+  background: #fff !important;
+  padding: 0 4px;
+  background-image: linear-gradient(90deg, #00bcd4, #e91e63, #ffc107);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+}

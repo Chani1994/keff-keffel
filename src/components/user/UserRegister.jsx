@@ -122,6 +122,7 @@ const UserRegister = observer(() => {
                 p: 4,
 width: '500px',
 maxWidth: '60vw',
+height:'400px',
                 maxHeight: '90vh',
                 backgroundColor: '#ffffff',
                 borderRadius: '20px',

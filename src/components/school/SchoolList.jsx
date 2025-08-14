@@ -54,12 +54,13 @@ const SchoolList = observer(() => {
     position: 'relative',
   }}
 >
+  
   <Paper
     elevation={6}
     sx={{
                 p: 4,
                 width: 1000,
-                maxHeight: '70vh',
+                height: '70vh',
                 backgroundColor: '#ffffff',
                 borderRadius: '20px',
                 color: '#333',
@@ -71,7 +72,18 @@ const SchoolList = observer(() => {
                 flexDirection: 'column',
               }}
   >
-                  <IconButton
+         
+  <Box
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      mb: 3,
+      pt: 4,
+    }}
+  >
+    <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
+               <IconButton
       onClick={() => navigate(-1)}
       sx={{
         alignSelf: 'flex-start',
@@ -89,17 +101,7 @@ const SchoolList = observer(() => {
       <ArrowForwardRoundedIcon />
       <Typography sx={{ ml: 1, fontSize: '14px' }}>חזרה</Typography>
     </IconButton>
-  <Box
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      mb: 3,
-      pt: 4,
-    }}
-  >
-    <Box display="flex" alignItems="center" justifyContent="center" gap={2} mb={2}>
-      <img src="/logo1.png" alt="לוגו" style={{ width: 80}} />
+        <img src="/logo1.png" alt="לוגו" style={{ width: 80 }} />
       <Typography
         variant="h4"
         sx={{

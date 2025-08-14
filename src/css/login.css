@@ -9,6 +9,10 @@
     overflow: hidden;
     position: relative;
 }
+.login-box {
+  max-height: 90vh;
+  overflow-y: auto;
+}
 
 /* רקע כללי עם הלוגו */
 .login-box {
@@ -235,7 +239,3 @@ margin: 24px auto 0 auto;
     text-decoration: none !important;
 
 }
-/* .login-register-link:focus {
-  outline: none;
-  box-shadow: none;
-}; */

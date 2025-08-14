@@ -166,24 +166,21 @@ const handleBarcodeScan = (scannedCode) => {
           zIndex: 2,
         }}
       >
-        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img src="/logo1.png" alt="לוגו" style={{ width: 120 }} />
-        </Box>
-
+    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', mb: 2, paddingTop: '30px' }}>
+ <img src="/logo1.png" alt="לוגו" style={{ width: 80 }} />
         <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
+          variant="h4"
           sx={{
             fontWeight: 'bold',
             background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            lineHeight: 1,
           }}
         >
-          הוספת מנהל חדש
+           הוספת מנהל
         </Typography>
-
+      </Box>
         <form onSubmit={handleSubmit} autoComplete="off">
           <Grid container spacing={2} justifyContent="center" alignItems="center" sx={{ textAlign: 'center' }}>
           <Grid item xs={12} sm={4}>

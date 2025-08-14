@@ -1,23 +1,27 @@
 import { makeAutoObservable } from 'mobx';
 import Swal from 'sweetalert2';
-import { toJS } from 'mobx';
 import { runInAction } from 'mobx';
 
 import axios from 'axios';
 function buildFullUser(user) {
+  const startDate = new Date();
+  const endDate = new Date();
+  endDate.setMonth(endDate.getMonth() + 3); // מוסיף 3 חודשים
+
   return {
     name: user.name,
     phone: user.phone,
     school: user.school || '',
     classes: user.classes || '',
     paymentStatus: user.paymentStatus !== undefined ? user.paymentStatus : 0,
-    subscriptionStartDate: user.subscriptionStartDate || new Date().toISOString(),
-    subscriptionEndDate: user.subscriptionEndDate || new Date().toISOString(),
-    isActive: user.isActive !== undefined ? user.isActive : true,
+    subscriptionStartDate: startDate.toISOString(),
+    subscriptionEndDate: endDate.toISOString(),
+    isActive: true,
     index: user.index !== undefined ? user.index : 0,
     success: user.success !== undefined ? user.success : 0,
   };
 }
+
 class UserStore {
   name = '';
   phone = '';
@@ -115,26 +119,18 @@ setCurrentUser(user) {
     }
   }
 
-  
 async loginByPhone(phone, navigate) {
   try {
-    console.log("Trying to login with phone:", phone);
-
-    // לא שולחים טוקן כי זו התחברות ראשונית
     const response = await axios.get(
       `https://localhost:7245/api/Users/getByPhone/${encodeURIComponent(phone)}`
     );
-
     const { token, user } = response.data;
 
-    // שמירת הטוקן שקיבלת מהשרת
-   sessionStorage.setItem('jwtToken', token);
-localStorage.setItem('token', token);
-
-
+    sessionStorage.setItem('jwtToken', token);
+    localStorage.setItem('token', token);
     this.setCurrentUser(user);
 
-    Swal.fire({
+    await Swal.fire({
       icon: 'success',
       title: 'התחברת בהצלחה!',
       text: `שלום ${user.name}`,
@@ -143,17 +139,21 @@ localStorage.setItem('token', token);
     });
 
     navigate(`/user/details/${user.id}`);
-
   } catch (error) {
     const status = error.response?.status;
-
-    console.error('Login error:', error);
 
     if (status === 404) {
       Swal.fire({
         icon: 'error',
         title: 'שגיאה',
         text: 'לא נמצא משתמש עם מספר טלפון זה.',
+        confirmButtonText: 'אישור',
+      });
+    } else if (status === 401) {
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'המשתמש לא פעיל.',
         confirmButtonText: 'אישור',
       });
     } else {
@@ -166,6 +166,9 @@ localStorage.setItem('token', token);
     }
   }
 }
+
+
+
 async addUser(user) {
   try {
     const exists = this.users.some(u => u.phone === user.phone);
@@ -196,16 +199,66 @@ async addUser(user) {
 }
 
 
- async register(user, navigate) {
+async register(user, navigate) {
   try {
-    // שלב 1: טוען
-    Swal.fire({
-      title: 'מתבצעת הרשמה...',
+    // הצגת טעינה
+    await Swal.fire({
+      title: 'בודק פרטים...',
       allowOutsideClick: false,
       didOpen: () => Swal.showLoading(),
     });
 
-    // שלב 2: בדיקה אם המשתמש כבר קיים לפי טלפון
+    // בדיקה אם קיים משתמש
+    const usersResponse = await axios.get('https://localhost:7245/api/Users');
+    const existingUser = usersResponse.data.find((u) => u.phone === user.phone);
+
+    if (existingUser) {
+      // סגור טעינה, אל תמשיך
+      Swal.close();
+      await Swal.fire({
+        icon: 'error',
+        title: 'משתמש כבר קיים',
+        text: 'כבר קיים משתמש עם מספר טלפון זהה',
+        confirmButtonText: 'אישור',
+      });
+      return;
+    }
+
+    // אם לא קיים – שמור בזיכרון מקומי
+    localStorage.setItem('pendingUser', JSON.stringify(user));
+
+    // סגור טעינה
+    Swal.close();
+
+    // שלב אחרון: הפניה לתשלום – רק אחרי שעברנו את כל הבדיקות
+    const returnUrl = encodeURIComponent(window.location.origin + '/user/register?paid=true');
+    window.location.href = `https://www.matara.pro/nedarimplus/online/?S=VOgq&ReturnUrl=${returnUrl}`;
+
+  } catch (error) {
+    Swal.close();
+    console.error('Register error:', error);
+    const errorMessage =
+      error.response?.data?.message || error.message || 'שגיאה בהרשמה.';
+
+    await Swal.fire({
+      icon: 'error',
+      title: 'שגיאה',
+      text: errorMessage,
+      confirmButtonText: 'אישור',
+    });
+  }
+}
+
+
+async finishRegistration(user, navigate) {
+  try {
+    Swal.fire({
+      title: 'מעדכן הרשמה...',
+      allowOutsideClick: false,
+      didOpen: () => Swal.showLoading(),
+    });
+
+    // בדיקה כפולה שהמשתמש לא קיים
     const usersResponse = await axios.get('https://localhost:7245/api/Users');
     const existingUser = usersResponse.data.find((u) => u.phone === user.phone);
 
@@ -220,45 +273,7 @@ async addUser(user) {
       return;
     }
 
-    // שלב 3: שמירת המשתמש לזיכרון זמני ולשלוח לתשלום
-    localStorage.setItem('pendingUser', JSON.stringify(user));
-
-    Swal.close();
-
-    // שלב 4: הפניה לתשלום דרך השרת שלך
-    const returnUrl = encodeURIComponent(window.location.origin + '/user/register?paid=true');
-
-    // דוגמה לכתובת שרת שמחזיר לינק תשלום ייחודי (אם אתה בונה תהליך כזה)
-    window.location.href =
-      `https://www.matara.pro/nedarimplus/online/?S=VOgq&ReturnUrl=${returnUrl}`;
-
-  } catch (error) {
-    Swal.close();
-    console.error('Register error:', error);
-
-    const errorMessage =
-      error.response?.data?.message || error.message || 'שגיאה בהרשמה.';
-
-    await Swal.fire({
-      icon: 'error',
-      title: 'שגיאה',
-      text: errorMessage,
-      confirmButtonText: 'אישור',
-    });
-  }
-}
-async finishRegistration(user, navigate) {
-  try {
-    Swal.fire({
-      title: 'מעדכן הרשמה...',
-      allowOutsideClick: false,
-      didOpen: () => Swal.showLoading(),
-    });
-
-    // השתמש בפונקציה שמבנה את המשתמש המלא
     const fullUser = buildFullUser(user);
-
-    console.log('Sending user to server:', fullUser);
 
     const result = await axios.post(
       'https://localhost:7245/api/Users/AddUser',
@@ -282,8 +297,6 @@ async finishRegistration(user, navigate) {
   } catch (error) {
     Swal.close();
     console.error('Finish registration error:', error);
-    console.error('Server response errors:', error.response?.data?.errors);
-
     const errorMessage =
       error.response?.data?.message || error.message || 'שגיאה בסיום הרשמה.';
 
@@ -295,9 +308,6 @@ async finishRegistration(user, navigate) {
     });
   }
 }
-
-
-
 
 async updateUser(updatedUser, callback) {
   try {
@@ -331,7 +341,29 @@ async updateUser(updatedUser, callback) {
 }
 
 
+  deleteUser = async (id) => {
+    try {
+      await axios.delete(`https://localhost:7245/api/Users/${id}`);
+      runInAction(() => {
+        // מסירים את המשתמש מהרשימה אחרי המחיקה
+        this.users = this.users.filter(user => user.id !== id);
+      });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("אירעה שגיאה במחיקת המשתמש");
+    }
+  };
 
+  async fetchUserById(id) {
+  try {
+    const response = await axios.get(`https://localhost:7245/api/Users/${id}`);
+    runInAction(() => {
+      this.currentUser = response.data;
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+  }
+}
 
 }
 export default new UserStore();

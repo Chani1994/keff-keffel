@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { runInAction } from 'mobx';
 import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+
 import {
   Dialog,
   DialogContent,
@@ -11,9 +13,11 @@ import {
   Paper,
   Grid,
   Button,
-  IconButton
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 import UserStore from '../../store/userStore';
 import EditUserDetails from './EditUserDetails';
@@ -27,6 +31,7 @@ const UserDetails = observer(() => {
   const [isReport, setIsReport] = useState(false);
 
   const navigate = useNavigate();
+const { id } = useParams();
 
   useEffect(() => {
     const path = window.location.pathname;
@@ -62,23 +67,27 @@ const UserDetails = observer(() => {
 
   const user = UserStore.currentUser;
 useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const paid = params.get('paid');
-  if (paid === 'true') {
-    const savedUser = localStorage.getItem('pendingUser');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      UserStore.finishRegistration(parsedUser, navigate); 
-      localStorage.removeItem('pendingUser');
-      Swal.fire({
-        icon: 'success',
-        title: 'נרשמת בהצלחה!',
-        text: 'ההרשמה הושלמה והתשלום נקלט',
-        confirmButtonText: 'המשך',
-      });
+  UserStore.fetchUserById(id);
+}, [id]);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const paid = params.get('paid');
+    if (paid === 'true') {
+      const savedUser = localStorage.getItem('pendingUser');
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser);
+        UserStore.finishRegistration(parsedUser, navigate); 
+        localStorage.removeItem('pendingUser');
+        Swal.fire({
+          icon: 'success',
+          title: 'נרשמת בהצלחה!',
+          text: 'ההרשמה הושלמה והתשלום נקלט',
+          confirmButtonText: 'המשך',
+        });
+      }
     }
-  }
-}, []);
+  }, []);
+
   if (loading) {
     return (
       <Box sx={{ textAlign: 'center', mt: 8, color: '#fff' }}>
@@ -89,7 +98,6 @@ useEffect(() => {
 
   if (!user) {
     return (
-      
       <Box
         sx={{
           direction: 'rtl',
@@ -165,17 +173,15 @@ useEffect(() => {
   ];
 
   return (
-        
-   <Box
-  sx={{
-    direction: 'rtl',
-       width: '100vw',
-    backgroundColor: '#000',
-    display: 'flex',
-    flexDirection: 'column',
-  }}
->
-
+    <Box
+      sx={{
+        direction: 'rtl',
+        width: '100vw',
+        backgroundColor: '#000',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {/* רקע שקוף של לוגו */}
       <Box
         sx={{
@@ -188,88 +194,84 @@ useEffect(() => {
           backgroundSize: 'contain',
           backgroundPosition: 'center',
           opacity: 0.05,
-          width: '30vw',
-          height: '30vh',
-          zIndex: 0,
+          width: { xs: '50vw', sm: '40vw', md: '30vw' },
+          height: { xs: '20vh', sm: '25vh', md: '30vh' },
+          zIndex: 10,
           pointerEvents: 'none',
         }}
       />
 
       {/* תפריט עליון */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 16,
-          left: 16,
-          zIndex: 1000,
-          borderRadius: 2,
-          px: 2,
-          py: 1,
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-        }}
-      >
-        <Button variant="outlined" color="error" onClick={logout}>
-          התנתק
-        </Button>
-      </Box>
-
-      {/* גוף עיקרי */}
-     <Box
+  <Box
   sx={{
-    
-    display: 'flex',
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    mt: 6,
+    position: 'fixed',
+    top: { xs: 50, sm: 16 }, // במסכים קטנים יותר הכפתור יורד
+    right: 16,               
+    left: 'auto',
+    zIndex: 1000,
+    borderRadius: 2,
+    px: 1,
+    py: 1,
+    boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+    backgroundColor: { xs: 'transparent', sm: '#fff' }, // שקוף במסכים קטנים
   }}
 >
+    <Tooltip title="התנתק" arrow>
 
+  <IconButton color="error" onClick={logout} >
+    <ExitToAppIcon />
+  </IconButton>
+    </Tooltip>
+
+</Box>
+
+
+      {/* גוף עיקרי */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          flexGrow: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          mt: { xs: 2, md: 6 },
+          px: { xs: 2, md: 0 },
+          gap: 3,
+        }}
+      >
         <Box
           component="img"
           src="/logo1.png"
           alt="Logo"
           sx={{
-            width: 350,
-            height: 350,
+            width: { xs: 200, sm: 250, md: 350 },
+            height: 'auto',
             objectFit: 'contain',
-            mt: -5,
+            mt: { xs: 0, md: -5 },
             alignSelf: 'flex-start',
             filter: 'drop-shadow(0 0 15px #00bcd4ff)',
-            transition: 'filter 0.3s ease-in-out',
             '&:hover': {
               filter: 'drop-shadow(0 0 30px #00bcd4ff)',
-            },
+            },    display: { xs: 'none', md: 'block' }, // כאן מוסיפים רספונסיביות
+
           }}
         />
 
         <Paper
-        
-  elevation={6}
-  sx={{
-    width: '100%',
-    maxWidth: '350px', // היה 400
-    p: 4,
-    borderRadius: '10px',
-    backgroundColor: '#fff',
-      overflowX: 'hidden', // חשוב
-
-    zIndex: 2,
-    boxShadow:
-      '0 0 10px #e91e63, 0 0 15px #ff9800, 0 0 40px #ffc107, 0 0 60px #4dd0e1',
-    transition: 'all 0.5s ease-in-out',
-  }}
->
-
-          <Box
-            sx={{
-
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 3,
-            }}
-          >
+          elevation={6}
+          sx={{
+            width: '100%',
+            maxWidth: { xs: '90%', sm: 350, md: 350 },
+            p: { xs: 2, sm: 4 },
+            borderRadius: '10px',
+            backgroundColor: '#fff',
+            overflowX: 'hidden',
+            zIndex: 2,
+            boxShadow:
+              '0 0 10px #e91e63, 0 0 15px #ff9800, 0 0 40px #ffc107, 0 0 60px #4dd0e1',
+          }}
+        >
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Typography
               variant="h4"
               sx={{
@@ -283,10 +285,10 @@ useEffect(() => {
                 width: '100%',
                 py: 2,
                 px: 4,
-                fontSize: '2rem',
+                fontSize: { xs: '1.5rem', md: '2rem' },
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 {greeting}, {user.name}!
                 <IconButton onClick={handleEditClick} sx={{
                   borderRadius: '50%',
@@ -314,29 +316,28 @@ useEffect(() => {
           <Grid container spacing={2}>
             {userFields.map((field, idx) => (
               <Grid item xs={12} sm={6} md={3} key={idx}>
-                <Typography sx={{ fontSize: '1rem' }}>
+                <Typography sx={{ fontSize: { xs: '0.85rem', sm: '1rem' } }}>
                   <strong>{field.label}:</strong> {field.value}
                 </Typography>
               </Grid>
             ))}
           </Grid>
-<Box
-  mt={4}
-  sx={{
-    maxHeight: '65px', // או גובה שתרצה
-    maxWidth: '700px', 
 
-    overflowY: 'auto',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    p: 2,
-    backgroundColor: '#f5f5f5',
-  }}
->
-  <UserLearningReport userId={user.id} />
-</Box>
+          <Box
+            mt={4}
+            sx={{
+              maxHeight: '65px',
+              maxWidth: { xs: '100%', sm: '700px' },
+              overflowY: 'auto',
+              border: '1px solid #ccc',
+              borderRadius: '8px',
+              p: 2,
+              backgroundColor: '#f5f5f5',
+            }}
+          >
+            <UserLearningReport userId={user.id} />
+          </Box>
         </Paper>
-        
       </Box>
 
       {/* דיאלוג עריכה */}
@@ -355,7 +356,7 @@ useEffect(() => {
       </Dialog>
 
       {/* פוטר */}
-    <Box sx={{ bgcolor: '#111', py: 1, width: '100%', direction: 'ltr' }}>
+      <Box sx={{ bgcolor: '#111', py: 1, width: '100%', direction: 'ltr' }}>
         <Footer />
       </Box>
     </Box>

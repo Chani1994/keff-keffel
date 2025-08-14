@@ -1,103 +1,124 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import axios from "axios";
 
+// מחלקה לניהול נתוני שיעורים
 class LessonStore {
-  lessonRecords = []; // רשימת נתוני שיעורים
-  loading = false;
-  error = null;
+  lessonRecords = []; // רשימת נתוני שיעורים עבור המשתמשים
+  loading = false;    // מצב טעינה בעת בקשות API
+  error = null;       // מאחסן שגיאות אם משהו נכשל
 
   constructor() {
+    // הפיכת כל השדות והפונקציות ל-observable ואוטומטית ל-action
     makeAutoObservable(this);
   }
 
-async fetchLessonRecords(userId) {
-  this.loading = true;
-  this.error = null;
+  // פונקציה לטעינת נתוני שיעורים עבור משתמש ספציפי
+  async fetchLessonRecords(_userId) {
+    this.loading = true; // מציין שהטעינה התחילה
+    this.error = null;   // איפוס שגיאות קודמות
 
-  const token = sessionStorage.getItem("jwtToken");
-  if (!token) {
-    this.error = "אין טוקן, יש להתחבר";
-    this.loading = false;
-    return;
-  }
+    // שליפת טוקן JWT מה-sessionStorage
+    const token = sessionStorage.getItem("jwtToken");
+    if (!token) {
+      this.error = "אין טוקן, יש להתחבר"; // אם אין טוקן – מציג הודעה
+      this.loading = false;
+      return;
+    }
 
-  try {
-    const lessons = [];
-    for (let i = 2; i <= 9; i++) {
-      try {
-        const { data: lessonData } = await axios.get(
-          `https://localhost:7245/api/Lessons/by-phone-and-lesson/${i}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+    try {
+      const lessons = []; // מערך זמני לשמירת נתוני השיעורים
 
-        const lessonId = lessonData.lessonId || lessonData.id;
-        if (!lessonId) continue;
+      // לולאה על שיעורים מספר 2 עד 9
+      for (let i = 2; i <= 9; i++) {
+        try {
+          // בקשת נתוני השיעור מה-API
+          const { data: lessonData } = await axios.get(
+            `https://localhost:7245/api/Lessons/by-phone-and-lesson/${i}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
 
-        const { data: siData } = await axios.get(
-          `https://localhost:7245/api/Users/getPointsLessonSi/${i}`
-        );
+          // קבלת מזהה השיעור
+          const lessonId = lessonData.lessonId || lessonData.id;
+          if (!lessonId) continue; // אם אין מזהה, דילוג על השיעור
 
-        const totalPoints = (lessonData.points ?? 0) + (lessonData.pointsTest ?? 0);
-        const isRecord = totalPoints === siData;
+          // בקשה נוספת לקבלת נקודות SI
+          const { data: siData } = await axios.get(
+            `https://localhost:7245/api/Users/getPointsLessonSi/${i}`
+          );
 
-        lessons.push({
-          ...lessonData,
-          totalPoints,
-          isRecord,
-          statusText: "", // ריק כשיש נתונים
-        });
-      } catch (innerError) {
-        if (innerError.response?.status === 404) {
-          // במקום לדלג, הוסף שורה עם הודעה "לא נלמד"
+          // חישוב סכום הנקודות הכולל ובדיקת הישג
+          const totalPoints = (lessonData.points ?? 0) + (lessonData.pointsTest ?? 0);
+          const isRecord = totalPoints === siData;
+
+          // הוספת רשומה למערך השיעורים
           lessons.push({
-            id: i,
-            numLesson: i,
-            points: "-",
-            pointsTest: "-",
-            totalPoints: "-",
-            isRecord: false,
-            statusText: "לא נלמד",
+            ...lessonData,
+            totalPoints,
+            isRecord,
+            statusText: "", // ריק כשיש נתונים
           });
-        } else {
-          throw innerError;
+        } catch (innerError) {
+          if (innerError.response?.status === 404) {
+            // במקרה שהשיעור לא נמצא – מוסיפים רשומה עם הודעה "לא נלמד"
+            lessons.push({
+              id: i,
+              numLesson: i,
+              points: "-",
+              pointsTest: "-",
+              totalPoints: "-",
+              isRecord: false,
+              statusText: "לא נלמד",
+            });
+          } else {
+            throw innerError; // אחרת מעבירים את השגיאה החוצה
+          }
         }
       }
-    }
 
-    runInAction(() => {
-      this.lessonRecords = lessons;
-    });
-  } catch (err) {
-    if (err.response?.status !== 404) {
-      console.error("שגיאה בטעינת נתוני שיעורים", err);
+      // שמירת הנתונים ב-store בתוך action
       runInAction(() => {
-        this.error = "שגיאה בטעינת נתוני שיעורים";
+        this.lessonRecords = lessons;
+      });
+    } catch (err) {
+      // טיפול בשגיאות כלליות (לא 404)
+      if (err.response?.status !== 404) {
+        console.error("שגיאה בטעינת נתוני שיעורים", err);
+        runInAction(() => {
+          this.error = "שגיאה בטעינת נתוני שיעורים";
+        });
+      }
+      // שגיאת 404 אינה מדווחת כ-error
+    } finally {
+      // סיום מצב טעינה
+      runInAction(() => {
+        this.loading = false;
       });
     }
-    // אם זה 404, לא מדפיסים כלום ולא מעדכנים את ה-error
-  } finally {
-    runInAction(() => {
-      this.loading = false;
-    });
   }
-}
 
+  // עדכון רשומות שיעורים מבחוץ
   setLessonRecords(records) {
     this.lessonRecords = records;
   }
 
-  // הפונקציה מקבלת את רשימת המשתמשים מבחוץ, לא שומרת אותם ב-store
+  /**
+   * פונקציה לסינון והצגת תלמידים לפי פרמטרים שונים
+   * לא משנה את ה-store אלא מחזירה עותק מסונן
+   */
   getFilteredUsers(users, { institutionFilter, classFilter, highestByInstitution, highestByLesson }) {
-    let students = [...users];
+    let students = [...users]; // עותק כדי לא לשנות את המקור
 
+    // סינון לפי מוסד
     if (institutionFilter) {
       students = students.filter(s => s.school === institutionFilter);
     }
 
+    // סינון לפי כיתה
     if (classFilter) {
       students = students.filter(s => s.classes === classFilter);
     }
 
+    // חישוב התלמיד עם הניקוד הגבוה ביותר בכל מוסד
     if (highestByInstitution) {
       const map = {};
       students.forEach(s => {
@@ -111,6 +132,7 @@ async fetchLessonRecords(userId) {
       students = Object.values(map);
     }
 
+    // חישוב התלמיד עם הניקוד הגבוה ביותר בכל שיעור
     if (highestByLesson) {
       const map = {};
       students.forEach(s => {
@@ -124,10 +146,10 @@ async fetchLessonRecords(userId) {
       students = Object.values(map);
     }
 
-    return students;
+    return students; // החזרת רשימת התלמידים המסוננת
   }
 }
 
+// יצירת מופע יחיד של ה-store
 const lessonStore = new LessonStore();
 export default lessonStore;
-
