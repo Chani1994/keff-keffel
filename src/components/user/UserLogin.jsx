@@ -81,7 +81,7 @@ function UserLogin() {
           התחבר
         </Button>
 
-        <Typography variant="body2" className="login-register">
+        {/* <Typography variant="body2" className="login-register">
           אין לך חשבון?{' '}
           <Link 
             component="button"
@@ -90,7 +90,7 @@ function UserLogin() {
           >
             הרשם כאן
           </Link>
-        </Typography>
+        </Typography> */}
       </Paper>
     </Box>
   );

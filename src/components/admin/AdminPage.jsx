@@ -153,7 +153,7 @@ const AdminPage = observer(() => {
             </IconButton>
           </h2>
 
-          {adminTypeFromStorage === 2 && currentAdmin && (
+          {/* {adminTypeFromStorage === 2 && currentAdmin && (
             <div style={{ marginTop: '20px' }}>
               <button
                 style={
@@ -172,7 +172,7 @@ const AdminPage = observer(() => {
                 ניהול מוסד
               </button>
             </div>
-          )}
+          )} */}
 
           {isSuperAdmin && (
             <div

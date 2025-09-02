@@ -27,23 +27,23 @@ useEffect(() => {
 }, []);
 
 
-  useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const paid = params.get('paid');
+//   useEffect(() => {
+//   const params = new URLSearchParams(window.location.search);
+//   const paid = params.get('paid');
 
-  if (paid === 'true') {
-    // כאן מבצעים את סיום ההרשמה
-    const savedUser = localStorage.getItem('pendingUser');
-    if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      UserStore.finishRegistration(parsedUser, navigate);
-      localStorage.removeItem('pendingUser');
-    }
+//   if (paid === 'true') {
+//     // כאן מבצעים את סיום ההרשמה
+//     const savedUser = localStorage.getItem('pendingUser');
+//     if (savedUser) {
+//       const parsedUser = JSON.parse(savedUser);
+//       UserStore.finishRegistration(parsedUser, navigate);
+//       localStorage.removeItem('pendingUser');
+//     }
     
-    // סוגרים את החלון האוטומטית (אם זה חלון פופאפ)
-    window.close();
-  }
-}, []);
+//     // סוגרים את החלון האוטומטית (אם זה חלון פופאפ)
+//     window.close();
+//   }
+// }, []);
 
 
   return (

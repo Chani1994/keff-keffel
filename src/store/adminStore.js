@@ -2,63 +2,52 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+// מחלקת Store לניהול מנהלים במערכת
 class AdminStore {
+  // שדות סטייט
   name = '';
   password = '';
   error = '';
-  admins = [];
-  currentAdmin = null;
-  adminType = null;
+  admins = []; // כל המנהלים
+  currentAdmin = null; // המנהל המחובר כרגע
+  adminType = null; // סוג מנהל (0 = רגיל, 1 = סופר אדמין)
 
-
-  isLoading = true;
+  isLoading = true; // עבור autoLogin
 
   constructor() {
+    // הופך את כל המאפיינים ל־observable ואת הפונקציות ל־actions
     makeAutoObservable(this);
   }
-get isSuperAdmin() {
-  return this.adminType === 1;
-}
 
-get isLoggedIn() {
-  return !!this.currentAdmin;
-}
-// autoLogin() {
-//   const adminId = localStorage.getItem('adminId');
-//   const adminType = Number(localStorage.getItem('adminType'));
+  // בודק אם המנהל הנוכחי הוא סופר־אדמין
+  get isSuperAdmin() {
+    return this.adminType === 1;
+  }
 
-//   if (!adminId) return;
+  // בודק האם מנהל מחובר
+  get isLoggedIn() {
+    return !!this.currentAdmin;
+  }
 
-//   axios.get(`https://localhost:7245/api/Admin/${adminId}`)
-//     .then(res => {
-//       runInAction(() => {
-//         this.currentAdmin = res.data;
-//         this.adminType = adminType;
-//       });
-//     })
-//     .catch(err => {
-//       console.error('שגיאה בשחזור התחברות:', err);
-//       this.logout(); // לנקות במקרה של שגיאה
-//     });
-// }
+  // שליפת מנהל נוכחי מתוך localStorage לפי ID
+  fetchCurrentAdmin() {
+    const adminId = localStorage.getItem('adminId');
+    const adminType = Number(localStorage.getItem('adminType'));
+    if (!adminId) return;
 
-fetchCurrentAdmin() {
-  const adminId = localStorage.getItem('adminId');
-  const adminType = Number(localStorage.getItem('adminType'));
-  if (!adminId) return;
-
-  axios.get(`https://localhost:7245/api/Admin/${adminId}`)
-    .then(res => {
-      runInAction(() => {
-        this.currentAdmin = res.data;
-        this.adminType = adminType;
+    axios.get(`https://localhost:7245/api/Admin/${adminId}`)
+      .then(res => {
+        runInAction(() => {
+          this.currentAdmin = res.data;
+          this.adminType = adminType;
+        });
+      })
+      .catch(err => {
+        console.error('שגיאה בשליפת המנהל הנוכחי:', err);
       });
-    })
-    .catch(err => {
-      console.error('שגיאה בשליפת המנהל הנוכחי:', err);
-    });
-}
+  }
 
+  // עדכון שדות טופס
   setName(value) {
     this.name = value;
   }
@@ -67,173 +56,148 @@ fetchCurrentAdmin() {
     this.password = value;
   }
 
- async fetchAdmins() {
-  try {
-    const response = await axios.get('https://localhost:7245/api/Admin');
-    runInAction(() => {
-      this.admins = response.data;
-    });
-    console.log('fetchAdmins - data received:', response.data); // כאן
-  } catch (error) {
-    runInAction(() => {
-      this.error = 'שגיאה בעת טעינת מנהלים';
-    });
-    console.error('שגיאה:', error);
-    Swal.fire({
-      icon: 'error',
-      title: 'שגיאת שרת',
-      text: error.message,
-      confirmButtonText: 'אישור'
-    });
-  }
-}
-
- 
-  autoLogin = async () => {
-  const adminId = localStorage.getItem('adminId');
-  const adminType = Number(localStorage.getItem('adminType'));
-
-  if (!adminId) {
-    this.isLoading = false;
-    return;
-  }
-
-  try {
-    const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
-    runInAction(() => {
-      this.currentAdmin = response.data;
-      console.log(this.currentAdmin, this.adminType)
-      this.adminType = adminType;
-      this.isLoading = false;
-    });
-  } catch (error) {
-    runInAction(() => {
-      this.currentAdmin = null;
-      this.adminType = null;
-      this.isLoading = false;
-    });
-    console.error('שגיאה בשחזור התחברות:', error);
-  }
-};
-
-
-async login({ nameAdmin, password }, navigate) {
-  console.log('login called with:', nameAdmin, password);
-  const trimmedName = nameAdmin?.toLowerCase().trim();
-  const trimmedPassword = password;
-
-  console.log('שם מוקלד:', trimmedName);
-  console.log('סיסמה מוקלדת:', trimmedPassword);
-
-  await this.fetchAdmins();
-
-  console.log('login - admins list:', this.admins); // כאן
-
- const exact = this.admins.find(
-  (a) => {
-    const nameMatch = a.nameAdmin?.toLowerCase().trim() === trimmedName;
-    const passwordMatch = a.password === trimmedPassword;
-    console.log(`Checking admin "${a.nameAdmin}": nameMatch=${nameMatch}, passwordMatch=${passwordMatch}`);
-    return nameMatch && passwordMatch;
-  }
-);
-
-  console.log('login - exact match:', exact); // כאן
-
-  if (exact) {
-    localStorage.setItem('adminId', exact.id);
-    localStorage.setItem('adminType', exact.adminType);
-    localStorage.setItem('adminName', exact.nameAdmin);
-
-    this.currentAdmin = exact;
-    this.adminType = exact.adminType; // חשוב לעדכן כאן
-
-    console.log('login - currentAdmin set:', this.currentAdmin); // כאן
-
-    await Swal.fire({
-      icon: 'success',
-      title: 'ברוך הבא!',
-      text: `שלום ${exact.nameAdmin}, התחברת בהצלחה.`,
-      confirmButtonText: 'המשך'
-    });
-
-    navigate('/admin/admin-home');
-    return;
-  }
-
-  const partial = this.admins.find(
-    (a) =>
-      a.nameAdmin?.toLowerCase().trim() === trimmedName ||
-      a.password === trimmedPassword
-  );
-
-  console.log('login - partial match:', partial); // כאן
-
-  await Swal.fire({
-    icon: partial ? 'error' : 'warning',
-    title: partial ? 'שגיאה' : 'מנהל לא רשום',
-    text: partial
-      ? 'שם משתמש או סיסמה שגויים'
-      : 'שם המשתמש והסיסמה אינם רשומים במערכת',
-    confirmButtonText: 'אישור'
-  });
-}
-
-  async addAdmin(newAdmin, navigate) {
-  try {
-    const existing = this.admins.find(
-      (admin) => admin.nameAdmin === newAdmin.nameAdmin
-    );
-
-    if (existing) {
+  // שליפת כל המנהלים מהשרת
+  async fetchAdmins() {
+    try {
+      const response = await axios.get('https://localhost:7245/api/Admin');
+      runInAction(() => {
+        this.admins = response.data;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.error = 'שגיאה בעת טעינת מנהלים';
+      });
+      console.error('שגיאה:', error);
       Swal.fire({
         icon: 'error',
-        title: 'שגיאה',
-        text: 'מנהל עם שם זה כבר קיים',
+        title: 'שגיאת שרת',
+        text: error.message,
         confirmButtonText: 'אישור'
       });
+    }
+  }
+
+  // התחברות אוטומטית מבוססת localStorage
+  autoLogin = async () => {
+    const adminId = localStorage.getItem('adminId');
+    const adminType = Number(localStorage.getItem('adminType'));
+
+    if (!adminId) {
+      this.isLoading = false;
       return;
     }
 
-    const payload = {
-      ...newAdmin,
-    };
+    try {
+      const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
+      runInAction(() => {
+        this.currentAdmin = response.data;
+        this.adminType = adminType;
+        this.isLoading = false;
+      });
+    } catch (error) {
+      runInAction(() => {
+        this.currentAdmin = null;
+        this.adminType = null;
+        this.isLoading = false;
+      });
+      console.error('שגיאה בשחזור התחברות:', error);
+    }
+  };
 
-    const response = await axios.post('https://localhost:7245/api/Admin', payload);
-    runInAction(() => {
-      this.admins.push(response.data);
+  // התחברות רגילה עם שם משתמש וסיסמה
+  async login({ nameAdmin, password }, navigate) {
+    const trimmedName = nameAdmin?.toLowerCase().trim();
+    const trimmedPassword = password;
+
+    await this.fetchAdmins(); // טוען את רשימת המנהלים
+
+    // חיפוש התאמה מדויקת
+    const exact = this.admins.find(
+      (a) => {
+        const nameMatch = a.nameAdmin?.toLowerCase().trim() === trimmedName;
+        const passwordMatch = a.password === trimmedPassword;
+        return nameMatch && passwordMatch;
+      }
+    );
+
+    if (exact) {
+      // שמירת פרטי ההתחברות ב־localStorage
+      localStorage.setItem('adminId', exact.id);
+      localStorage.setItem('adminType', exact.adminType);
+      localStorage.setItem('adminName', exact.nameAdmin);
+
+      this.currentAdmin = exact;
+      this.adminType = exact.adminType;
+
+      await Swal.fire({
+        icon: 'success',
+        title: 'ברוך הבא!',
+        text: `שלום ${exact.nameAdmin}, התחברת בהצלחה.`,
+        confirmButtonText: 'המשך'
+      });
+
+      navigate('/admin/admin-home');
+      return;
+    }
+
+    // אם אין התאמה מדויקת, בודקים התאמה חלקית
+    const partial = this.admins.find(
+      (a) =>
+        a.nameAdmin?.toLowerCase().trim() === trimmedName ||
+        a.password === trimmedPassword
+    );
+
+    await Swal.fire({
+      icon: partial ? 'error' : 'warning',
+      title: partial ? 'שגיאה' : 'מנהל לא רשום',
+      text: partial
+        ? 'שם משתמש או סיסמה שגויים'
+        : 'שם המשתמש והסיסמה אינם רשומים במערכת',
+      confirmButtonText: 'אישור'
     });
+  }
 
-    Swal.fire({
-      icon: 'success',
-      title: 'המנהל נוסף בהצלחה!',
-      confirmButtonText: 'המשך'
-    });
+  // הוספת מנהל חדש
+  async addAdmin(newAdmin, navigate) {
+    try {
+      const existing = this.admins.find(
+        (admin) => admin.nameAdmin === newAdmin.nameAdmin
+      );
 
-    navigate('/admin');
-  } catch (error) {
-  console.error('שגיאה בהוספת מנהל:', error);
-  if (error.response) {
-    console.error('Response data:', error.response.data);
-    console.error('Response status:', error.response.status);
-    console.error('Response headers:', error.response.headers);
-    
-    // אם זה אובייקט, הדפס אותו פורמט JSON קריא
-    if (typeof error.response.data === 'object') {
-      console.error('Response JSON:', JSON.stringify(error.response.data, null, 2));
+      if (existing) {
+        Swal.fire({
+          icon: 'error',
+          title: 'שגיאה',
+          text: 'מנהל עם שם זה כבר קיים',
+          confirmButtonText: 'אישור'
+        });
+        return;
+      }
+
+      const response = await axios.post('https://localhost:7245/api/Admin', newAdmin);
+      runInAction(() => {
+        this.admins.push(response.data);
+      });
+
+      Swal.fire({
+        icon: 'success',
+        title: 'המנהל נוסף בהצלחה!',
+        confirmButtonText: 'המשך'
+      });
+
+      navigate('/admin');
+    } catch (error) {
+      console.error('שגיאה בהוספת מנהל:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: error.response?.data?.title || error.response?.data?.detail || 'אירעה שגיאה בהוספת מנהל.',
+        confirmButtonText: 'אישור'
+      });
     }
   }
-  Swal.fire({
-    icon: 'error',
-    title: 'שגיאה',
-    text: error.response?.data?.title || error.response?.data?.detail || 'אירעה שגיאה בהוספת מנהל.',
-    confirmButtonText: 'אישור'
-  });
-}
 
-
-}
-
+  // מחיקת מנהל
   async deleteAdmin(adminId) {
     try {
       const result = await Swal.fire({
@@ -270,16 +234,16 @@ async login({ nameAdmin, password }, navigate) {
     }
   }
 
+  // החזרת מנהל לפי מזהה
   getAdminById(id) {
     return this.admins.find(admin => admin.id === Number(id));
   }
 
+  // עדכון נתוני מנהל
   async updateAdmin(updatedAdmin) {
     try {
       await axios.put(`https://localhost:7245/api/Admin/${updatedAdmin.id}`, updatedAdmin, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
 
       runInAction(() => {
@@ -305,44 +269,376 @@ async login({ nameAdmin, password }, navigate) {
     }
   }
 
+  // שחזור סיסמה לפי שם משתמש
   async forgotPassword(nameInput) {
-  await this.fetchAdmins();
+    await this.fetchAdmins();
 
-  const admin = this.admins.find(a => a.nameAdmin === nameInput);
+    const admin = this.admins.find(a => a.nameAdmin === nameInput);
 
-  if (admin) {
-    try {
-      const response = await axios.post(`${this.baseUrl}/admins/send-password`, {
-        name: nameInput,
-        email: admin.email, // שליחת כתובת המייל
-      });
+    if (admin) {
+      try {
+        const response = await axios.post(`${this.baseUrl}/admins/send-password`, {
+          name: nameInput,
+          email: admin.email,
+        });
 
-      Swal.fire({
-        icon: 'success',
-        title: 'נשלח מייל',
-        text: 'הסיסמה נשלחה לכתובת המייל שלך',
-        confirmButtonText: 'אישור'
-      });
-    } catch (error) {
-      console.error('שגיאה בשליחת האימייל', error);
+        Swal.fire({
+          icon: 'success',
+          title: 'נשלח מייל',
+          text: 'הסיסמה נשלחה לכתובת המייל שלך',
+          confirmButtonText: 'אישור'
+        });
+      } catch (error) {
+        console.error('שגיאה בשליחת האימייל', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'שגיאה',
+          text: 'אירעה שגיאה בעת שליחת הסיסמה למייל',
+          confirmButtonText: 'אישור'
+        });
+      }
+    } else {
       Swal.fire({
         icon: 'error',
         title: 'שגיאה',
-        text: 'אירעה שגיאה בעת שליחת הסיסמה למייל',
+        text: 'שם המשתמש לא נמצא במערכת',
         confirmButtonText: 'אישור'
       });
     }
-  } else {
-    Swal.fire({
-      icon: 'error',
-      title: 'שגיאה',
-      text: 'שם המשתמש לא נמצא במערכת',
-      confirmButtonText: 'אישור'
-    });
   }
 }
 
-}
-
+// ייצוא מופע אחד של החנות
 const adminStore = new AdminStore();
 export default adminStore;
+
+// import { makeAutoObservable, runInAction } from 'mobx';
+// import axios from 'axios';
+// import Swal from 'sweetalert2';
+
+// class AdminStore {
+//   name = '';
+//   password = '';
+//   error = '';
+//   admins = [];
+//   currentAdmin = null;
+//   adminType = null;
+
+
+//   isLoading = true;
+
+//   constructor() {
+//     makeAutoObservable(this);
+//   }
+// get isSuperAdmin() {
+//   return this.adminType === 1;
+// }
+
+// get isLoggedIn() {
+//   return !!this.currentAdmin;
+// }
+
+// fetchCurrentAdmin() {
+//   const adminId = localStorage.getItem('adminId');
+//   const adminType = Number(localStorage.getItem('adminType'));
+//   if (!adminId) return;
+
+//   axios.get(`https://localhost:7245/api/Admin/${adminId}`)
+//     .then(res => {
+//       runInAction(() => {
+//         this.currentAdmin = res.data;
+//         this.adminType = adminType;
+//       });
+//     })
+//     .catch(err => {
+//       console.error('שגיאה בשליפת המנהל הנוכחי:', err);
+//     });
+// }
+
+//   setName(value) {
+//     this.name = value;
+//   }
+
+//   setPassword(value) {
+//     this.password = value;
+//   }
+
+//  async fetchAdmins() {
+//   try {
+//     const response = await axios.get('https://localhost:7245/api/Admin');
+//     runInAction(() => {
+//       this.admins = response.data;
+//     });
+//     console.log('fetchAdmins - data received:', response.data); // כאן
+//   } catch (error) {
+//     runInAction(() => {
+//       this.error = 'שגיאה בעת טעינת מנהלים';
+//     });
+//     console.error('שגיאה:', error);
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'שגיאת שרת',
+//       text: error.message,
+//       confirmButtonText: 'אישור'
+//     });
+//   }
+// }
+
+ 
+//   autoLogin = async () => {
+//   const adminId = localStorage.getItem('adminId');
+//   const adminType = Number(localStorage.getItem('adminType'));
+
+//   if (!adminId) {
+//     this.isLoading = false;
+//     return;
+//   }
+
+//   try {
+//     const response = await axios.get(`https://localhost:7245/api/Admin/${adminId}`);
+//     runInAction(() => {
+//       this.currentAdmin = response.data;
+//       console.log(this.currentAdmin, this.adminType)
+//       this.adminType = adminType;
+//       this.isLoading = false;
+//     });
+//   } catch (error) {
+//     runInAction(() => {
+//       this.currentAdmin = null;
+//       this.adminType = null;
+//       this.isLoading = false;
+//     });
+//     console.error('שגיאה בשחזור התחברות:', error);
+//   }
+// };
+
+
+// async login({ nameAdmin, password }, navigate) {
+//   console.log('login called with:', nameAdmin, password);
+//   const trimmedName = nameAdmin?.toLowerCase().trim();
+//   const trimmedPassword = password;
+
+//   console.log('שם מוקלד:', trimmedName);
+//   console.log('סיסמה מוקלדת:', trimmedPassword);
+
+//   await this.fetchAdmins();
+
+//   console.log('login - admins list:', this.admins); // כאן
+
+//  const exact = this.admins.find(
+//   (a) => {
+//     const nameMatch = a.nameAdmin?.toLowerCase().trim() === trimmedName;
+//     const passwordMatch = a.password === trimmedPassword;
+//     console.log(`Checking admin "${a.nameAdmin}": nameMatch=${nameMatch}, passwordMatch=${passwordMatch}`);
+//     return nameMatch && passwordMatch;
+//   }
+// );
+
+//   console.log('login - exact match:', exact); // כאן
+
+//   if (exact) {
+//     localStorage.setItem('adminId', exact.id);
+//     localStorage.setItem('adminType', exact.adminType);
+//     localStorage.setItem('adminName', exact.nameAdmin);
+
+//     this.currentAdmin = exact;
+//     this.adminType = exact.adminType; // חשוב לעדכן כאן
+
+//     console.log('login - currentAdmin set:', this.currentAdmin); // כאן
+
+//     await Swal.fire({
+//       icon: 'success',
+//       title: 'ברוך הבא!',
+//       text: `שלום ${exact.nameAdmin}, התחברת בהצלחה.`,
+//       confirmButtonText: 'המשך'
+//     });
+
+//     navigate('/admin/admin-home');
+//     return;
+//   }
+
+//   const partial = this.admins.find(
+//     (a) =>
+//       a.nameAdmin?.toLowerCase().trim() === trimmedName ||
+//       a.password === trimmedPassword
+//   );
+
+//   console.log('login - partial match:', partial); // כאן
+
+//   await Swal.fire({
+//     icon: partial ? 'error' : 'warning',
+//     title: partial ? 'שגיאה' : 'מנהל לא רשום',
+//     text: partial
+//       ? 'שם משתמש או סיסמה שגויים'
+//       : 'שם המשתמש והסיסמה אינם רשומים במערכת',
+//     confirmButtonText: 'אישור'
+//   });
+// }
+
+//   async addAdmin(newAdmin, navigate) {
+//   try {
+//     const existing = this.admins.find(
+//       (admin) => admin.nameAdmin === newAdmin.nameAdmin
+//     );
+
+//     if (existing) {
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'שגיאה',
+//         text: 'מנהל עם שם זה כבר קיים',
+//         confirmButtonText: 'אישור'
+//       });
+//       return;
+//     }
+
+//     const payload = {
+//       ...newAdmin,
+//     };
+
+//     const response = await axios.post('https://localhost:7245/api/Admin', payload);
+//     runInAction(() => {
+//       this.admins.push(response.data);
+//     });
+
+//     Swal.fire({
+//       icon: 'success',
+//       title: 'המנהל נוסף בהצלחה!',
+//       confirmButtonText: 'המשך'
+//     });
+
+//     navigate('/admin');
+//   } catch (error) {
+//   console.error('שגיאה בהוספת מנהל:', error);
+//   if (error.response) {
+//     console.error('Response data:', error.response.data);
+//     console.error('Response status:', error.response.status);
+//     console.error('Response headers:', error.response.headers);
+    
+//     // אם זה אובייקט, הדפס אותו פורמט JSON קריא
+//     if (typeof error.response.data === 'object') {
+//       console.error('Response JSON:', JSON.stringify(error.response.data, null, 2));
+//     }
+//   }
+//   Swal.fire({
+//     icon: 'error',
+//     title: 'שגיאה',
+//     text: error.response?.data?.title || error.response?.data?.detail || 'אירעה שגיאה בהוספת מנהל.',
+//     confirmButtonText: 'אישור'
+//   });
+// }
+
+
+// }
+
+//   async deleteAdmin(adminId) {
+//     try {
+//       const result = await Swal.fire({
+//         title: 'האם אתה בטוח?',
+//         text: 'לא תוכל לשחזר את המנהל לאחר המחיקה!',
+//         icon: 'warning',
+//         showCancelButton: true,
+//         confirmButtonColor: '#d33',
+//         cancelButtonColor: '#3085d6',
+//         confirmButtonText: 'כן, מחק!',
+//         cancelButtonText: 'ביטול'
+//       });
+
+//       if (result.isConfirmed) {
+//         await axios.delete(`https://localhost:7245/api/Admin/${adminId}`);
+//         runInAction(() => {
+//           this.admins = this.admins.filter(admin => admin.id !== adminId);
+//         });
+
+//         Swal.fire({
+//           icon: 'success',
+//           title: 'המנהל נמחק בהצלחה',
+//           confirmButtonText: 'סגור'
+//         });
+//       }
+//     } catch (error) {
+//       console.error('שגיאה במחיקת מנהל:', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'שגיאה',
+//         text: 'לא ניתן היה למחוק את המנהל',
+//         confirmButtonText: 'אישור'
+//       });
+//     }
+//   }
+
+//   getAdminById(id) {
+//     return this.admins.find(admin => admin.id === Number(id));
+//   }
+
+//   async updateAdmin(updatedAdmin) {
+//     try {
+//       await axios.put(`https://localhost:7245/api/Admin/${updatedAdmin.id}`, updatedAdmin, {
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//       });
+
+//       runInAction(() => {
+//         const index = this.admins.findIndex(a => a.id === updatedAdmin.id);
+//         if (index !== -1) {
+//           this.admins[index] = updatedAdmin;
+//         }
+//       });
+
+//       Swal.fire({
+//         icon: 'success',
+//         title: 'הנתונים עודכנו בהצלחה',
+//         confirmButtonText: 'אישור'
+//       });
+//     } catch (error) {
+//       console.error('שגיאה בעדכון מנהל:', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'שגיאה',
+//         text: 'אירעה שגיאה בעת עדכון המנהל',
+//         confirmButtonText: 'סגור'
+//       });
+//     }
+//   }
+
+//   async forgotPassword(nameInput) {
+//   await this.fetchAdmins();
+
+//   const admin = this.admins.find(a => a.nameAdmin === nameInput);
+
+//   if (admin) {
+//     try {
+//       const response = await axios.post(`${this.baseUrl}/admins/send-password`, {
+//         name: nameInput,
+//         email: admin.email, // שליחת כתובת המייל
+//       });
+
+//       Swal.fire({
+//         icon: 'success',
+//         title: 'נשלח מייל',
+//         text: 'הסיסמה נשלחה לכתובת המייל שלך',
+//         confirmButtonText: 'אישור'
+//       });
+//     } catch (error) {
+//       console.error('שגיאה בשליחת האימייל', error);
+//       Swal.fire({
+//         icon: 'error',
+//         title: 'שגיאה',
+//         text: 'אירעה שגיאה בעת שליחת הסיסמה למייל',
+//         confirmButtonText: 'אישור'
+//       });
+//     }
+//   } else {
+//     Swal.fire({
+//       icon: 'error',
+//       title: 'שגיאה',
+//       text: 'שם המשתמש לא נמצא במערכת',
+//       confirmButtonText: 'אישור'
+//     });
+//   }
+// }
+
+// }
+
+// const adminStore = new AdminStore();
+// export default adminStore;
