@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import { useNavigate } from 'react-router-dom';
-// import Swal from 'sweetalert2';
+import React, { useState, useEffect } from 'react'; // ייבוא React ושימוש ב-hooks
+import { observer } from 'mobx-react-lite'; // חיבור לקומפוננטה עם MobX
+import { useNavigate } from 'react-router-dom'; // ניווט בין דפים
 import {
   Box,
   Button,
@@ -12,33 +11,38 @@ import {
   Grid,
   Checkbox,
   FormControlLabel,
-} from '@mui/material';
-import schoolStore from '../../store/schoolStore';
-import userStore from '../../store/userStore';
-import { MenuItem } from '@mui/material';
+} from '@mui/material'; // רכיבי MUI
+import schoolStore from '../../store/schoolStore'; // ה-store של מוסדות
+import userStore from '../../store/userStore'; // ה-store של משתמשים
+import { MenuItem } from '@mui/material'; // MenuItem עבור select
 
-const AddSchool = observer(() => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-useEffect(() => {
-  schoolStore.reset();
-}, []);
+const AddSchool = observer(() => { 
+  const navigate = useNavigate(); // שימוש ב-hook לניווט
+  const [loading, setLoading] = useState(false); // מצב טעינה
+  const [errors, setErrors] = useState({}); // אחסון שגיאות ולידציה
 
-useEffect(() => {
-  if (schoolStore.Barcode) {
-    // כאן תכתבי את הלוגיקה שתחזיר את קוד המוסד לפי הברקוד שהוקלד
-    const computedSchoolId = yourLogicToGetSchoolId(schoolStore.Barcode);
-    schoolStore.setField('SchoolId', computedSchoolId);
-  } else {
-    schoolStore.setField('SchoolId', '');
+  // אתחול של ה-store כשקומפוננטה נטענת
+  useEffect(() => {
+    schoolStore.reset();
+  }, []);
+
+  // חישוב SchoolId לפי Barcode
+  useEffect(() => {
+    if (schoolStore.Barcode) {
+      // כאן מחושב קוד מוסד לפי הברקוד
+      const computedSchoolId = yourLogicToGetSchoolId(schoolStore.Barcode);
+      schoolStore.setField('SchoolId', computedSchoolId);
+    } else {
+      schoolStore.setField('SchoolId', '');
+    }
+  }, [schoolStore.Barcode]);
+
+  // פונקציה שמחזירה את קוד המוסד (כעת פשוט מחזירה את הברקוד)
+  const yourLogicToGetSchoolId = (barcode) => {
+    return barcode;
   }
-}, [schoolStore.Barcode]);
-const yourLogicToGetSchoolId = (barcode) => {
-  return  barcode;
-}
 
-
+  // ולידציה של שדות - בודקת שהשדות מלאים והמספרים גדולים מ-0
   const validate = () => {
     const newErrors = {};
     if (!schoolStore.NameSchool) newErrors.NameSchool = 'שדה חובה';
@@ -47,82 +51,82 @@ const yourLogicToGetSchoolId = (barcode) => {
     if (!schoolStore.Barcode) newErrors.Barcode = 'שדה חובה';
     
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return Object.keys(newErrors).length === 0; // מחזיר true אם אין שגיאות
   };
 
-
+  // טיפול בשליחת הטופס
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+    e.preventDefault();
+    if (!validate()) return; // אם לא תקין - לא ממשיך
 
-  setLoading(true);
-  try {
-await schoolStore.addSchool(); // פעולה שמעדכנת את NameSchool
-console.log('📌 אחרי הוספת מוסד, שם מוסד:', schoolStore.NameSchool);
+    setLoading(true); // מציג טעינה
+    try {
+      await schoolStore.addSchool(); // הוספת מוסד
+      console.log('📌 אחרי הוספת מוסד, שם מוסד:', schoolStore.NameSchool);
 
-for (const student of schoolStore.students) {
-  const user = {
-  name: student.name?.trim() || '',
-  phone: student.phone?.trim() || '',
-  school: schoolStore.NameSchool?.trim() || '',
-  classes: student.classNum?.trim() || '',
-  status: student.status ?? 1,
-  subscriptionStartDate: student.subscriptionStartDate || null,
-  subscriptionEndDate: student.subscriptionEndDate || null,
-  isActive: student.isActive ?? false,
-  success: 0
-};
+      // הוספת תלמידים
+      for (const student of schoolStore.students) {
+        const user = {
+          name: student.name?.trim() || '',
+          phone: student.phone?.trim() || '',
+          school: schoolStore.NameSchool?.trim() || '',
+          classes: student.classNum?.trim() || '',
+          status: student.status ?? 1,
+          subscriptionStartDate: student.subscriptionStartDate || null,
+          subscriptionEndDate: student.subscriptionEndDate || null,
+          isActive: student.isActive ?? false,
+          success: 0
+        };
 
-  await userStore.addUser(user); // קריאה אמיתית לשרת
-}    navigate(-1); // ניווט אחורה או לפי הצורך
-  } catch (error) {
-    console.error('Error adding school:', error);
-    // אפשר להציג הודעת שגיאה אחרת כאן אם רוצים
-  } finally {
-    setLoading(false);
-  }
-};
+        await userStore.addUser(user); // קריאה לשרת להוספת משתמש
+      }
 
+      navigate(-1); // ניווט אחורה
+    } catch (error) {
+      console.error('Error adding school:', error);
+    } finally {
+      setLoading(false); // מסיים טעינה
+    }
+  };
+
+  // עדכון שדות בטופס
   const handleChange = (field, value) => {
     schoolStore.setField(field, value);
   };
 
+  // עדכון כיתה מסוימת
   const handleClassChange = (index, field, value) => {
-schoolStore.updateClass(index, field, value);
+    schoolStore.updateClass(index, field, value);
   };
 
-const handleStudentChange = (studentIndex, field, value) => {
-  schoolStore.students[studentIndex][field] = value;
-};
+  // עדכון שדות של תלמיד מסוים
+  const handleStudentChange = (studentIndex, field, value) => {
+    schoolStore.students[studentIndex][field] = value;
+  };
 
-
+  // סמן / הסר סמן מתלמיד
   const toggleStudentCheckbox = (index) => {
     schoolStore.toggleStudentChecked(index);
   };
 
+  // סגנון לשדות קלט
   const inputSx = {
     direction: 'rtl',
     '& .MuiOutlinedInput-root': {
       backgroundColor: '#f9f9f9',
       borderRadius: '10px',
       '& fieldset': { borderColor: '#ddd' },
-      '&:hover fieldset': {
-        borderColor: '#e91e63',
-        boxShadow: '0 0 10px #e91e63',
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'white',
-        boxShadow: '0 0 12px #e91e63',
-      },
+      '&:hover fieldset': { borderColor: '#e91e63', boxShadow: '0 0 10px #e91e63' },
+      '&.Mui-focused fieldset': { borderColor: 'white', boxShadow: '0 0 12px #e91e63' },
     },
   };
 
+  // סגנון לתוויות
   const labelSx = {
     right: 16,
     left: 'auto',
     transformOrigin: 'top right',
-    background:
-      'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+    background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     fontWeight: 'bold',
@@ -146,6 +150,7 @@ const handleStudentChange = (studentIndex, field, value) => {
     >
       <Box
         sx={{
+
           position: 'absolute',
           top: '50%',
           left: '50%',
@@ -168,6 +173,7 @@ const handleStudentChange = (studentIndex, field, value) => {
           p: 4,
           width: 1000,
           maxHeight: '70vh',
+           maxHeight: '80vh', // גובה מקסימלי לטופס
           backgroundColor: '#ffffff',
           borderRadius: '20px',
           color: '#333',
@@ -177,6 +183,8 @@ const handleStudentChange = (studentIndex, field, value) => {
           zIndex: 2,
           display: 'flex',
           flexDirection: 'column',
+                position: 'relative', // חשוב שלא יכסה על התוכן
+
         }}
       >
         <Box
@@ -211,7 +219,7 @@ const handleStudentChange = (studentIndex, field, value) => {
             </Typography>
           </Box>
         </Box>
-
+  <Box sx={{ overflowY: 'auto', flex: 1, p: 2 }}>
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid span={12} md={6}>
@@ -536,6 +544,7 @@ const handleStudentChange = (studentIndex, field, value) => {
           </Button>
         </Grid>
         </form>
+        </Box>
       </Paper>
     </Box>
   );

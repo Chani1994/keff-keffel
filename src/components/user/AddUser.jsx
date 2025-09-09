@@ -1,49 +1,77 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
+// ייבוא React ופונקציית useState לניהול state מקומי בתוך הקומפוננטה
+
 import {
   Box, Paper, Typography, Grid, TextField, Button, MenuItem
-} from '@mui/material';
-import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import userStore from '../../store/userStore';
+} from '@mui/material'; 
+// ייבוא רכיבי UI מ-Material UI: קופסאות, כפתורים, שדות טקסט, גריד וכו'
 
-const AddUser = observer(() => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+import Swal from 'sweetalert2'; 
+// ייבוא ספריית התראות מודרנית
+
+import { useNavigate } from 'react-router-dom'; 
+// מאפשר ניווט בין דפים ב-React Router
+
+import { observer } from 'mobx-react-lite'; 
+// מאפשר לקומפוננטה להיות "מושקפת" ל-MobX ולהגיב לשינויים ב-store
+
+import userStore from '../../store/userStore'; 
+// ייבוא ה-store לניהול משתמשים
+
+const AddUser = observer(() => { 
+  // הגדרת הקומפוננטה עם observer כדי שהיא תתעדכן כש- userStore משתנה
+  const navigate = useNavigate(); 
+  // יצירת פונקציה לניווט בין דפים
+  const [loading, setLoading] = useState(false); 
+  // state לניהול מצב טעינה בזמן שליחת הטופס
 
   const [student, setStudent] = useState({
-    name: '',
-    phone: '',
-    school:'',
-    classes: '',
-    status: 1,
-    subscriptionStartDate: new Date().toISOString().slice(0, 16),
-    subscriptionEndDate: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().slice(0, 16),
-    isActive: true,
-    index: 0,
-    success: 0,
+    // state עבור פרטי התלמיד
+    name: '', // שם התלמיד
+    phone: '', // מספר טלפון
+    school:'', // שם בית ספר
+    classes: '', // מספר כיתה/כיתות
+    status: 1, // סטטוס ברירת מחדל
+    subscriptionStartDate: new Date().toISOString().slice(0, 16), 
+    // תאריך התחלת מנוי – ברירת מחדל: עכשיו
+    subscriptionEndDate: new Date(new Date().setMonth(new Date().getMonth() + 3)).toISOString().slice(0, 16), 
+    // תאריך סיום מנוי – ברירת מחדל: 3 חודשים מהיום
+    isActive: true, // האם המשתמש פעיל
+    index: 0, // אינדקס (לא בהכרח חובה כאן)
+    success: 0, // סטטוס הצלחה (למשל אם יש תהליך אחר לעקוב)
   });
 
-  const handleChange = (field, value) => {
+  const handleChange = (field, value) => { 
+    // פונקציה לעדכון ערכי שדות בטופס
     setStudent((prev) => ({
-      ...prev,
-      [field]: value,
+      ...prev, 
+      [field]: value, // עדכון השדה הספציפי בלבד
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleSubmit = async (e) => { 
+    // פונקציה לטיפול בשליחת הטופס
+    e.preventDefault(); 
+    // מונע רענון אוטומטי של הדף בעת לחיצה על Submit
+    setLoading(true); 
+    // מגדיר את מצב הטעינה ל-true כדי להראות שהפעולה בעבודה
     try {
-      const added = await userStore.addUser(student);
-      if (added) {
-        Swal.fire('הצלחה', 'התלמיד נוסף בהצלחה!', 'success');
-        navigate(-1);
+      const added = await userStore.addUser(student); 
+      // קריאה ל-store להוספת התלמיד
+      if (added) { 
+        // אם התלמיד נוסף בהצלחה
+        Swal.fire('הצלחה', 'התלמיד נוסף בהצלחה!', 'success'); 
+        // הצגת הודעת הצלחה
+        navigate(-1); 
+        // חזרה לדף הקודם
       }
-    } catch (error) {
-      Swal.fire('שגיאה', 'אירעה שגיאה בהוספת תלמיד', 'error');
+    } catch (error) { 
+      // טיפול במקרה של שגיאה
+      Swal.fire('שגיאה', 'אירעה שגיאה בהוספת תלמיד', 'error'); 
+      // הצגת הודעת שגיאה
     } finally {
-      setLoading(false);
+      setLoading(false); 
+      // סיום מצב טעינה
     }
   };
 

@@ -292,7 +292,7 @@ const EditSchool = observer(() => {
             </Grid>
           </Grid>
 
-          <Divider sx={{ my: 2 }} />
+          {/* <Divider sx={{ my: 2 }} />
 
           <Typography
             variant="h6"
@@ -409,7 +409,7 @@ const EditSchool = observer(() => {
                 />
               </Grid>
             </Grid>
-          ))}
+          ))} */}
 
           <Box sx={{ mt: 3, textAlign: 'center' }}>
                   

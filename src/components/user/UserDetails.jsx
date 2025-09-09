@@ -26,50 +26,71 @@ import UserLearningReport from './UserLearningReport';
 import Swal from 'sweetalert2';
 
 const UserDetails = observer(() => {
-  const [loading, setLoading] = useState(true);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [isReport, setIsReport] = useState(false);
+  // קומפוננטה להצגת פרטי המשתמש
+  // observer – מאפשרת לעקוב אחרי שינויים ב-MobX store
 
-  const navigate = useNavigate();
-const { id } = useParams();
+  const [loading, setLoading] = useState(true); 
+  // מצב טעינה ראשוני לפני שהנתונים נטענו
+
+  const [openDialog, setOpenDialog] = useState(false); 
+  // פתיחת/סגירת חלון דיאלוג לעריכת המשתמש
+
+  const [isReport, setIsReport] = useState(false); 
+  // בדיקה אם המסך הוא דו"ח למידה
+
+  const navigate = useNavigate(); 
+  // hook של React Router לניווט בין דפים
+  const { id } = useParams(); 
+  // קבלת מזהה המשתמש מה-URL
 
   useEffect(() => {
+    // בודק אם הנתיב הנוכחי הוא דו"ח למידה
     const path = window.location.pathname;
     setIsReport(path.includes('learningReport'));
   }, []);
 
   useEffect(() => {
+    // טוען את המשתמש מה-localStorage אם קיים
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser && savedUser !== '""') {
       runInAction(() => {
         UserStore.currentUser = JSON.parse(savedUser);
       });
     }
-    setLoading(false);
+    setLoading(false); // מסיים טעינה
   }, []);
 
   const logout = () => {
+    // פונקציה להתנתקות
     runInAction(() => {
-      UserStore.currentUser = null;
+      UserStore.currentUser = null; // מאפס את המשתמש הנוכחי ב-store
     });
-    localStorage.removeItem('currentUser');
-    navigate('/');
+    localStorage.removeItem('currentUser'); // מוחק את המשתמש מ-localStorage
+    navigate('/'); // ניתוב לדף הבית
   };
 
-  const handleEditClick = () => setOpenDialog(true);
-  const handleCloseDialog = () => setOpenDialog(false);
+  const handleEditClick = () => setOpenDialog(true); 
+  // פתיחת דיאלוג עריכה
+  const handleCloseDialog = () => setOpenDialog(false); 
+  // סגירת דיאלוג
 
   const handleUserUpdate = (updatedUser) => {
+    // פונקציה לעדכון משתמש
     UserStore.updateUser(updatedUser, () => {
-      setOpenDialog(false);
+      setOpenDialog(false); // סוגרת את הדיאלוג לאחר העדכון
     });
   };
 
-  const user = UserStore.currentUser;
-useEffect(() => {
-  UserStore.fetchUserById(id);
-}, [id]);
+  const user = UserStore.currentUser; 
+  // המשתמש הנוכחי מה-store
+
   useEffect(() => {
+    // טוען את המשתמש לפי מזהה מה-URL
+    UserStore.fetchUserById(id);
+  }, [id]);
+
+  useEffect(() => {
+    // בודק אם הגיעה כתובת URL עם ?paid=true לאחר תשלום
     const params = new URLSearchParams(window.location.search);
     const paid = params.get('paid');
     if (paid === 'true') {
@@ -77,6 +98,7 @@ useEffect(() => {
       if (savedUser) {
         const parsedUser = JSON.parse(savedUser);
         UserStore.finishRegistration(parsedUser, navigate); 
+        // מסיים הרשמה ושומר את המשתמש
         localStorage.removeItem('pendingUser');
         Swal.fire({
           icon: 'success',
@@ -89,6 +111,7 @@ useEffect(() => {
   }, []);
 
   if (loading) {
+    // אם הנתונים עדיין נטענים, מציג טעינה
     return (
       <Box sx={{ textAlign: 'center', mt: 8, color: '#fff' }}>
         <CircularProgress color="secondary" />
@@ -97,6 +120,7 @@ useEffect(() => {
   }
 
   if (!user) {
+    // אם אין משתמש, מציג הודעה והפניה להתחברות
     return (
       <Box
         sx={{
@@ -146,6 +170,7 @@ useEffect(() => {
   }
 
   const getGreeting = () => {
+    // פונקציה להפקת ברכת יום לפי שעה
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) return 'בוקר טוב';
     if (hour >= 12 && hour < 17) return 'צהריים טובים';
@@ -156,6 +181,7 @@ useEffect(() => {
   const greeting = getGreeting();
 
   const userFields = [
+    // מערך לשדות המשתמש להצגה
     { label: 'בית ספר', value: user.school },
     { label: 'כיתה', value: user.classes || '-' },
     { label: 'טלפון', value: user.phone },

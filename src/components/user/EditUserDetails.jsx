@@ -12,40 +12,54 @@ import {
   Button,
 } from '@mui/material';
 
-const EditUserDetails = observer(({ closeDialog }) => {
+const EditUserDetails = observer(({ closeDialog }) => { 
+  // קומפוננטה לעריכת פרטי משתמש
+  // observer מאפשרת לקומפוננטה לעקוב אחרי שינויים ב-MobX store
+  // closeDialog הוא פרופ שמקבל פונקציה לסגירת חלון הדיאלוג
+
   const [user, setUser] = useState({
-    name: '',
-    school: '',
-    classes: '',
-    phone: '',
-    points: 0,
-    timeLessons: 0,
-    success: true,
-    index: 0,
-    status:1,
+    // state מקומי לשמירת נתוני המשתמש בטופס
+    name: '',           // שם המשתמש
+    school: '',         // בית ספר
+    classes: '',        // כיתה או מספר כיתות
+    phone: '',          // טלפון
+    points: 0,          // נקודות
+    timeLessons: 0,     // זמן שיעורים
+    success: true,      // סטטוס הצלחה
+    index: 0,           // אינדקס (למטרות תיעוד או מיפוי)
+    status:1,           // סטטוס המשתמש
   });
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
+  // hook של React Router לניווט בין דפים
 
   useEffect(() => {
-    if (userStore.currentUser) {
-      setUser(userStore.currentUser);
+    // useEffect ירוץ פעם אחת בעת טעינת הקומפוננטה
+    if (userStore.currentUser) { 
+      // אם יש משתמש נוכחי ב-store
+      setUser(userStore.currentUser); 
+      // מעדכן את ה-state המקומי עם פרטי המשתמש
     }
-  }, []);
+  }, []); // [] אומר שהאפקט ירוץ רק פעם אחת בעת mount
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (e) => { 
+    // פונקציה לעדכון שדות בטופס
+    const { name, value } = e.target; 
+    // חילוץ שם השדה והערך מתוך האירוע
     setUser((prev) => ({
-      ...prev,
-      [name]: name === 'points' || name === 'timeLessons' ? +value : value,
+      ...prev, 
+      [name]: name === 'points' || name === 'timeLessons' ? +value : value, 
+      // אם השדה הוא נקודות או זמן שיעורים – המרה למספר
+      // אחרת שמירה כמחרוזת
     }));
   };
 
   const handleSubmit = (e) => {
-  e.preventDefault();
-  // שולח את הפונקציה שסוגרת את הדיאלוג אל ה‑store
-  userStore.updateUser(user, closeDialog);
-};
+    e.preventDefault(); 
+    // מונע רענון אוטומטי של הדף בעת שליחת הטופס
+    // שולח את הנתונים ל-store ומספק את פונקציית סגירת הדיאלוג
+    userStore.updateUser(user, closeDialog);
+  };
 
   return (
 <Box

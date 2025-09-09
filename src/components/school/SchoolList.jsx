@@ -130,6 +130,7 @@ const SchoolList = observer(() => {
             <thead style={{ position: 'sticky', top: 0, zIndex: 1, background: '#263238' }}>
               <tr>
                 <th style={thStyle}>שם מוסד</th>
+                <th style={thStyle}>קוד מוסד</th>
                 <th style={thStyle}>מספר כיתות</th>
                 <th style={thStyle}>מספר תלמידים</th>
                 <th style={thStyle}>פעולות</th>
@@ -141,6 +142,7 @@ const SchoolList = observer(() => {
                 schools.map((school) => (
                   <tr key={school.id}>
                     <td style={tdStyle}>{school.nameSchool}</td>
+                    <td style={tdStyle}>{school.barcode}</td>
                     <td style={tdStyle}>{school.numClass}</td>
                     <td style={tdStyle}>{school.numStudent}</td>
                     <td style={tdStyle}>

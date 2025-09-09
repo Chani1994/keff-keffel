@@ -14,13 +14,18 @@ import {
 } from "@mui/material";
 
 const UserLearningReport = observer(({ userId }) => {
+  // קומפוננטה להצגת דו"ח שיעורים למשתמש
+  // observer – מאפשרת לעקוב אחרי שינויים ב-MobX store
+
   useEffect(() => {
+    // אם התקבל userId, נטען נתוני השיעורים עבור המשתמש
     if (userId) {
       lessonStore.fetchLessonRecords(userId);
     }
-  }, [userId]);
+  }, [userId]); // תלוי בשינוי של userId
 
   if (lessonStore.loading)
+    // אם הנתונים עדיין בטעינה, מציג סרגל טעינה והודעה
     return (
       <Box sx={{ textAlign: "center", mt: 4 }}>
         <CircularProgress />
@@ -29,6 +34,7 @@ const UserLearningReport = observer(({ userId }) => {
     );
 
   if (lessonStore.error)
+    // אם התרחשה שגיאה בטעינת הנתונים, מציג הודעת שגיאה
     return (
       <Typography color="error" sx={{ mt: 4, textAlign: "center" }}>
         {lessonStore.error}
@@ -36,6 +42,7 @@ const UserLearningReport = observer(({ userId }) => {
     );
 
   if (lessonStore.lessonRecords.length === 0)
+    // אם אין שיעורים להצגה, מציג הודעה מתאימה
     return (
       <Typography sx={{ mt: 4, textAlign: "center" }}>
         אין נתוני שיעורים להצגה

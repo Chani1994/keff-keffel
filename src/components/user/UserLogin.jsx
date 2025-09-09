@@ -12,23 +12,29 @@ import userStore from '../../store/userStore';
 import '../../css/login.css';
 
 function UserLogin() {
-  const [phone, setPhone] = useState('');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  // קומפוננטה להתחברות משתמש לפי טלפון
+  const [phone, setPhone] = useState(''); // שדה טלפון
+  const [error, setError] = useState(''); // שדה להודעות שגיאה
+  const navigate = useNavigate(); // ניווט בין דפים
 
   const handleLogin = () => {
-    setError('');
-    if ( !phone) {
-      setError('אנא מלא את כל השדות');
+    setError(''); // מאפס הודעת שגיאה קודם כל
+
+    if (!phone) {
+      // בדיקה אם השדה ריק
+      setError('אנא מלא את כל השדות'); // מציג הודעת שגיאה למשתמש
       return;
     }
 
     try {
-       userStore.loginByPhone(phone, navigate);
+      // מנסה להתחבר עם המספר טלפון
+      userStore.loginByPhone(phone, navigate); // פונקציה ב-store שמבצעת התחברות
     } catch (err) {
+      // במקרה של שגיאה במהלך ההתחברות
       setError('שגיאה בהתחברות. ודא שהפרטים נכונים.');
     }
   };
+
 
   return (
 <Box className="login-page" component="form" noValidate>
