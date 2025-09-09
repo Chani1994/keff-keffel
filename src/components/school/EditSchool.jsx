@@ -16,31 +16,39 @@ import {
 import schoolStore from '../../store/schoolStore';
 
 const EditSchool = observer(() => {
-  const navigate = useNavigate();
-  const { schoolId } = useParams();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-useEffect(() => {
-  console.log('🔍 schoolId from useParams:', schoolId);
-}, [schoolId]);
- useEffect(() => {
-  async function fetchData() {
-    setLoading(true);
-    try {
-      await schoolStore.loadSchoolById(schoolId);
-    } catch (error) {
-      console.error("❌ שגיאה בפרטי המוסד:", error);
-      Swal.fire('שגיאה', `שגיאה: ${error.message || error}`, 'error');
-      navigate(-1);
-    } finally {
-      setLoading(false);
-    }
-  }
-  fetchData();
-}, [schoolId, navigate]);
+  const navigate = useNavigate(); // נווט לעמוד אחר
+  const { schoolId } = useParams(); // שלוף מזהות המוסד מה-URL
+  const [loading, setLoading] = useState(false); // מצב טעינה
+  const [errors, setErrors] = useState({}); // שגיאות בטופס
 
+  // לצורך בדיקה – הדפסת מזהה המוסד
+  useEffect(() => {
+    console.log('🔍 schoolId from useParams:', schoolId);
+  }, [schoolId]);
+
+  // טען את פרטי המוסד מהשרת כשנטען הקומפוננט
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true); // התחל טעינה
+      try {
+        await schoolStore.loadSchoolById(schoolId); // טען את המוסד לפי מזהה
+      } catch (error) {
+        console.error("❌ שגיאה בפרטי המוסד:", error);
+        Swal.fire('שגיאה', `שגיאה: ${error.message || error}`, 'error'); // הצג שגיאה
+        navigate(-1); // חזור אחורה
+      } finally {
+        setLoading(false); // סיים טעינה
+      }
+    }
+
+    fetchData();
+  }, [schoolId, navigate]);
+
+  // ✍️ ולידציה לפני שליחה
   const validate = () => {
     const newErrors = {};
+
+    // בדיקה של כל שדה נדרש
     if (!schoolStore.NameSchool) newErrors.NameSchool = 'שדה חובה';
     if (!schoolStore.NumClass || schoolStore.NumClass <= 0)
       newErrors.NumClass = 'מספר כיתות חייב להיות גדול מ-0';
@@ -48,52 +56,58 @@ useEffect(() => {
       newErrors.NumStudent = 'מספר תלמידים חייב להיות גדול מ-0';
     if (!schoolStore.Barcode) newErrors.Barcode = 'שדה חובה';
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(newErrors); // עדכן את השגיאות
+    return Object.keys(newErrors).length === 0; // האם הטופס תקין?
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!validate()) return;
+  // 🚀 שליחה לעדכון
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // מניעת רענון
+    if (!validate()) return; // אם לא תקין – עצור
 
-  setLoading(true);
+    setLoading(true); // התחלת טעינה
 
-  try {
-    const updatedSchool = {
-      nameSchool: schoolStore.NameSchool,
-      barcode: schoolStore.Barcode,
-      numClass: schoolStore.NumClass,
-      numStudent: schoolStore.NumStudent,
-      classList: schoolStore.ClassList,
-      students: schoolStore.students,
-    };
-    await schoolStore.updateSchool(schoolId, updatedSchool);
-    Swal.fire('הצלחה', 'פרטי המוסד עודכנו בהצלחה', 'success');
-    navigate(-1);
-  } catch (error) {
-    Swal.fire('שגיאה', 'אירעה שגיאה בעדכון המוסד', 'error');
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const updatedSchool = {
+        nameSchool: schoolStore.NameSchool,
+        barcode: schoolStore.Barcode,
+        numClass: schoolStore.NumClass,
+        numStudent: schoolStore.NumStudent,
+        classList: schoolStore.ClassList,
+        students: schoolStore.students,
+      };
 
+      await schoolStore.updateSchool(schoolId, updatedSchool); // שלח עדכון לשרת
+      Swal.fire('הצלחה', 'פרטי המוסד עודכנו בהצלחה', 'success'); // הצגת הצלחה
+      navigate(-1); // חזור אחורה
+    } catch (error) {
+      Swal.fire('שגיאה', 'אירעה שגיאה בעדכון המוסד', 'error');
+    } finally {
+      setLoading(false); // סיים טעינה
+    }
+  };
 
+  // שינוי כללי של שדות פשוטים (שם מוסד, מספר כיתות וכו׳)
   const handleChange = (field, value) => {
     schoolStore.setField(field, value);
   };
 
+  // שינוי שדות בכיתה (למשל: שם כיתה או מספר תלמידים)
   const handleClassChange = (index, field, value) => {
     schoolStore.updateClass(index, field, value);
   };
 
+  // שינוי שדה של תלמיד מסוים (למשל: שם או נוכחות)
   const handleStudentChange = (studentIndex, field, value) => {
     schoolStore.students[studentIndex][field] = value;
   };
 
+  // סימון תלמיד כ"נבחר" (checkbox)
   const toggleStudentCheckbox = (index) => {
     schoolStore.toggleStudentChecked(index);
   };
 
+  // 🎨 עיצוב לשדה טקסט
   const inputSx = {
     direction: 'rtl',
     '& .MuiOutlinedInput-root': {
@@ -111,12 +125,12 @@ useEffect(() => {
     },
   };
 
+  // 🎨 עיצוב לתוויות של שדות
   const labelSx = {
     right: 16,
     left: 'auto',
     transformOrigin: 'top right',
-    background:
-      'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
+    background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     fontWeight: 'bold',

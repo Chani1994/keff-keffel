@@ -9,16 +9,28 @@ import adminStore from '../../store/adminStore';
 import schoolStore from '../../store/schoolStore';
 
 const AdminPage = observer(() => {
+  // סטייט למנהל הנוכחי (נטען מה-store)
   const [currentAdmin, setCurrentAdmin] = useState(null);
+
+  // סטייט להצגת תפריט אפשרויות
   const [showOptions, setShowOptions] = useState(false);
+
+  // סטייט להצגת מסך ניהול מנהלים
   const [showManageAdmins, setShowManageAdmins] = useState(false);
+
+  // סטייט לשמירת כפתור שנמצא תחת ריחוף (hover)
   const [hoveredButton, setHoveredButton] = useState(null);
 
+  // מאפשר ניתוב בין דפים
   const navigate = useNavigate();
+
+  // שליפת סוג המנהל מה-localStorage (1 = מנהל-על)
   const adminTypeFromStorage = Number(localStorage.getItem('adminType'));
+
+  // האם המשתמש הוא מנהל-על?
   const isSuperAdmin = adminTypeFromStorage === 1;
 
-  // סגנונות כפתורים
+  // סגנון בסיסי לכפתורים
   const buttonStyle = {
     background: 'transparent',
     color: '#00bcd4',
@@ -35,6 +47,7 @@ const AdminPage = observer(() => {
     textAlign: 'center',
   };
 
+  // סגנון לכפתור כאשר הוא תחת hover
   const hoverStyle = {
     background: 'linear-gradient(90deg, #00bcd4, #e91e63, #ffc107)',
     color: '#fff',
@@ -42,39 +55,45 @@ const AdminPage = observer(() => {
     boxShadow: '0 0 20px #e91e63',
   };
 
-  // טען את currentAdmin מה-store כשיש שינוי
+  // כל פעם שהמנהל משתנה ב־adminStore – נעדכן את הסטייט המקומי
   useEffect(() => {
     setCurrentAdmin(adminStore.currentAdmin);
   }, [adminStore.currentAdmin]);
 
-  // טען מידע מנהל נוכחי מהשרת כשהקומפוננטה נטענת
+  // טעינת פרטי המנהל מהשרת כאשר הקומפוננטה נטענת
   useEffect(() => {
     adminStore.fetchCurrentAdmin();
   }, []);
 
-  // ניתוב אם אין הרשאה מתאימה
+  // אם לא קיים סוג מנהל או שיש שגיאה בפרמטר – ננתב למסך הרשאה לא תקינה
   useEffect(() => {
     if (!adminTypeFromStorage || isNaN(adminTypeFromStorage)) {
-      navigate('/not-authorized'); // שנה לנתיב המתאים לך
+      navigate('/not-authorized'); // ניתן לשנות לנתיב אחר לפי הצורך
     }
   }, [adminTypeFromStorage, navigate]);
 
-  // טען מוסד אם יש
+  // אם למנהל יש מזהה מוסד – נטען את פרטי המוסד מה־store
   useEffect(() => {
     if (currentAdmin?.schoolId) {
       schoolStore.loadSchoolById(currentAdmin.schoolId);
     }
   }, [currentAdmin]);
 
-  // פעולת עריכה מנהל
+  // ניווט למסך עריכת פרטי מנהל
   const handleEdit = () => {
     if (currentAdmin) {
       navigate(`/admin/edit-admin/${currentAdmin.id}`);
     }
   };
 
+  // הצגה/הסתרה של אפשרויות בתפריט
   const toggleOptions = () => setShowOptions((prev) => !prev);
+
+  // הצגה/הסתרה של ממשק ניהול מנהלים
   const toggleManageAdmins = () => setShowManageAdmins((prev) => !prev);
+
+
+
 
   return (
     
@@ -324,8 +343,20 @@ const AdminPage = observer(() => {
                   </IconButton>
                 </div>
               )}
+              
+              <button
+  style={hoveredButton === 'addUser' ? { ...buttonStyle, ...hoverStyle } : buttonStyle} // הערך שונה
+  onMouseEnter={() => setHoveredButton('addUser')} // הערך שונה
+  onMouseLeave={() => setHoveredButton(null)}
+  onClick={() => navigate('/admin/add-user')}
+>
+  הוספת תלמיד
+</button>
             </div>
           )}
+  
+
+
         </div>
 
         <div

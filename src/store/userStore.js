@@ -181,32 +181,42 @@ class UserStore {
   }
 
   // הוספת משתמש חדש
-  async addUser(user) {
-    try {
-      const exists = this.users.some(u => u.phone === user.phone);
-      if (exists) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'שגיאה',
-          text: 'משתמש עם מספר טלפון זה כבר קיים',
-          confirmButtonText: 'אישור',
-        });
-        return null;
-      }
-
-      const response = await axios.post('https://localhost:7245/api/Users/AddUser', user);
-      const addedUser = response.data;
-
-      runInAction(() => {
-        this.users.push(addedUser);
+ async addUser(user) {
+  try {
+    // בדיקה מול השרת אם כבר קיים משתמש עם אותו טלפון
+    const checkResponse = await axios.get(`https://localhost:7245/api/Users/getByPhone/${encodeURIComponent(user.phone)}`);
+    if (checkResponse.data) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'משתמש עם מספר טלפון זה כבר קיים',
+        confirmButtonText: 'אישור',
       });
-
-      return addedUser;
-    } catch (error) {
-      console.error('שגיאה בהוספת משתמש:', error);
+      return null;
+    }
+  } catch (error) {
+    if (error.response?.status !== 404) { // 404 = לא נמצא, כלומר אפשר להוסיף
+      console.error('שגיאה בבדיקת משתמש קיים:', error);
       throw error;
     }
   }
+
+  // אם עברנו את הבדיקה – מוסיפים את המשתמש
+  try {
+    const response = await axios.post('https://localhost:7245/api/Users/AddUser', user);
+    const addedUser = response.data;
+
+    runInAction(() => {
+      this.users.push(addedUser);
+    });
+
+    return addedUser;
+  } catch (error) {
+    console.error('שגיאה בהוספת משתמש:', error);
+    throw error;
+  }
+}
+
 
   // הרשמה ראשונית לפני תשלום
   async register(user, navigate) {

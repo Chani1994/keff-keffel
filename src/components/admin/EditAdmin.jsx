@@ -26,9 +26,11 @@ import adminStore from '../../store/adminStore';
 
 const EditAdmin = observer(() => {
 
+  // 🟢 קבלת פרמטר מה-URL (id של המנהל לעריכה)
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // 🟢 סטייט לשמירת כל פרטי המנהל
   const [adminData, setAdminData] = useState({
     id: 0,
     nameAdmin: '',
@@ -40,60 +42,71 @@ const EditAdmin = observer(() => {
     nameSchool: ''
   });
 
+  // 🟢 סטייט להצגת סיסמה (הסתרה/הצגה)
   const [showPassword, setShowPassword] = useState(false);
-const [idSchool, setIdSchool] = useState('');
-useEffect(() => {
-  schoolStore.fetchSchools(); // נטען מוסדות בהתחלה
-}, []);
 
-useEffect(() => {
-  adminStore.fetchAdmins().then(() => {
-    const current = adminStore.getAdminById(id);
-    if (current) {
-      setAdminData({ ...current });
-      setIdSchool(current.idSchool); // נשתמש ב-idSchool (הברקוד)
+  // 🟢 סטייט לשמירת המזהה של בית הספר (ברקוד)
+  const [idSchool, setIdSchool] = useState('');
+
+  // 🟢 טעינת מוסדות בתחילת הקומפוננטה
+  useEffect(() => {
+    schoolStore.fetchSchools(); // נטען מוסדות מה-store
+  }, []);
+
+  // 🟢 טעינת פרטי המנהל לפי ה-id מה-URL
+  useEffect(() => {
+    adminStore.fetchAdmins().then(() => { // קודם טוענים את כל המנהלים
+      const current = adminStore.getAdminById(id); // מוצאים את המנהל הרצוי
+      if (current) {
+        setAdminData({ ...current }); // מעדכנים את סטייט המנהל
+        setIdSchool(current.idSchool); // נשמר idSchool (לברקוד)
+      }
+    });
+  }, [id]);
+
+  // 🟢 עדכון idSchool לפי שם בית הספר
+  useEffect(() => {
+    if (adminData && adminData.nameSchool && schoolStore.schools.length > 0) {
+      const foundSchool = schoolStore.schools.find(s => s.nameSchool === adminData.nameSchool);
+      if (foundSchool) {
+        setIdSchool(foundSchool.barcode); // מעדכנים את הברקוד לפי שם בית הספר
+      }
     }
-  });
-}, [id]);
+  }, [adminData, schoolStore.schools]);
 
-useEffect(() => {
-  if (adminData && adminData.nameSchool && schoolStore.schools.length > 0) {
-    const foundSchool = schoolStore.schools.find(s => s.nameSchool === adminData.nameSchool);
-    if (foundSchool) {
-      setIdSchool(foundSchool.barcode);
-    }
-  }
-}, [adminData, schoolStore.schools]);
-
-
+  // 🟢 עדכון נתונים בשדות הטופס
   const handleChange = (e) => {
     const { name, value } = e.target;
     setAdminData((prev) => ({
       ...prev,
-      [name]: name === 'adminType' ? Number(value) : value
+      [name]: name === 'adminType' ? Number(value) : value // ממירים adminType למספר
     }));
   };
 
+  // 🟢 שמירה ועדכון מנהל
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await adminStore.updateAdmin(adminData);
-    navigate('/admin');
+    await adminStore.updateAdmin(adminData); // מעדכנים ב-store ובשרת
+    navigate('/admin'); // ניווט חזרה לעמוד המנהלים
   };
-const handleSchoolChange = (e) => {
-  const value = e.target.value;
-  setIdSchool(value);
 
-  const selectedSchool = schoolStore.schools.find(s => s.barcode === value);
-  setAdminData(prev => ({
-    ...prev,
-    idSchool: value,
-    nameSchool: selectedSchool?.nameSchool || ''
-  }));
-};
+  // 🟢 שינוי מוסד בחירה מה-select
+  const handleSchoolChange = (e) => {
+    const value = e.target.value;
+    setIdSchool(value); // מעדכן את הברקוד
+    const selectedSchool = schoolStore.schools.find(s => s.barcode === value);
+    setAdminData(prev => ({
+      ...prev,
+      idSchool: value, // שומר את ברקוד
+      nameSchool: selectedSchool?.nameSchool || '' // מעדכן גם את שם בית הספר
+    }));
+  };
 
+  // 🟢 הצגת או הסתרת סיסמה
   const toggleShowPassword = () => {
     setShowPassword((show) => !show);
   };
+
 
 
   return (

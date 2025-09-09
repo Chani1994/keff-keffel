@@ -22,6 +22,7 @@ import UserData from './components/user/UserData.jsx';
 
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Navigate } from 'react-router-dom';
+import AddUser from './components/user/AddUser.jsx';
 
 const routesArray = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ const routesArray = createBrowserRouter([
           { path: 'add-admin', element: <AddAdmin /> },
           { path: 'edit-admin/:id', element: <EditAdmin /> },
           { path: 'all-admins', element: <AllAdmin /> },
+           { path: 'add-user', element: <AddUser /> },
           { path: 'user-data', element: <UserData /> },
         ],
       },

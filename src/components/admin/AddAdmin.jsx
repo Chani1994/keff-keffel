@@ -18,32 +18,36 @@ import {
 import adminStore from '../../store/adminStore';
 import schoolStore from '../../store/schoolStore';
 
+// קומפוננטה להוספת מנהל חדש - משתמשת ב-MobX לצפייה בשינויים
 const AddAdmin = observer(() => {
+  // סטייטים לכל שדות הטופס
   const [nameAdmin, setNameAdmin] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
   const [fax, setFax] = useState('');
   const [phoneAdmin, setPhoneAdmin] = useState('');
-  const [adminType, setAdminType] = useState(1);
+  const [adminType, setAdminType] = useState(1); // ברירת מחדל למנהל-על
   const [idSchool, setIdSchool] = useState('');
-const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // מצב טעינה
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ניתוב לדפים אחרים
 
+  // אפקט שמאפס את כל השדות עם טעינת הרכיב
   useEffect(() => {
     setNameAdmin('');
     setPassword('');
     setEmail('');
     setFax('');
     setPhoneAdmin('');
-    setAdminType('');
+setAdminType(1);
     setIdSchool('');
   }, []);
 
+  // אפקט לטעינת מוסדות מהשרת דרך ה־schoolStore
   useEffect(() => {
     const fetchSchools = async () => {
       try {
-        await schoolStore.fetchSchools();
+        await schoolStore.fetchSchools(); // טוען את רשימת המוסדות
       } catch (error) {
         console.error("שגיאה בהבאת מוסדות:", error);
       }
@@ -51,72 +55,82 @@ const [loading, setLoading] = useState(false);
     fetchSchools();
   }, []);
 
+  // פונקציית שליחה של הטופס
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault(); // מונע רענון דף
 
-  const errors = [];
+    const errors = [];
 
-  if (!nameAdmin.trim()) errors.push('יש להזין שם מנהל');
-  if (!password.trim()) errors.push('יש להזין סיסמה');
-  if (!email.trim()) errors.push('יש להזין אימייל');
-  if (!phoneAdmin.trim()) errors.push('יש להזין טלפון');
-  if (!adminType) errors.push('יש לבחור סוג מנהל');
+    // בדיקות תקינות (ולידציה) על השדות
+    if (!nameAdmin.trim()) errors.push('יש להזין שם מנהל');
+    if (!password.trim()) errors.push('יש להזין סיסמה');
+    if (!email.trim()) errors.push('יש להזין אימייל');
+    if (!phoneAdmin.trim()) errors.push('יש להזין טלפון');
+    if (!adminType) errors.push('יש לבחור סוג מנהל'); // ⚠️ אם adminType = 0 זה יחשב כ-false
 
-  if (errors.length > 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'שדות חסרים',
-      html: errors.map((err) => `<p style="text-align:right">${err}</p>`).join(''),
-      confirmButtonText: 'אישור',
-    });
-    return;
-  }
+    // הצגת הודעת שגיאה אם יש שדות חסרים
+    if (errors.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'שדות חסרים',
+        html: errors.map((err) => `<p style="text-align:right">${err}</p>`).join(''),
+        confirmButtonText: 'אישור',
+      });
+      return;
+    }
 
-  setLoading(true);
+    setLoading(true); // מציין שהשליחה החלה
 
-  const newAdmin = {
-    nameAdmin,
-    password,
-    email,
-    fax, // יכול להיות ריק
-    phoneAdmin,
-    idSchool, // יכול להיות ריק
-    adminType,
+    // יצירת אובייקט מנהל חדש
+    const newAdmin = {
+      nameAdmin,
+      password,
+      email,
+      fax,       // יכול להיות ריק
+      phoneAdmin,
+      idSchool,  // יכול להיות ריק
+      adminType,
+    };
+
+    try {
+      // שליחת בקשה להוספת מנהל
+      await adminStore.addAdmin(newAdmin, navigate);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'מנהל נוסף בהצלחה!',
+        confirmButtonText: 'סגור',
+      });
+
+      // איפוס השדות לאחר הצלחה
+      setNameAdmin('');
+      setPassword('');
+      setEmail('');
+      setFax('');
+      setPhoneAdmin('');
+      setIdSchool('');
+    setAdminType(1);
+
+    } catch (error) {
+      // טיפול בשגיאה בהוספה
+      Swal.fire({
+        icon: 'error',
+        title: 'שגיאה',
+        text: 'אירעה שגיאה בעת הוספת מנהל',
+      });
+    } finally {
+      setLoading(false); // סיום מצב טעינה
+    }
   };
 
-  try {
-    await adminStore.addAdmin(newAdmin, navigate);
-    Swal.fire({
-      icon: 'success',
-      title: 'מנהל נוסף בהצלחה!',
-      confirmButtonText: 'סגור',
-    });
-
-    // איפוס שדות
-    setNameAdmin('');
-    setPassword('');
-    setEmail('');
-    setFax('');
-    setPhoneAdmin('');
-    setIdSchool('');
-    setAdminType('');
-  } catch (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'שגיאה',
-      text: 'אירעה שגיאה בעת הוספת מנהל',
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-const handleBarcodeScan = (scannedCode) => {
-  const school = schoolStore.schools.find(s => s.barcode === scannedCode);
-  if (school) {
-    setSchoolName(school.name); // זהו השם שתוצג בשדה
-    // אפשר גם להכניס את זה ל־userStore.NameSchool אם צריך
-  }
-};
+  // פונקציה שמזהה ברקוד של מוסד ומציבה את שם המוסד
+  const handleBarcodeScan = (scannedCode) => {
+    const school = schoolStore.schools.find(s => s.barcode === scannedCode);
+    if (school) {
+      setSchoolName(school.name); // ⚠️ משתנה שלא מוגדר בקומפוננטה
+      // אפשרות: setIdSchool(school.id); כדי לשמור את הזיהוי בפועל
+    }
+  };
 
 
   return (

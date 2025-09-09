@@ -15,27 +15,47 @@ import adminStore from '../../store/adminStore';
 import '../../css/login.css';
 
 function AdminLogin() {
+  // סטייט לשם משתמש
   const [username, setUsername] = useState('');
+  
+  // סטייט לסיסמה
   const [password, setPassword] = useState('');
+  
+  // סטייט להצגת שגיאה (אם יש)
   const [error, setError] = useState('');
+  
+  // סטייט להצגת הסיסמה (true אם לראות את הסיסמה)
   const [showPassword, setShowPassword] = useState(false);
+
+  // מאפשר ניתוב בין דפים
   const navigate = useNavigate();
 
+  // החלפת מצב הצגת סיסמה (מוסתר/גלוי)
   const handleClickShowPassword = () => setShowPassword((prev) => !prev);
+
+  // מונע פעולה ברירת מחדל בלחיצה עם העכבר על כפתור הצגת סיסמה
   const handleMouseDownPassword = (e) => e.preventDefault();
 
+  // טיפול בלחיצה על כפתור התחברות
   const handleLogin = async () => {
-    setError('');
+    setError(''); // איפוס שגיאה קיימת
+
+    // בדיקה אם שדות חובה ריקים
     if (!username || !password) {
       setError('אנא מלא את כל השדות');
       return;
     }
+
     try {
+      // ניסיון התחברות דרך ה־adminStore
       await adminStore.login({ nameAdmin: username, password }, navigate);
     } catch (err) {
+      // שגיאה בהתחברות
       setError('שגיאה בהתחברות');
     }
   };
+
+
 
   return (
 <Box className="login-page" component="form" noValidate>
