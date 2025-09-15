@@ -191,7 +191,7 @@ const AddUser = observer(() => {
               </TextField>
             </Grid>
 
-            <Grid item xs={12} sm={4}>
+            {/* <Grid item xs={12} sm={4}>
               <TextField
                 label="תאריך התחלה"
                 type="datetime-local"
@@ -229,7 +229,7 @@ const AddUser = observer(() => {
                 <option value="true">כן</option>
                 <option value="false">לא</option>
               </TextField>
-            </Grid>
+            </Grid> */}
           </Grid>
 
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', gap: 2, mt: 4 }}>

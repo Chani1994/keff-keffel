@@ -308,7 +308,7 @@ class AdminStore {
   }
 }
 
-// ייצוא מופע אחד של החנות
+// ייצוא מופע אחד  
 const adminStore = new AdminStore();
 export default adminStore;
 
