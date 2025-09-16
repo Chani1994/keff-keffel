@@ -185,7 +185,7 @@ class SchoolStore {
                   paymentStatus: student.paymentStatus || 0,
                   subscriptionStartDate: student.subscriptionStartDate || new Date().toISOString(),
                   subscriptionEndDate: student.subscriptionEndDate || new Date().toISOString(),
-                  isActive: student.isActive !== undefined ? student.isActive : true,
+                  isActive: student.isActive !== undefined ? student.isActive : false,
                   index: student.index || 0,
                   success: student.success || 0,
                 });
